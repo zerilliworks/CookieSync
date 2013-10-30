@@ -118,7 +118,7 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
 
         // Do the deletion and redirect to dashboard.
         $s->delete();
-        return Redirect::to('mysaves');
+        return Redirect::to('mysaves')->with('info', View::make('partials.undelete')->render());
     }));
 
 
@@ -211,6 +211,21 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
 
         Session::flash('goodbye', 'yes');
         return Redirect::to('goodbye');
+    }));
+
+    Route::post('mysaves/undelete', array('before' => 'csrf', function()
+    {
+        $lazarusSave = Auth::user()->saves()->onlyTrashed()->orderBy('deleted_at', 'desc')->first();
+
+        if($lazarusSave)
+        {
+            $lazarusSave->restore();
+            return Redirect::to('mysaves')->with('success', 'Save data restored!');
+        }
+        else
+        {
+            App::abort(500);
+        }
     }));
 
 

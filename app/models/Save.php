@@ -8,6 +8,7 @@
 class Save extends Eloquent {
 
     protected $fillable = array('save_data');
+    protected $softDelete = true;
     public $gameData = array();
 
     public static function boot()
