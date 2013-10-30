@@ -88,7 +88,7 @@
 <form class="form-signup" method="POST" action="access">
     <h1 style="text-align: center">CookieSync</h1>
 
-    <h4 style="text-align: center" class="text-muted">Which is by Zerilliworks, not that anyone cares.</h4>
+    <h4 style="text-align: center" class="text-muted">For dopes that Cookie Click everywhere.</h4>
 
     @if( $errors->any() )
 

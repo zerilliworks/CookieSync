@@ -70,7 +70,7 @@ Route::post('access', function() {
     }
 
     // Go to dashboard
-    return Redirect::to('mysaves');
+    return Redirect::intended('mysaves');
 });
 
 /*
