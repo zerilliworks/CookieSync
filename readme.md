@@ -1,21 +1,20 @@
-## Laravel PHP Framework
+## Cookie Sync
+### A Silly Application to Store Cookie Clicker Saves
 
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/version.png)](https://packagist.org/packages/laravel/framework) [![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.png)](https://packagist.org/packages/laravel/framework) [![Build Status](https://travis-ci.org/laravel/framework.png)](https://travis-ci.org/laravel/framework)
+This application is the result of some weekend tinkering after beoming sick of emailing Cookie Clicker save data to myself.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, and caching.
+CookieSync is written PHP using Laravel. It is capable of decoding Cookie Clicker save data (mostly) and keeping
+track of saves for each user. Log in or create an account in one step to start saving. Very little data is collected --
+It's pretty much anonymous. CookieSync does incorporate a sharing feature to make saved games public with a shortened
+link.
 
-Laravel aims to make the development process a pleasing one for the developer without sacrificing application functionality. Happy developers make the best code. To this end, we've attempted to combine the very best of what we have seen in other web frameworks, including frameworks implemented in other languages, such as Ruby on Rails, ASP.NET MVC, and Sinatra.
+The application has a simple Bootstrap web interface to stretch a thin skin over the backend for now. A better
+interface is on the short part of the long list of upgrades.
 
-Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
+Though the migrations specify MySQL engines, the application is database-agnostic and seriously simple.
 
-## Official Documentation
+Because of its simplicity, you can clone this sucker, do `php artisan serve` and hit the ground running. In fact, the 
+testing version is just stored in my Dropbox and run that way. So if you're the paranoid type and don't trust me
+with your saves, then you are free to run it privately. *(In fact, it runs pretty great with Dropbox doing the syncing.)*
 
-Documentation for the entire framework can be found on the [Laravel website](http://laravel.com/docs).
-
-### Contributing To Laravel
-
-**All issues and pull requests should be filed on the [laravel/framework](http://github.com/laravel/framework) repository.**
-
-### License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+It is currently hosted at [cookiesync.zerilliworks.net](http://cookiesync.zerilliworks.net).
