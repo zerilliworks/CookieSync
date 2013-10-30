@@ -317,7 +317,7 @@ View::composer('mysaves', function($view)
 
     if($c = $user->latestSave()) {
 
-        $view->with('latestSaveDate', $c->updated_at->diffForHumans());
+        $view->with('latestSaveDate', $c->created_at->diffForHumans());
     }
     else {
         $view->with('latestSaveDate', 'None');
