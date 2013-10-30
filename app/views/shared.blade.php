@@ -1,19 +1,7 @@
 @extends('layout')
 
 @section('body')
-<nav class="navbar navbar-inverse" role="navigation">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-        <a class="navbar-brand" href="/about">CookieSync</a>
-    </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse navbar-ex1-collapse">
-        <ul class="nav navbar-nav">
-            <li class="active"><a href="/mysaves">Home</a></li>
-        </ul>
-    </div><!-- /.navbar-collapse -->
-</nav>
+@include('partials.navbar')
 <div class="page-header">
     <h1>View Save Data <small>shared by {{ $save->user->name }}</small></h1>
 </div>

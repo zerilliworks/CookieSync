@@ -1,23 +1,7 @@
 @extends('layout')
 
 @section('body')
-<div class="col-md-8 col-md-offset-2 col-xs-12">
-    <nav class="navbar navbar-inverse" role="navigation">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/about">CookieSync</a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse navbar-ex1-collapse">
-            <ul class="nav navbar-nav">
-                <li class=""><a href="/mysaves">My Saves</a></li>
-                <li class="active"><a href="/options">Options</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="/logout">Log Out</a></li>
-        </div><!-- /.navbar-collapse -->
-    </nav>
+@include('partials.navbar')
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <h3 class="panel-title">Options for Your Account</h3>
