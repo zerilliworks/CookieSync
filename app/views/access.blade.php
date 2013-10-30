@@ -145,7 +145,7 @@
             <li>Better Cookie Clicker save format support (reading achievements, upgrades, etc.)</li>
             <li>Stat tracking and career progress</li>
             <li>Slick, slick graphs</li>
-            <li>Sharing saved games</li>
+            <li><del>Sharing saved games</del> Use the share icon!</li>
             <li>Less Shitty interface design</li>
         </ol>
     </div>
