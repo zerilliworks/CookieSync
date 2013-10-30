@@ -30,8 +30,26 @@ class Save extends Eloquent {
 
     public function isShared()
     {
-        if($this->hasOne('SharedSave')) {
-            return true;
+        return ($this->is_shared == 0)? false : true;
+    }
+
+    public function makePublic()
+    {
+        if($this->isShared())
+        {
+            // It's already shared, so don't repeat the process
+            // just return the current shared instance.
+            return $this->sharedInstance;
+        }
+
+        $shr = new SharedSave();
+        $shr->save_id = $this->id;
+        $this->sharedInstance()->save($shr);
+        if($this->save())
+        {
+            $this->is_shared = 1;
+            $this->save();
+            return $shr;
         }
         else
         {
@@ -39,12 +57,25 @@ class Save extends Eloquent {
         }
     }
 
-    public function makePublic()
+    public function makePrivate()
     {
-        $shr = new SharedSave();
-        $shr->save_id = $this->id;
-        $shr->save();
-        return $shr;
+        if(!$this->isShared())
+        {
+            // It's not shared, so forget about it.
+            return false;
+        }
+
+
+        if($this->sharedInstance->delete())
+        {
+            $this->is_shared = 0;
+            $this->save();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public function sharedInstance()
