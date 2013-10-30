@@ -14,7 +14,14 @@
 Route::get('/', function()
 {
     // Send them to the login page
-	return Redirect::to('access');
+    if(Auth::guest())
+    {
+        return Redirect::to('access');
+    }
+    else
+    {
+        return Redirect::to('mysaves');
+    }
 });
 
 
