@@ -12,7 +12,8 @@
  * @param      $pattern
  * @param bool $if_true
  * @param bool $if_false
+ * @return mixed
  */
-function if_page($pattern, $if_true = true, $if_false = false) {
-
+function if_page($pattern, $if_true = null, $if_false = null) {
+    return (Request::is($pattern))? $if_true : $if_false;
 }
