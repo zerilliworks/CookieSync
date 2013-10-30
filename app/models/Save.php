@@ -16,6 +16,7 @@ class Save extends Eloquent {
 
         Save::restoring(function($model)
         {
+            // FIXME: for some reason, this does not automatically decode game data.
             $model->decode();
             return true;
         });
@@ -72,20 +73,70 @@ class Save extends Eloquent {
         return $this->prettyNumbers($this->gameStat('alltime_cookies'));
     }
 
+    public function isGrandmapocalypse()
+    {
+
+    }
+
+    /**
+     * Decode the raw save data.
+     *
+     * Cookie Clicker saves are Base64-encoded strings delimited by a pipe ("|").
+     * It is a serialized output of game variables, which due to the design of the
+     * game are unlikely to change. This method decodes the string and explodes it
+     * into PHP arrays; it then fills a gameData array with these data. Return true
+     * if decoding was successful, or false if anything failed.
+     *
+     * See also: $this->gameStat()
+     *
+     * @return bool
+     */
     public function decode()
     {
         try {
             $data = explode('|', base64_decode($this->data()));
             /**
+             *  After exploding, the game data is broken up like this:
+             *
              *  array[0] => game version
+             *
              *  array[1] => null
-             *  array[2] => game dates (startDate;fullDate;lastDate)
-             *  array[3] => prefs (111111){particles?,numbers?,autosave?,autoupdate?,milk?,fancyGraphics?}
-             *  array[4] => game statistics (cookies in bank;all-time cookies earned;cookie clicks;golden cookie clicks;
-             *              handmade cookies;missed golden cookies;background type;milk type;cookies reset;elder wrath;
-             *              pledges;pledge time left;next research;research time left;times reset;golden clicks this session;
-             *  array[5] => game buildings (how many owned,how many bought,how many cookies produced,
-             *                              is special unlocked?;) * number of buildings
+             *
+             *  array[2] => game dates : semicolon-delimited list of timestamps
+             *           ---
+             *           => [0 => startDate, 1 => fullDate, 2 => lastDate]
+             *
+             *
+             *  array[3] => prefs : sequence of booleans, 0 or 1
+             *           ---
+             *           => [0 => particles?, 1 => numbers?, 2 => autosave?, 3 => milk?, 4 => fancyGraphics?]
+             *
+             *
+             *  array[4] => game statistics : semicolon-delimited string of numbers
+             *           ---
+             *           => [0 => cookiesBaked, 1 => allTimeCookies, 2 => cookieClicks, 3 => allTimeGoldenClicks,
+             *               4 => handmadeCookies, 5 => missedGoldenCookies, 6 => backgroundType, 7 => milkType,
+             *               8 => cookiesReset, 9 => elderWrath, 10 => pledges, 11 => pledgeTimeLeft, 12 => nextResearch,
+             *               13 => researchTimeLeft, 14 => timesReset, 15 => goldenCookieClicks
+             *              ]
+             *
+             *
+             *  array[5] => game buildings : a semicolon-delimited list of buildings, each section containing
+             *              a comma-separated list of numbers
+             *           ---
+             *           => [0 => cursors[0 => howManyOwned, 1 => howManyBought, 2 => cookiesProduced, 3 => special?],
+             *               1 => grandmas[0 => howManyOwned, 1 => howManyBought, 2 => cookiesProduced, 3 => special?],
+             *               2 => farms[...],
+             *               3 => factories[...],
+             *               4 => mines[...],
+             *               5 => shipments[...],
+             *               6 => labs[...],
+             *               7 => portals[...],
+             *               8 => timemachines[...],
+             *               9 => condensers[...],
+             *              ]
+             *
+             *
              *  array[6] => game upgrades
              *  array[7] => game achievements
              */
@@ -98,6 +149,20 @@ class Save extends Eloquent {
             $this->gameData['date_saved'] = \Carbon\Carbon::createFromTimestamp($dates[2]);
             $this->gameData['banked_cookies'] = $cookieStats[0];
             $this->gameData['alltime_cookies'] = $cookieStats[1];
+            $this->gameData['cookie_clicks'] = $cookieStats[2];
+            $this->gameData['alltime_golden_cookie_clicks'] = $cookieStats[3];
+            $this->gameData['handmade_cookies'] = $cookieStats[4];
+            $this->gameData['missed_golden_cookies'] = $cookieStats[5];
+            $this->gameData['background_type'] = $cookieStats[6];
+            $this->gameData['milk_type'] = $cookieStats[7];
+            $this->gameData['cookies_reset'] = $cookieStats[8];
+            $this->gameData['elder_wrath'] = $cookieStats[9];
+            $this->gameData['pledge_count'] = $cookieStats[10];
+            $this->gameData['pledge_time_left'] = $cookieStats[11];
+            $this->gameData['next_research'] = $cookieStats[12];
+            $this->gameData['research_time_left'] = $cookieStats[13];
+            $this->gameData['times_reset'] = $cookieStats[14];
+            $this->gameData['golden_cookie_clicks'] = $cookieStats[15];
 
             $buildings = explode(';', $data[5]);
             $cursors = explode(',', $buildings[0]);
@@ -121,8 +186,17 @@ class Save extends Eloquent {
             $this->gameData['buildings.portals']        = $portals[0];
             $this->gameData['buildings.time_machines']  = $timeMachines[0];
             $this->gameData['buildings.condensers']     = $condensers[0];
-        } catch (ErrorException $e) {
 
+            /** !==============================================================!
+             *
+             *  TODO: implement a PHP equivalent of Cookie Clicker's (un)compressBin methods.
+             *        PHP is not privy to the same string manipulation methods as JavaScript,
+             *        so (un)compressing arrays like CC does requires some finagling.
+             * */
+
+            return true;
+        } catch (ErrorException $e) {
+            return false;
         }
 
     }
