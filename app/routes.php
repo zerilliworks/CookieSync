@@ -175,7 +175,7 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
      * Show the page with the CookieSync bookmarklet
      */
     Route::get('bookmarklet', function() {
-        return View::make('bookmark.customize');
+        return View::make('bookmarklet');
     });
 
 
