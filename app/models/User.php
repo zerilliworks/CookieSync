@@ -56,7 +56,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     public function latestSave()
     {
-        return $this->saves()->orderBy('updated_at', 'desc')->first();
+        return $this->saves()->orderBy('created_at', 'desc')->first();
     }
 
     public function addSave($data)
