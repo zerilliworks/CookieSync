@@ -315,6 +315,9 @@ View::composer('mysaves', function($view)
     $user = Auth::user();
     $view->with('saveCount',$user->saves()->count());
 
+    // FIXME: This uses two SQL queries to find the latest save date when one would do.
+    // TODO: Use one query to grab all saves and then pick out the newest one.
+
     if($c = $user->latestSave()) {
 
         $view->with('latestSaveDate', $c->created_at->diffForHumans());

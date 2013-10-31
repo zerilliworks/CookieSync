@@ -33,7 +33,7 @@
     $save->decode();
     $allStatsHtml = implode('<br>', explode("\n", $save->allStats()));
     ?>
-    <tr>
+    <tr class="{{ ($save->isGrandmapocalypse()) ? 'danger' : '' }}">
         <td>
             {{ $save->created_at->diffForHumans() }}
         </td>

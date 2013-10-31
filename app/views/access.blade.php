@@ -149,6 +149,7 @@
             <li>Less Shitty interface design</li>
         </ol>
     </div>
+    <small class="text-muted">{{ App::environment() }}</small>
 </div>
 @stop
 

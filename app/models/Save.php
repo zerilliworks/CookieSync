@@ -107,7 +107,7 @@ class Save extends Eloquent {
 
     public function isGrandmapocalypse()
     {
-
+        return ($this->gameStat('elder_wrath') == 1) ? true : false;
     }
 
     /**
