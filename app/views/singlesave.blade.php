@@ -1,5 +1,27 @@
 @extends('layout')
 
+@section('css')
+<link href='http://fonts.googleapis.com/css?family=Underdog' rel='stylesheet' type='text/css'>
+<style type="text/css">
+    .wrath {
+        text-align: center;
+        color: white;
+        background-color: darkred;
+        box-shadow: inset 0 0 10px black;
+        background-image: url('/images/WrathGlasses.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: padding-box;
+        padding: 2em 0;
+    }
+
+    .wrath > h1 {
+        font-family: 'Underdog', cursive;
+    }
+</style>
+@stop
+
 @section('body')
 @include('partials.navbar')
 <div class="page-header">
@@ -21,6 +43,11 @@
     </tr>
     </tbody>
 </table>
+@if($save->isGrandmapocalypse())
+    <div class="panel wrath">
+        <h1>Elder Wrath has Taken Hold...</h1>
+    </div>
+@endif
 <table class="table-bordered table table-condensed">
     <tbody>
     <tr>
