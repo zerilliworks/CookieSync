@@ -326,7 +326,7 @@ View::composer('mysaves', function($view)
         $view->with('latestSaveDate', 'None');
     }
 
-    $view->with('saves', $user->saves()->orderBy('created_at', 'desc')->get());
+    $view->with('saves', $user->saves()->orderBy('created_at', 'desc')->paginate(30));
 
 });
 
