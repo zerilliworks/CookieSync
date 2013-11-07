@@ -7,7 +7,7 @@
     <meta name="description" content="CookieSync - keep your Cookie Clicker saves updated wherever you go">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/css/m/bootstrap.min.css"/>
     <link href='http://fonts.googleapis.com/css?family=Kavoon' rel='stylesheet' type='text/css'>
     @yield('css')
 </head>
@@ -25,7 +25,7 @@
 </div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
+<script src="/js/m/bootstrap.min.js"></script>
 
 <script type="text/javascript">
     var _gauges = _gauges || [];
