@@ -5,7 +5,7 @@
 // Time: 11:11 PM
 // For: CookieSync
 
-class Save extends Eloquent {
+class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInterface {
 
     protected $fillable = array('save_data');
     protected $softDelete = true;
@@ -107,7 +107,7 @@ class Save extends Eloquent {
 
     public function isGrandmapocalypse()
     {
-        return ($this->gameStat('elder_wrath') == 1) ? true : false;
+        return ($this->gameStat('elder_wrath') >= 1) ? true : false;
     }
 
     /**
@@ -288,6 +288,18 @@ class Save extends Eloquent {
 
             return substr($output, 0, -1);
         }
+
+    }
+
+    /**
+     * Convert the object to its JSON representation.
+     *
+     * @param  int $options
+     *
+     * @return string
+     */
+    public function toJson($options = 0)
+    {
 
     }
 }
