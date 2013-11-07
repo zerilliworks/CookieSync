@@ -6,4 +6,5 @@ composer.lock
 Thumbs.db
 .idea/
 /app/storage/*/
-/app/database/*.sqlite
+/app/database/production.sqlite
+/app/database/testing.sqlite
