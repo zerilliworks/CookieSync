@@ -24,22 +24,38 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     }
 
 
+    /**
+     * Get the parent user of this save
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo('User');
     }
 
+    /**
+     * Check whether this save is public or not
+     * @return bool
+     */
     public function isShared()
     {
         return ($this->is_shared == 0)? false : true;
     }
 
+    /**
+     * Create a public link for a save. If it is already public, return the
+     * existing shared link.
+     *
+     * @return bool|SharedSave
+     */
     public function makePublic()
     {
         if($this->isShared())
         {
             // It's already shared, so don't repeat the process
             // just return the current shared instance.
+            Log::info("Save (id $this->id) is already shared.");
             return $this->sharedInstance;
         }
 
@@ -48,48 +64,73 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         $this->sharedInstance()->save($shr);
         if($this->save())
         {
+            Log::info("Save (id $this->id) is now shared.");
             $this->is_shared = 1;
             $this->save();
             return $shr;
         }
         else
         {
+            Log::error("Save (id $this->id) could not be shared.");
             return false;
         }
     }
 
+    /**
+     * Remove a public link for a save. If it is already private, do nothing.
+     *
+     * @return bool
+     */
     public function makePrivate()
     {
         if(!$this->isShared())
         {
             // It's not shared, so forget about it.
+            Log::info("Save (id $this->id) is not shared.");
             return false;
         }
 
 
         if($this->sharedInstance->delete())
         {
+            Log::info("Save (id $this->id) was successfully made private.");
             $this->is_shared = 0;
             $this->save();
             return true;
         }
         else
         {
+            Log::error("Save (id $this->id) could not be made private.");
             return false;
         }
     }
 
+    /**
+     * Get the instance of the shared save metadata
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function sharedInstance()
     {
         return $this->hasOne('SharedSave');
     }
 
+    /**
+     * Get the original raw save data, just as Cookie Clicker exported it
+     *
+     * @return mixed
+     */
     public function data()
     {
         return $this->attributes['save_data'];
     }
 
-    public function cookies($pretty = false)
+    // FIXME: Do not handle prettification here, extract $this->prettyNumbers() method to a more generic place
+    /**
+     * @param bool $pretty
+     *
+     * @return null|string
+     */public function cookies($pretty = false)
     {
         if(!$pretty) {
             return $this->gameStat('banked_cookies');
@@ -100,12 +141,21 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         }
     }
 
-    public function allTimeCookies()
+    /**
+     * Returns the all-time number of baked cookies
+     *
+     * @return string|integer
+     */public function allTimeCookies()
     {
+        // FIXME: Dammit, again, don't prettify here!
         return $this->prettyNumbers($this->gameStat('alltime_cookies'));
     }
 
-    public function isGrandmapocalypse()
+    /**
+     * Has ELDER WRATH taken hold in this save?
+     *
+     * @return bool
+     */public function isGrandmapocalypse()
     {
         return ($this->gameStat('elder_wrath') >= 1) ? true : false;
     }
@@ -228,11 +278,16 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
             return true;
         } catch (ErrorException $e) {
+            Log::error('Failed to parse save with id '.$this->id);
             return false;
         }
 
     }
 
+    // FIXME: It's wicked dirty to put this functionality here, move it somewhere else
+    // TODO: Extract Save->allStats() to the view code where it belongs
+    // Basically, this is hacked in to give the list of all stats as seen in the 'Stats'
+    // popover in the save list. Bad place for it, I know.
     public function allStats()
     {
         return $this->gameStat('buildings.cursors') . " Cursors" . "\n" .
@@ -247,7 +302,16 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         $this->gameStat('buildings.condensers') . " Condensers";
     }
 
-    public function gameStat($name)
+
+    /**
+     * Retrieve a game statistic by name -- basically avoids the need to
+     * directly reference $this->gameData, keeps future extensibility
+     * open.
+     *
+     * @param $name
+     *
+     * @return null
+     */public function gameStat($name)
     {
         if(isset($this->gameData[$name]))
         {
@@ -263,6 +327,9 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     {
         // TODO: implement de-compression logic for cookie clicker property arrays
     }
+
+    // FIXME: It's pretty hackish to put this implementation here
+    // TODO: Extract number prettification to another class
 
     private function prettyNumbers($num)
     {
@@ -300,6 +367,6 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      */
     public function toJson($options = 0)
     {
-
+        // TODO: Implement Jsonification in Save model
     }
 }
