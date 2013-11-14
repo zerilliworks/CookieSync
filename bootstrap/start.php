@@ -26,8 +26,7 @@ $app = new Illuminate\Foundation\Application;
 
 $env = $app->detectEnvironment(array(
 
-	'local' => array('armand-TA790GX-128M'),
-    'gridserver' => array('n*')
+	'local' => array('your-machine-name-here'),
 
 ));
 
