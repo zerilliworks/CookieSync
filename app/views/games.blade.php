@@ -4,7 +4,7 @@
 @include('partials.navbar')
 <div class="jumbotron">
     <div class="row">
-        <h1>{{ $gameCount }} Games</h1>
+        <h1>{{ $gameCount }} {{ trans_choice('objects.game', $gameCount) }}</h1>
     </div>
 </div>
 @include('partials.alerts')
@@ -12,6 +12,7 @@
         <thead>
         <tr>
             <th>Game Start Date</th>
+            <th>Saves</th>
             <th>Cookies <span class="text-muted">(current / all-time)</span></th>
             <th>Latest Save</th>
             <th></th>
@@ -25,6 +26,9 @@
         <tr>
             <td>
                 {{ with(new Carbon\Carbon($game->date_started))->toFormattedDateString() }}
+            </td>
+            <td>
+                {{ $game->saves()->count() }}
             </td>
             <td>
                 <b>{{ $latestSave->cookies(true) }}</b> / <i class="text-muted">{{ $latestSave->allTimeCookies() }}</i>

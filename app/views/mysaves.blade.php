@@ -7,7 +7,7 @@
         <div class="col-xs-6">
             <p class="lead">Save Count:</p>
 
-            <h1>{{ $saveCount }} Saves</h1>
+            <h1>{{ $saveCount }} {{ trans_choice('objects.save', $saveCount) }}</h1>
         </div>
         <div class="col-xs-6">
             <p class="lead">Latest Save:</p>
@@ -43,20 +43,20 @@
             <b>{{ $save->cookies(true) }}</b> / <i class="text-muted">{{ $save->allTimeCookies() }}</i>
         </td>
         <td>
-            <form class="form-inline" action="mysaves/nuke/{{ $save->id }}" method="post">
+            <form class="form-inline" action="/mysaves/nuke/{{ $save->id }}" method="post">
                 {{ Form::token() }}
                 <button type="submit" class="btn btn-xs btn-danger">Delete</button>
-                <a class="btn btn-success btn-xs" href="mysaves/{{ $save->id }}">View</a>
+                <a class="btn btn-success btn-xs" href="/mysaves/{{ $save->id }}">View</a>
                 <a class="btn btn-info btn-xs stat-popover" data-placement="right" data-toggle="popover"
                    data-content="{{ $allStatsHtml }}">Stats</a>
             </form>
         </td>
         <td>
-            <form class="form-inline" action="mysaves/makepublic" method="post">
+            <form class="form-inline" action="/mysaves/makepublic" method="post">
                 {{ Form::token() }}
                 {{ Form::hidden('save_id', $save->id) }}
                 <button type="submit" class="btn btn-link" data-toggle="tooltip" data-placement="right" title="Share"
-                        href="share/{{ $save->id }}"><span class="glyphicon glyphicon-share"></span></button>
+                        href="/share/{{ $save->id }}"><span class="glyphicon glyphicon-share"></span></button>
             </form>
         </td>
     </tr>
