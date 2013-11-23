@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class ModSavesAddSharedColumn extends Migration {
+class ModSavesAddGameColumn extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -11,9 +11,9 @@ class ModSavesAddSharedColumn extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('saves', function($table)
+        Schema::table('saves', function($table)
         {
-            $table->boolean('is_shared')->default(0);
+            $table->integer('game_id')->unsigned()->nullable();
         });
 	}
 
@@ -26,7 +26,7 @@ class ModSavesAddSharedColumn extends Migration {
 	{
         Schema::table('saves', function($table)
         {
-            $table->dropColumn('is_shared');
+            $table->dropColumn('game_id');
         });
 	}
 

@@ -15,11 +15,48 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     {
         parent::boot();
 
-        Save::restoring(function($model)
+        static::restored(function($model)
         {
             // FIXME: for some reason, this does not automatically decode game data.
             $model->decode();
             return true;
+        });
+
+        static::creating(function($model)
+        {
+            Log::info('Creating new Save...');
+            // Decode the raw save data
+            $model->decode();
+
+            // Assign actual Date/Time types to the start and save dates
+            $model->started_at = $model->gameStat('date_started');
+            $model->saved_at = $model->gameStat('date_saved');
+
+            // Assign this save to a game if it doesn't already have one
+            if(!$model->game_id)
+            {
+                Log::info('Save has no Game ID Assigned.');
+                // Find the appropriate game...
+                $game = Game::whereDateStarted($model->started_at)->first();
+
+                if(!$game)
+                {
+                    Log::info('No Game existed. Creating...');
+                    $game = Auth::user()->games()->save(new Game(array(
+                                                   'name' => "Game on ".  $model->started_at->toFormattedDateString(),
+                                                   'date_started' => $model->started_at,
+                                                   'date_saved' => time(),
+                                                   'cookie_history' => ''
+                                              )));
+
+                }
+                $model->game_id = $game->id;
+
+            }
+            else
+            {
+                Log::info('Save has a Game ID, skipping.');
+            }
         });
     }
 
@@ -227,8 +264,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $cookieStats = explode(';', $data[4]);
 
             $this->gameData['game_version'] = $data[0];
-            $this->gameData['date_started'] = \Carbon\Carbon::createFromTimestamp($dates[0]);
-            $this->gameData['date_saved'] = \Carbon\Carbon::createFromTimestamp($dates[2]);
+            $this->gameData['date_started'] = \Carbon\Carbon::createFromTimestamp(substr($dates[0], 0, -3));
+            $this->gameData['date_saved'] = \Carbon\Carbon::createFromTimestamp(substr($dates[2], 0, -3));
             $this->gameData['banked_cookies'] = $cookieStats[0];
             $this->gameData['alltime_cookies'] = $cookieStats[1];
             $this->gameData['cookie_clicks'] = $cookieStats[2];

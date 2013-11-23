@@ -1,7 +1,7 @@
 ## Cookie Sync
 ### A Silly Application to Store Cookie Clicker Saves
 
-This application is the result of some weekend tinkering after beoming sick of emailing Cookie Clicker save data to myself.
+This application is the result of some weekend tinkering after becoming sick of emailing Cookie Clicker save data to myself.
 
 CookieSync is written PHP using Laravel. It is capable of decoding Cookie Clicker save data (mostly) and keeping
 track of saves for each user. Log in or create an account in one step to start saving. Very little data is collected --
@@ -10,6 +10,9 @@ link.
 
 The application has a simple Bootstrap web interface to stretch a thin skin over the backend for now. A better
 interface is on the short part of the long list of upgrades.
+
+As it stands, CookieSync is perhaps 50% complete. To be honest, the only remotely interesting part of this is the Cookie
+Clicker save decoding, found in `app/models/Save.php`.
 
 Though the migrations specify MySQL engines, the application is database-agnostic and seriously simple.
 

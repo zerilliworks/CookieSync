@@ -17,7 +17,9 @@
     </div>
 </div>
 @include('partials.alerts')
+<div class="col-md-3">
 
+</div>
 <table class="table table-striped table-bordered">
     <thead>
     <tr>

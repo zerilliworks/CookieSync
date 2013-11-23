@@ -93,6 +93,35 @@ Route::post('access', function() {
 Route::group(array('before' => 'auth'), function()      // Auth route group
 {
 
+    Route::get('games', function()
+    {
+        $games = Auth::user()->games()->orderBy('date_started', 'desc')->paginate(30);
+        $gameCount = count($games);
+
+        return View::make('games')->with('gameCount', $gameCount)
+            ->with('games', $games);
+    });
+
+    Route::get('games/{id}', function($id)
+    {
+        $user = Auth::user();
+        $data = array('saves' => $user->games()->whereId($id)->first()->saves()->orderBy('created_at', 'desc')->paginate(30));
+
+        if($c = $user->latestSave()) {
+
+            $data['latestSaveDate'] = $c->created_at->diffForHumans();
+        }
+        else {
+            $data['latestSaveDate'] = 'None';
+        }
+
+        $data['saveCount'] = count($data['saves']);
+
+
+        return View::make('mysaves', $data);
+    });
+
+
     /**
      * Delete a save: requires a form submission with CSRF tokens, to avoid someone
      * illegitimately spamming nuke requests.
@@ -141,7 +170,25 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
      * View all saves: Show a list of all saved games for the current user.
      */
     Route::get('mysaves', function() {
-        return View::make('mysaves');
+
+        $user = Auth::user();
+        $data = array('saveCount' => $user->saves()->count());
+
+        // FIXME: This uses two SQL queries to find the latest save date when one would do.
+        // TODO: Use one query to grab all saves and then pick out the newest one.
+
+        if($c = $user->latestSave()) {
+
+            $data['latestSaveDate'] = $c->created_at->diffForHumans();
+        }
+        else {
+            $data['latestSaveDate'] = 'None';
+        }
+
+        $data['saves'] = $user->saves()->orderBy('created_at', 'desc')->paginate(30);
+
+
+        return View::make('mysaves', $data);
     });
 
 
@@ -312,21 +359,21 @@ Route::get('shared/{id}', function($id)
 
 View::composer('mysaves', function($view)
 {
-    $user = Auth::user();
-    $view->with('saveCount',$user->saves()->count());
-
-    // FIXME: This uses two SQL queries to find the latest save date when one would do.
-    // TODO: Use one query to grab all saves and then pick out the newest one.
-
-    if($c = $user->latestSave()) {
-
-        $view->with('latestSaveDate', $c->created_at->diffForHumans());
-    }
-    else {
-        $view->with('latestSaveDate', 'None');
-    }
-
-    $view->with('saves', $user->saves()->orderBy('created_at', 'desc')->paginate(30));
+//    $user = Auth::user();
+//    $view->with('saveCount',$user->saves()->count());
+//
+//    // FIXME: This uses two SQL queries to find the latest save date when one would do.
+//    // TODO: Use one query to grab all saves and then pick out the newest one.
+//
+//    if($c = $user->latestSave()) {
+//
+//        $view->with('latestSaveDate', $c->created_at->diffForHumans());
+//    }
+//    else {
+//        $view->with('latestSaveDate', 'None');
+//    }
+//
+//    $view->with('saves', $user->saves()->orderBy('created_at', 'desc')->paginate(30));
 
 });
 

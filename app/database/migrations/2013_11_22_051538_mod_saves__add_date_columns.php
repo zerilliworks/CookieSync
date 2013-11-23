@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class ModSavesAddSharedColumn extends Migration {
+class ModSavesAddDateColumns extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -11,9 +11,10 @@ class ModSavesAddSharedColumn extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('saves', function($table)
+        Schema::table('saves', function($table)
         {
-            $table->boolean('is_shared')->default(0);
+            $table->dateTime('saved_at')->nullable();
+            $table->dateTime('started_at')->nullable();
         });
 	}
 
@@ -26,7 +27,8 @@ class ModSavesAddSharedColumn extends Migration {
 	{
         Schema::table('saves', function($table)
         {
-            $table->dropColumn('is_shared');
+            $table->dropColumn('saved_at');
+            $table->dropColumn('started_at');
         });
 	}
 

@@ -8,6 +8,7 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
             <li class="{{ if_page('mysaves*', 'active') }}"><a href="/mysaves">My Saves</a></li>
+            <li class="{{ if_page('games*', 'active') }}"><a href="/games">My Games</a></li>
             <li class="{{ if_page('options*', 'active') }}"><a href="/options">Options</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">

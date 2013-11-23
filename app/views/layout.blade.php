@@ -7,7 +7,7 @@
     <meta name="description" content="CookieSync - keep your Cookie Clicker saves updated wherever you go">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="/css/m/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
     <link href='http://fonts.googleapis.com/css?family=Kavoon' rel='stylesheet' type='text/css'>
     @yield('css')
 </head>
@@ -18,7 +18,7 @@
 @yield('upper-body')
 <div class="container" style="margin-bottom: 3em">
     <div class="row">
-        <div class="col-md-8 col-md-offset-2 col-xs-12">
+        <div class="col-md-10 col-md-offset-1 col-xs-12">
             @yield('body')
         </div>
     </div>

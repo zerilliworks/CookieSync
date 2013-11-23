@@ -41,6 +41,10 @@
         <td>Cookies Baked (All-Time):</td>
         <td>{{ $allTimeCookies }}</td>
     </tr>
+    <tr>
+        <td>Game Started on:</td>
+        <td>{{ $save->gameStat('date_started')->toFormattedDateString() }}</td>
+    </tr>
     </tbody>
 </table>
 @if($save->isGrandmapocalypse())
@@ -48,6 +52,7 @@
         <h1>Elder Wrath has Taken Hold...</h1>
     </div>
 @endif
+<h2>Building Stats:</h2>
 <table class="table-bordered table table-condensed">
     <tbody>
     <tr>

@@ -54,6 +54,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         return $this->hasMany('Save');
     }
 
+    public function games()
+    {
+        return $this->hasMany('Game');
+    }
+
     public function latestSave()
     {
         return $this->saves()->orderBy('created_at', 'desc')->first();
