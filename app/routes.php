@@ -96,7 +96,7 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
     Route::get('games', function()
     {
         $games = Auth::user()->games()->orderBy('date_started', 'desc')->paginate(30);
-        $gameCount = count($games);
+        $gameCount = Auth::user()->games()->count();
 
         return View::make('games')->with('gameCount', $gameCount)
             ->with('games', $games);
@@ -122,7 +122,7 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
             $data['latestSaveDate'] = 'None';
         }
 
-        $data['saveCount'] = count($data['saves']);
+        $data['saveCount'] = $game->saves()->count();
 
 
         return View::make('mysaves', $data);
@@ -139,7 +139,7 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
 
         // Do the deletion and redirect to dashboard.
         $s->delete();
-        return Redirect::to('mysaves')->with('info', View::make('partials.undelete')->render());
+        return Redirect::to(URL::previous())->with('info', View::make('partials.undelete')->render());
     }));
 
 
