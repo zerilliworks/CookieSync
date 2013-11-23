@@ -19,6 +19,10 @@
     .wrath > h1 {
         font-family: 'Underdog', cursive;
     }
+
+    #data-field {
+        font-family: monospace;
+    }
 </style>
 @stop
 
@@ -71,9 +75,15 @@
     </tr>
     </tbody>
 </table>
-<textarea id="data-field" class="form-control" rows="6" onclick="this.focus();this.select()" readonly>{{ $save->save_data }}</textarea>
+<textarea id="data-field" class="form-control" rows="6" readonly>{{ $save->save_data }}</textarea>
 @stop
 
 @section('footer-js')
-
+<script type="text/javascript">
+    $("#data-field").hover(function(e)
+    {
+        e.target.focus();
+        e.target.select();
+    });
+</script>
 @stop
