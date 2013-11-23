@@ -37,7 +37,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             {
                 Log::info('Save has no Game ID Assigned.');
                 // Find the appropriate game...
-                $game = Game::whereDateStarted($model->started_at)->first();
+                $game = Auth::user()->games()->whereDateStarted($model->started_at)->first();
 
                 if(!$game)
                 {
@@ -69,6 +69,11 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     public function user()
     {
         return $this->belongsTo('User');
+    }
+
+    public function game()
+    {
+        return $this->belongsTo('Game');
     }
 
     /**
