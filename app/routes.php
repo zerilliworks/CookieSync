@@ -105,7 +105,14 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
     Route::get('games/{id}', function($id)
     {
         $user = Auth::user();
-        $data = array('saves' => $user->games()->whereId($id)->first()->saves()->orderBy('created_at', 'desc')->paginate(30));
+        $game = $user->games()->whereId($id)->first();
+
+        if(!$game)
+        {
+            return App::abort(404);
+        }
+
+        $data = array('saves' => $game->saves()->orderBy('created_at', 'desc')->paginate(30));
 
         if($c = $user->latestSave()) {
 
@@ -128,21 +135,6 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
      */
     Route::post('mysaves/nuke/{id}', array('before' => 'csrf', function($id) {
 
-
-        // FIXME: Silly, we've already authenticated! Just retreive the save through the user model.
-
-        /*// Locate the save
-        $s = Save::find($id);
-
-        // Does this save actually belong to you?
-        if(!$s->user->id === Auth::user()->id)
-        {
-            // Whoah, someone's trying to delete a save that isn't theirs!
-            App::abort(500);
-            return;
-
-        } // Otherwise, continue.*/
-
         $s = Auth::user()->saves->find($id);
 
         // Do the deletion and redirect to dashboard.
@@ -156,6 +148,12 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
      */
     Route::get('mysaves/{id}', array('before' => 'auth', function($id) {
         $thisSave = Auth::user()->saves()->whereId($id)->first();
+
+        if(!$thisSave)
+        {
+            App::abort(404);
+        }
+
         $thisSave->decode();
         return View::make('singlesave')
                ->with('save', $thisSave)
