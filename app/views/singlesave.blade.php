@@ -71,5 +71,9 @@
     </tr>
     </tbody>
 </table>
-<pre><code>{{ $save->save_data }}</code></pre>
+<textarea id="data-field" class="form-control" rows="6" onclick="this.focus();this.select()" readonly>{{ $save->save_data }}</textarea>
+@stop
+
+@section('footer-js')
+
 @stop
