@@ -12,3 +12,4 @@
 */
 
 Artisan::add(new \CookieSync\Commands\FixGamesCommand);
+Artisan::add(new \CookieSync\Commands\SetupCommand);

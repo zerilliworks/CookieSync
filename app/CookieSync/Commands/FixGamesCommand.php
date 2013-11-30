@@ -22,7 +22,7 @@ class FixGamesCommand extends Command {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Create collections of save data belonging to a single Cookie Clicker game.';
+	protected $description = 'Scan, repair, and upgrade CookieSync data.';
 
     protected $errors = array();
 
@@ -107,7 +107,7 @@ class FixGamesCommand extends Command {
 
                     }
 
-                    if($save->user == null)
+                    if($save->user->exists)
                     {
                         $orphanedSaves++;
                         $save->delete();

@@ -24,11 +24,36 @@ $app = new Illuminate\Foundation\Application;
 |
 */
 
-$env = $app->detectEnvironment(array(
+/*$env = $app->detectEnvironment(array(
 
-	'local' => array('your-machine-name-here'),
+	'local' => array('localhost'),
+    'gridserver' => array('n*'),
 
-));
+));*/
+
+$env = $app->detectEnvironment(function() use ($app)
+{
+    if(isset($_SERVER['SERVER_NAME']))
+    {
+        switch ($_SERVER['SERVER_NAME'])
+        {
+            case 'localhost':
+                return 'local';
+                break;
+
+        }
+    }
+
+    // Or else...
+
+    return $app->detectEnvironment(array(
+
+                                        'local'      => array('localhost'),
+                                        'gridserver' => array('n*'),
+
+                                   ));
+
+});
 
 /*
 |--------------------------------------------------------------------------
