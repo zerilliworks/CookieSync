@@ -90,7 +90,7 @@ Route::post('access/register', function() {
     // If this succeeds, the existing user will be logged in.
     // If it fails, a new user will automatically be created and
     // logged in.
-    if(!Auth::attempt($creds))
+    if(!Auth::attempt(array('name' => $creds['name'], 'password' => $creds['password'])))
     {
         // Make the user and fill its data
         $newb = new User();
