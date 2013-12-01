@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" href="/css/bootstrap.min.css"/>
     <link href='http://fonts.googleapis.com/css?family=Kavoon' rel='stylesheet' type='text/css'>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     @yield('css')
 </head>
 <body>
@@ -23,6 +24,8 @@
         </div>
     </div>
 </div>
+
+@include('partials.footer')
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="/js/m/bootstrap.min.js"></script>
