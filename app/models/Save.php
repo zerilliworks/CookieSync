@@ -45,7 +45,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                     $game = Auth::user()->games()->save(new Game(array(
                                                    'name' => "Game on ".  $model->started_at->toFormattedDateString(),
                                                    'date_started' => $model->started_at,
-                                                   'date_saved' => time(),
+                                                   'date_saved' => with(new Carbon\Carbon())->toDateTimeString(),
                                                    'cookie_history' => ''
                                               )));
 

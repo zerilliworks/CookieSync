@@ -24,6 +24,10 @@ Route::get('/', function()
     }
 });
 
+Route::get('svars', function() {
+    echo var_dump($_SERVER);
+});
+
 
 
 
@@ -34,7 +38,7 @@ Route::get('access', function() {
     return View::make('access');
 });
 
-Route::post('access', function() {
+Route::post('access/login', function() {
     $creds = array();
 
     // Set credentials to the form fields from the access page
@@ -43,6 +47,42 @@ Route::post('access', function() {
 
     // Build a validator: require both fields, usernames longer than 4 characters
     $v = Validator::make($creds, array('name' => 'required|min:4', 'password' => 'required'));
+
+    // Were those creds valid?
+    if($v->fails())
+    {
+        // Send back to the access page with validation errors
+        return Redirect::to('access')->withErrors($v);
+    }
+
+    // The credentials were ostensibly valid, but let's prove it.
+    // If this succeeds, the existing user will be logged in.
+    // If it fails, a new user will automatically be created and
+    // logged in.
+    if(Auth::attempt($creds))
+    {
+        // Go to dashboard
+        return Redirect::intended('mysaves');
+    }
+    else
+    {
+        // Return to login page with errors
+        return Redirect::to('access')->withErrors("Username and password didn't match any registered combination.");
+    }
+
+
+});
+
+Route::post('access/register', function() {
+    $creds = array();
+
+    // Set credentials to the form fields from the access page
+    $creds['name'] = Input::get('username');
+    $creds['password'] = Input::get('password');
+    $creds['recaptcha'] = Input::get('recaptcha_response_field');
+
+    // Build a validator: require both fields, usernames longer than 4 characters
+    $v = Validator::make($creds, array('name' => 'required|min:4', 'password' => 'required', 'recaptcha' => 'required|recaptcha'));
 
     // Were those creds valid?
     if($v->fails())
@@ -95,7 +135,7 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
 
     Route::get('games', function()
     {
-        $games = Auth::user()->games()->orderBy('date_started', 'desc')->paginate(30);
+        $games = Auth::user()->games()->orderBy('date_saved', 'desc')->paginate(30);
         $gameCount = Auth::user()->games()->count();
 
         return View::make('games')->with('gameCount', $gameCount)
@@ -248,6 +288,7 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
 
         // Delete all game saves
         $victim->saves()->delete();
+        $victim->games()->delete();
 
         // CUT THE TIES
         Auth::logout();
