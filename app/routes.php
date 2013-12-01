@@ -24,11 +24,6 @@ Route::get('/', function()
     }
 });
 
-Route::get('svars', function() {
-    echo var_dump($_SERVER);
-});
-
-
 
 
 /*
