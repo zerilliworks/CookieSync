@@ -1,7 +1,7 @@
 <nav class="navbar navbar-inverse" role="navigation">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-        <a class="navbar-brand" href="/about">CookieSync</a>
+        <a class="navbar-brand" href="/">CookieSync</a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
