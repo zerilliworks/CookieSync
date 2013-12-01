@@ -64,7 +64,7 @@ App::error(function(Exception $exception, $code)
 
 App::down(function()
 {
-	return Response::make("Be right back!", 503);
+	return Response::make(View::make('sysdown'), 503);
 });
 
 /*
@@ -81,4 +81,3 @@ App::down(function()
 require app_path().'/filters.php';
 
 require_once app_path().'/helpers.php';
-require_once app_path().'/stats.php';
