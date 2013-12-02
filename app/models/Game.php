@@ -7,6 +7,7 @@
 
 class Game extends Eloquent {
     protected $fillable = array('user_id', 'date_started', 'date_saved', 'name', 'cookie_history');
+    protected $softDelete = true;
 
     public function user()
     {

@@ -21,7 +21,14 @@
         @foreach($games as $game)
         <?php
             $latestSave = $game->latestSave();
-            $latestSave->decode();
+            if($latestSave)
+            {
+                $latestSave->decode();
+            }
+            else
+            {
+                continue;
+            }
         ?>
         <tr>
             <td>

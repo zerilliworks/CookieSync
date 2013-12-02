@@ -58,6 +58,20 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                 Log::info('Save has a Game ID, skipping.');
             }
         });
+
+        static::deleting(function($model)
+        {
+
+            // Find out if this is the last save remaining in a game and
+            // delete that game if it is.
+            $saveCount = $model->game->saves()->count();
+
+            if($saveCount <= 1)
+            {
+                $model->game->delete();
+                Session::flash('deleted_game', true);
+            }
+        });
     }
 
 

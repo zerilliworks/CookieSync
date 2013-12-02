@@ -174,7 +174,17 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
 
         // Do the deletion and redirect to dashboard.
         $s->delete();
-        return Redirect::to(URL::previous())->with('info', View::make('partials.undelete')->render());
+
+        // TODO: Make application redirect to the right place after deleting
+
+        if(Session::has('deleted_game'))
+        {
+            return Redirect::to('games')->with('info', View::make('partials.undelete')->render());
+        }
+        else
+        {
+            return Redirect::to(URL::previous())->with('info', View::make('partials.undelete')->render());
+        }
     }));
 
 
@@ -300,8 +310,16 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
 
         if($lazarusSave)
         {
+            // First, see if the parent game is deleted
+            if($lazarusGame = $lazarusSave->game()->onlyTrashed()->first())
+            {
+                // If it is, then restore the game.
+                $lazarusGame->restore();
+            }
+
+            // Restore the save
             $lazarusSave->restore();
-            return Redirect::to('mysaves')->with('success', 'Save data restored!');
+            return Redirect::to(URL::previous())->with('success', 'Save data restored!');
         }
         else
         {
