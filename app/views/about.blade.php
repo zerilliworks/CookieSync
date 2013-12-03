@@ -17,7 +17,7 @@
         padding-top: 8em;
         padding-bottom: 8em;
         margin-bottom: 4em;
-        box-shadow: inset 0px -10px 30px -10px rgba(0, 0, 0, 0.53);
+        box-shadow: inset 0px -20px 30px -20px rgba(0, 0, 0, 0.33);
         color: white;
         text-align: center;
         text-shadow: #000000 0 10px 30px;
@@ -49,18 +49,16 @@
     Clicker saves.</p>
 
 <h1>The Maker</h1>
-<p class="lead">My name is Armand, and I build software. I work freelance mostly, and I have the blessing of free time
-    to build things like this. I've been cranking out (usually) high-quality PHP for the last three years or so after I
-    left film school. You can tweet <a href="https://twitter.com/zerilliworks">@zerilliworks</a> or email me: armand
+<p class="lead">My name is Armand, and I very obviously build software. You can tweet <a href="https://twitter.com/zerilliworks">@zerilliworks</a> or email me: armand
     (at) zerilliworks (dot) net. I also run
     <a href="http://blog.zerilliworks.net">a blog.</a></p>
 
 <h1>The Guts & Magic</h1>
-<p class="lead">This bitch is trippin' on Laravel & PHP 5.5. Aaroooo! The rest is MySQL and Bootstrap, plus some
+<p class="lead">This bitch is trippin' on Laravel & PHP. Aaroooo! This site uses Greg Gilbert's <a
+        href="https://github.com/greggilbert/recaptcha">Laravel 4 reCaptcha package</a> and Loic Sharma's <a
+        href="https://github.com/loic-sharma/profiler">Profiler package.</a> The rest is MySQL and Bootstrap, plus some
     unremarkable JavaScript. Hosted with MediaTemple. </p>
 
 <p class="lead">Right now, <b>{{ $userCount }}</b> people use the site, with <b>{{ $saveCount }}</b> games saved.</p>
 
-<h3>Copyrig</h3>
-<p class="lead">You know what, fuck it. Source code on Github. Who cares about intellectual property?</p>
 @stop
