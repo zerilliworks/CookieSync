@@ -84,21 +84,19 @@ Route::post('access/register', function() {
     }
 
     // Whip up a new user
-    if(!Auth::attempt(array('name' => $creds['name'], 'password' => $creds['password'])))
-    {
-        // Make the user and fill its data
-        $newb = new User();
-        $newb->name = $creds['name'];
-        $newb->password = Hash::make($creds['password']);
 
-        // Store the user
-        $newb->save();
+    // Make the user and fill its data
+    $newb = new User();
+    $newb->name = $creds['name'];
+    $newb->password = Hash::make($creds['password']);
 
-        // Manually log in
-        Auth::login($newb);
-    }
+    // Store the user
+    $newb->save();
 
-    // Go to dashboard
+    // Manually log in
+    Auth::login($newb);
+
+    // Go to welcome page
     return Redirect::to('welcome');
 });
 
