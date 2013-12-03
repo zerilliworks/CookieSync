@@ -51,9 +51,6 @@ Route::post('access/login', function() {
     }
 
     // The credentials were ostensibly valid, but let's prove it.
-    // If this succeeds, the existing user will be logged in.
-    // If it fails, a new user will automatically be created and
-    // logged in.
     if(Auth::attempt($creds))
     {
         // Go to dashboard
@@ -86,10 +83,7 @@ Route::post('access/register', function() {
         return Redirect::to('access')->withErrors($v);
     }
 
-    // The credentials were ostensibly valid, but let's prove it.
-    // If this succeeds, the existing user will be logged in.
-    // If it fails, a new user will automatically be created and
-    // logged in.
+    // Whip up a new user
     if(!Auth::attempt(array('name' => $creds['name'], 'password' => $creds['password'])))
     {
         // Make the user and fill its data
@@ -105,7 +99,7 @@ Route::post('access/register', function() {
     }
 
     // Go to dashboard
-    return Redirect::intended('mysaves');
+    return Redirect::to('welcome');
 });
 
 /*
@@ -128,6 +122,134 @@ Route::post('access/register', function() {
 Route::group(array('before' => 'auth'), function()      // Auth route group
 {
 
+    Route::get('welcome', function()
+    {
+        return View::make('welcome');
+    });
+
+    Route::get('welcome/example', function()
+    {
+        $thisSave = new Save();
+        $thisSave->save_data = "MS4wMzkzfHwxMzg2MDg2MDEzNTE5OzEzODYwODYwMTM1MzM7MTM4NjA4NzA5NzI3MXwxMTExMTF8Njc5Ljg5NzcxMzc0NTc0NTQ7MTcwMC43OTk5OTk5OTk0Nzg0OzMzOTsw
+OzQyOTsyOy0xOy0xOzA7MDswOzA7MDswOzA7MDswOzB8OCw4LDY0MywwOzIsMiw1MDgsMDsxLDEsMTE5LDA7MCwwLDAsMDswLDAsMCwwOzAsMCwwLDA7MCwwLDAsMDswLDAs
+MCwwOzAsMCwwLDA7MCwwLDAsMDt8MjI1MTc5OTgyNDMzNDg2MzsyMjUxNzk5ODEzNjg1MjQ5OzIyNTE3OTk4MTM2ODUyNDk7MjI1MTc5OTgxMzY4NTI0OTsyMjUxNzk5ODEz
+Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3D%3D%21END%21";
+        $thisSave->decode();
+        return View::make('example')
+               ->with('save', $thisSave)
+               ->with('cookiesBaked', $thisSave->cookies(true))
+               ->with('allTimeCookies', $thisSave->allTimeCookies());
+    });
+    
+    
+    /**
+     * View all saves: Show a list of all saved games for the current user.
+     */
+    Route::get('mysaves', function() {
+
+        $user = Auth::user();
+        $data = array('saveCount' => $user->saves()->count());
+
+        // FIXME: This uses two SQL queries to find the latest save date when one would do.
+        // TODO: Use one query to grab all saves and then pick out the newest one.
+
+        if($c = $user->latestSave()) {
+
+            $data['latestSaveDate'] = $c->created_at->diffForHumans();
+        }
+        else {
+            $data['latestSaveDate'] = 'None';
+        }
+
+        $data['saves'] = $user->saves()->orderBy('created_at', 'desc')->paginate(30);
+
+
+        return View::make('mysaves', $data);
+    });
+    
+    
+    /**
+     * View a save: fetch the saved game by ID and display it
+     */
+    Route::get('mysaves/{id}', array('before' => 'auth', function($id) {
+        $thisSave = Auth::user()->saves()->whereId($id)->first();
+
+        if(!$thisSave)
+        {
+            App::abort(404);
+        }
+
+        $thisSave->decode();
+        return View::make('singlesave')
+               ->with('save', $thisSave)
+               ->with('cookiesBaked', $thisSave->cookies(true))
+               ->with('allTimeCookies', $thisSave->allTimeCookies());
+    }));
+    
+    /**
+     * Delete a save: requires a form submission with CSRF tokens, to avoid someone
+     * illegitimately spamming nuke requests.
+     */
+    Route::post('mysaves/nuke/{id}', array('before' => 'csrf', function($id) {
+
+        $s = Auth::user()->saves->find($id);
+
+        // Do the deletion and redirect to dashboard.
+        $s->delete();
+
+        if(Session::has('deleted_game'))
+        {
+            return Redirect::to('games')->with('info', View::make('partials.undelete')->render());
+        }
+        else
+        {
+            return Redirect::to(URL::previous())->with('info', View::make('partials.undelete')->render());
+        }
+    }));
+    
+    /**
+     * Undo deleting a save.
+     */
+    
+    Route::post('mysaves/undelete', array('before' => 'csrf', function()
+    {
+        $lazarusSave = Auth::user()->saves()->onlyTrashed()->orderBy('deleted_at', 'desc')->first();
+
+        if($lazarusSave)
+        {
+            // First, see if the parent game is deleted
+            if($lazarusGame = $lazarusSave->game()->onlyTrashed()->first())
+            {
+                // If it is, then restore the game.
+                $lazarusGame->restore();
+            }
+
+            // Restore the save
+            $lazarusSave->restore();
+            return Redirect::to(URL::previous())->with('success', 'Save data restored!');
+        }
+        else
+        {
+            App::abort(500);
+        }
+    }));
+    
+    /**
+     * Make a saved game public
+     */
+    Route::post('mysaves/makepublic', array('before' => 'csrf', function() {
+        $saveId = Input::get('save_id');
+
+        $saveToShare = Auth::user()->saves()->whereId($saveId)->first();
+        $pub = $saveToShare->makePublic();
+
+        return Redirect::to('shared/'.$pub->share_code);
+    }));
+
+    /**
+     * View all games: Show a list of all games for the current user.
+     */
+    
     Route::get('games', function()
     {
         $games = Auth::user()->games()->orderBy('date_saved', 'desc')->paginate(30);
@@ -136,6 +258,10 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
         return View::make('games')->with('gameCount', $gameCount)
             ->with('games', $games);
     });
+    
+    /**
+     * View a specific game
+     */
 
     Route::get('games/{id}', function($id)
     {
@@ -162,90 +288,6 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
 
         return View::make('mysaves', $data);
     });
-
-
-    /**
-     * Delete a save: requires a form submission with CSRF tokens, to avoid someone
-     * illegitimately spamming nuke requests.
-     */
-    Route::post('mysaves/nuke/{id}', array('before' => 'csrf', function($id) {
-
-        $s = Auth::user()->saves->find($id);
-
-        // Do the deletion and redirect to dashboard.
-        $s->delete();
-
-        // TODO: Make application redirect to the right place after deleting
-
-        if(Session::has('deleted_game'))
-        {
-            return Redirect::to('games')->with('info', View::make('partials.undelete')->render());
-        }
-        else
-        {
-            return Redirect::to(URL::previous())->with('info', View::make('partials.undelete')->render());
-        }
-    }));
-
-
-    /**
-     * View a save: fetch the saved game by ID and display it
-     */
-    Route::get('mysaves/{id}', array('before' => 'auth', function($id) {
-        $thisSave = Auth::user()->saves()->whereId($id)->first();
-
-        if(!$thisSave)
-        {
-            App::abort(404);
-        }
-
-        $thisSave->decode();
-        return View::make('singlesave')
-               ->with('save', $thisSave)
-               ->with('cookiesBaked', $thisSave->cookies(true))
-               ->with('allTimeCookies', $thisSave->allTimeCookies());
-    }));
-
-
-
-
-    /**
-     * View all saves: Show a list of all saved games for the current user.
-     */
-    Route::get('mysaves', function() {
-
-        $user = Auth::user();
-        $data = array('saveCount' => $user->saves()->count());
-
-        // FIXME: This uses two SQL queries to find the latest save date when one would do.
-        // TODO: Use one query to grab all saves and then pick out the newest one.
-
-        if($c = $user->latestSave()) {
-
-            $data['latestSaveDate'] = $c->created_at->diffForHumans();
-        }
-        else {
-            $data['latestSaveDate'] = 'None';
-        }
-
-        $data['saves'] = $user->saves()->orderBy('created_at', 'desc')->paginate(30);
-
-
-        return View::make('mysaves', $data);
-    });
-
-
-    /**
-     * Make a saved game public
-     */
-    Route::post('mysaves/makepublic', array('before' => 'csrf', function() {
-        $saveId = Input::get('save_id');
-
-        $saveToShare = Auth::user()->saves()->whereId($saveId)->first();
-        $pub = $saveToShare->makePublic();
-
-        return Redirect::to('shared/'.$pub->share_code);
-    }));
 
 
 
@@ -304,28 +346,7 @@ Route::group(array('before' => 'auth'), function()      // Auth route group
         return Redirect::to('goodbye');
     }));
 
-    Route::post('mysaves/undelete', array('before' => 'csrf', function()
-    {
-        $lazarusSave = Auth::user()->saves()->onlyTrashed()->orderBy('deleted_at', 'desc')->first();
-
-        if($lazarusSave)
-        {
-            // First, see if the parent game is deleted
-            if($lazarusGame = $lazarusSave->game()->onlyTrashed()->first())
-            {
-                // If it is, then restore the game.
-                $lazarusGame->restore();
-            }
-
-            // Restore the save
-            $lazarusSave->restore();
-            return Redirect::to(URL::previous())->with('success', 'Save data restored!');
-        }
-        else
-        {
-            App::abort(500);
-        }
-    }));
+    
 
 
     /**
