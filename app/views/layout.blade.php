@@ -3,8 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>CookieSync</title>
+    <title>CookieSync{{ (isset($_page_title)) ? ' - ' . $_page_title : '' }}</title>
+    @if(isset($_page_description))
+    <meta name="description" content="{{ $_page_description }}">
+    @else
     <meta name="description" content="CookieSync - keep your Cookie Clicker saves updated wherever you go">
+    @endif
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="/css/bootstrap.min.css"/>
