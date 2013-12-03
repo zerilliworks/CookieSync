@@ -33,7 +33,7 @@ Route::get('access', function() {
     return View::make('access');
 });
 
-Route::post('access/login', function() {
+Route::post('access/login', array('before' => 'csrf', function() {
     $creds = array();
 
     // Set credentials to the form fields from the access page
@@ -63,9 +63,9 @@ Route::post('access/login', function() {
     }
 
 
-});
+}));
 
-Route::post('access/register', function() {
+Route::post('access/register', array('before' => 'csrf', function() {
     $creds = array();
 
     // Set credentials to the form fields from the access page
@@ -74,7 +74,7 @@ Route::post('access/register', function() {
     $creds['recaptcha'] = Input::get('recaptcha_response_field');
 
     // Build a validator: require both fields, usernames longer than 4 characters
-    $v = Validator::make($creds, array('name' => 'required|min:4', 'password' => 'required', 'recaptcha' => 'required|recaptcha'));
+    $v = Validator::make($creds, array('name' => 'required|min:4|unique:users,name', 'password' => 'required', 'recaptcha' => 'required|recaptcha'));
 
     // Were those creds valid?
     if($v->fails())
@@ -98,7 +98,7 @@ Route::post('access/register', function() {
 
     // Go to welcome page
     return Redirect::to('welcome');
-});
+}));
 
 /*
  * End Access Page Routes
@@ -332,13 +332,13 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
         $victim = Auth::user();
 
         // Delete all game saves
-        $victim->saves()->delete();
-        $victim->games()->delete();
+        $victim->saves()->forceDelete();
+        $victim->games()->forceDelete();
 
         // CUT THE TIES
         Auth::logout();
 
-        $victim->delete();
+        $victim->forceDelete();
 
         Session::flash('goodbye', 'yes');
         return Redirect::to('goodbye');
