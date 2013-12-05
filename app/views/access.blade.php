@@ -187,9 +187,11 @@
 
 
 <div class="row">
-    <div class="col-xs-12">
-        <hr>
-        <p class="lead" style="text-align: center">Mmkay, Here's the rub.</p>
+    <div class="col-md-6 col-md-offset-3 col-xs-12">
+        <blockquote>
+            <h2>It's stupid how easy this is.</h2>
+            <h4 class="text-muted">&mdash; Grandma</h4>
+        </blockquote>
     </div>
 </div>
 <div class="row">
