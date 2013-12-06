@@ -32,7 +32,7 @@
 @include('partials.footer')
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="/js/m/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <script type="text/javascript">
     var _gauges = _gauges || [];

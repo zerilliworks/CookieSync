@@ -23,6 +23,13 @@
     #data-field {
         font-family: monospace;
     }
+
+    .panel-sized {
+        max-height: 20em;
+        overflow-y: scroll;
+        /* For momentum scrolling on iOS devices */
+        -webkit-overflow-scrolling: touch;
+    }
 </style>
 @stop
 
@@ -51,6 +58,52 @@
     </tr>
     </tbody>
 </table>
+<div class="row" style="margin-bottom: 30px;">
+    <div class="col-sm-12 col-md-6">
+        <div class="panel-group" id="achievements">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#achievements" href="#collapse-achievements">
+                            Achievements (Show All)
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse-achievements" class="panel-collapse collapse ">
+                    <div class="panel-body panel-sized">
+                        <ul>
+                            @foreach($save->gameStat('achievements') as $achievement)
+                            <li>{{ $achievement }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6">
+        <div class="panel-group" id="upgrades">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#upgrades" href="#collapse-upgrades">
+                            Upgrades (Show All)
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse-upgrades" class="panel-collapse collapse ">
+                    <div class="panel-body panel-sized">
+                        <ul>
+                            @foreach($save->gameStat('upgrades') as $upgrade)
+                            <li>{{ $upgrade }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @if($save->isGrandmapocalypse())
     <div class="panel wrath">
         <h1>Elder Wrath has Taken Hold...</h1>

@@ -20,7 +20,7 @@
 <div class="col-md-3">
 
 </div>
-<table class="table table-striped table-bordered">
+<table class="table table-bordered">
     <thead>
     <tr>
         <th>Save Date</th>
