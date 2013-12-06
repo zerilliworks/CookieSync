@@ -32,7 +32,6 @@
     <tbody>
     @foreach($saves as $save)
     <?php
-    $save->decode();
     $allStatsHtml = implode('<br>', explode("\n", $save->allStats()));
     ?>
     <tr class="{{ ($save->isGrandmapocalypse()) ? 'danger' : '' }}">

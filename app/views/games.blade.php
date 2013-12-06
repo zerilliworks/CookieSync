@@ -18,14 +18,10 @@
             <th></th>
         </thead>
         <tbody>
-        @foreach($games as $game)
+        <?php foreach($games as $game): ?>
         <?php
             $latestSave = $game->latestSave();
-            if($latestSave)
-            {
-                $latestSave->decode();
-            }
-            else
+            if(!$latestSave)
             {
                 continue;
             }
@@ -47,7 +43,7 @@
                 <a href="/games/{{ $game->id }}" class="btn btn-block btn-primary btn-sm">Details...</a>
             </td>
         </tr>
-        @endforeach
+        <?php endforeach; ?>
         </tbody>
     </table>
     {{ $games->links() }}

@@ -184,7 +184,6 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
             App::abort(404);
         }
 
-        $thisSave->decode();
         return View::make('singlesave')
                ->with('save', $thisSave)
                ->with('cookiesBaked', $thisSave->cookies(true))
@@ -413,7 +412,6 @@ Route::get('shared/{id}', function($id)
     $sharedSave = SharedSave::whereShareCode($id)->first()->savedGame;
     if($sharedSave)
     {
-        $sharedSave->decode();
         return View::make('shared')->with('save', $sharedSave);
     }
     else
