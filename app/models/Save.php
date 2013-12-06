@@ -32,16 +32,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     {
         parent::boot();
 
-        static::restored(function($model)
-        {
-            // FIXME: for some reason, this does not automatically decode game data.
-            $model->decode();
-            return true;
-        });
-
         static::creating(function($model)
         {
-            Log::info('Creating new Save...');
             // Decode the raw save data
             $model->decode();
 
@@ -52,13 +44,11 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             // Assign this save to a game if it doesn't already have one
             if(!$model->game_id)
             {
-                Log::info('Save has no Game ID Assigned.');
                 // Find the appropriate game...
                 $game = Auth::user()->games()->whereDateStarted($model->started_at)->first();
 
                 if(!$game)
                 {
-                    Log::info('No Game existed. Creating...');
                     $game = Auth::user()->games()->save(new Game(array(
                                                    'name' => "Game on ".  $model->started_at->toFormattedDateString(),
                                                    'date_started' => $model->started_at,
@@ -70,14 +60,14 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                 $model->game_id = $game->id;
 
             }
-            else
-            {
-                Log::info('Save has a Game ID, skipping.');
-            }
+
+            Event::fire('cookiesync.newsave', array(&$model));
         });
 
         static::deleting(function($model)
         {
+
+            Event::fire('cookiesync.savedeleted', array(&$model));
 
             // Find out if this is the last save remaining in a game and
             // delete that game if it is.
@@ -128,7 +118,6 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         {
             // It's already shared, so don't repeat the process
             // just return the current shared instance.
-            Log::info("Save (id $this->id) is already shared.");
             return $this->sharedInstance;
         }
 
@@ -137,14 +126,15 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         $this->sharedInstance()->save($shr);
         if($this->save())
         {
-            Log::info("Save (id $this->id) is now shared.");
             $this->is_shared = 1;
             $this->save();
+
+            Event::fire('cookiesync.saveshared', $this);
+
             return $shr;
         }
         else
         {
-            Log::error("Save (id $this->id) could not be shared.");
             return false;
         }
     }
@@ -159,21 +149,22 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         if(!$this->isShared())
         {
             // It's not shared, so forget about it.
-            Log::info("Save (id $this->id) is not shared.");
             return false;
         }
 
 
         if($this->sharedInstance->delete())
         {
-            Log::info("Save (id $this->id) was successfully made private.");
             $this->is_shared = 0;
             $this->save();
+
+            Event::fire('cookiesync.saveprivatized', array($this));
+
             return true;
+
         }
         else
         {
-            Log::error("Save (id $this->id) could not be made private.");
             return false;
         }
     }
@@ -393,6 +384,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $prestige = intval(bcdiv($this->gameData['cookies_reset'], '1000000000000'));
             $this->gameData['prestige'] = max(0,floor((-1+pow(1+8*$prestige, 0.5)) / 2));
 
+            Event::fire('cookiesync.savedecoded', array($this));
+
             return true;
         } catch (ErrorException $e) {
             Log::error('Failed to parse save with id '.$this->id);
@@ -430,7 +423,12 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      * @return null
      */public function gameStat($name)
     {
-        if(isset($this->gameData[$name]))
+        if(!array_key_exists('game_version', $this->gameData))
+        {
+            $this->decode();
+        }
+
+        if(array_key_exists($name, $this->gameData))
         {
             return $this->gameData[$name];
         }
