@@ -71,10 +71,15 @@ Route::post('access/register', array('before' => 'csrf', function() {
     // Set credentials to the form fields from the access page
     $creds['name'] = Input::get('username');
     $creds['password'] = Input::get('password');
-    $creds['recaptcha'] = Input::get('recaptcha_response_field');
+    $creds['password_confirmation'] = Input::get('password_confirmation');
+    $creds['asirra'] = Input::get('Asirra_Ticket');
 
     // Build a validator: require both fields, usernames longer than 4 characters
-    $v = Validator::make($creds, array('name' => 'required|min:4|unique:users,name', 'password' => 'required', 'recaptcha' => 'required|recaptcha'));
+    $v = Validator::make($creds, array(
+                                      'name' => 'required|min:4|unique:users,name',
+                                      'password' => 'required|confirmed|min:6',
+                                      'asirra' => 'required|asirra'
+                                 ));
 
     // Were those creds valid?
     if($v->fails())
@@ -95,6 +100,8 @@ Route::post('access/register', array('before' => 'csrf', function() {
 
     // Manually log in
     Auth::login($newb);
+
+    Event::fire('cookiesync.newuser', array($newb));
 
     // Go to welcome page
     return Redirect::to('welcome');
@@ -138,8 +145,8 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
                ->with('cookiesBaked', $thisSave->cookies(true))
                ->with('allTimeCookies', $thisSave->allTimeCookies());
     });
-    
-    
+
+
     /**
      * View all saves: Show a list of all saved games for the current user.
      */
@@ -164,8 +171,8 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
 
         return View::make('mysaves', $data);
     });
-    
-    
+
+
     /**
      * View a save: fetch the saved game by ID and display it
      */
@@ -183,7 +190,7 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
                ->with('cookiesBaked', $thisSave->cookies(true))
                ->with('allTimeCookies', $thisSave->allTimeCookies());
     }));
-    
+
     /**
      * Delete a save: requires a form submission with CSRF tokens, to avoid someone
      * illegitimately spamming nuke requests.
@@ -204,11 +211,11 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
             return Redirect::to(URL::previous())->with('info', View::make('partials.undelete')->render());
         }
     }));
-    
+
     /**
      * Undo deleting a save.
      */
-    
+
     Route::post('mysaves/undelete', array('before' => 'csrf', function()
     {
         $lazarusSave = Auth::user()->saves()->onlyTrashed()->orderBy('deleted_at', 'desc')->first();
@@ -231,7 +238,7 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
             App::abort(500);
         }
     }));
-    
+
     /**
      * Make a saved game public
      */
@@ -247,7 +254,7 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
     /**
      * View all games: Show a list of all games for the current user.
      */
-    
+
     Route::get('games', function()
     {
         $games = Auth::user()->games()->orderBy('date_saved', 'desc')->paginate(30);
@@ -256,7 +263,7 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
         return View::make('games')->with('gameCount', $gameCount)
             ->with('games', $games);
     });
-    
+
     /**
      * View a specific game
      */
@@ -344,7 +351,7 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
         return Redirect::to('goodbye');
     }));
 
-    
+
 
 
     /**

@@ -109,6 +109,7 @@ return array(
 
         'Greggilbert\Recaptcha\RecaptchaServiceProvider',
         'Profiler\ProfilerServiceProvider',
+        'Zerilliworks\Asirra\AsirraServiceProvider',
 
 	),
 
