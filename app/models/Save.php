@@ -5,11 +5,28 @@
 // Time: 11:11 PM
 // For: CookieSync
 
+/**
+ * Class Save
+ *
+ * The Big One. Cookie Clicker saves are a bit complicated, but essentially are
+ * serialized data. Basically, this class is a PHP implementation of Cookie Clicker's
+ * save writing and importing functions.
+ *
+ * Because the numbers in Cookie Clicker can overflow most integer limits, we use
+ * PHP's bcmath extensions to perform math on strings of numbers. It's impossible
+ * otherwise: It totally blows out integers on 32-bit platforms, possibly signed
+ * integers on 64-bit platforms.
+ *
+ * But you'd be crazy -- Nay, ABSOLUTELY BONKERS -- to collect that many cookies.
+ */
+
 class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInterface {
 
     protected $fillable = array('save_data');
     protected $softDelete = true;
     public $gameData = array();
+    public $decodedData = '';
+    public $rawDataChunks = array();
 
     public static function boot()
     {
@@ -221,9 +238,13 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      *
      * Cookie Clicker saves are Base64-encoded strings delimited by a pipe ("|").
      * It is a serialized output of game variables, which due to the design of the
-     * game are unlikely to change. This method decodes the string and explodes it
+     * game are unlikely to mutate. This method decodes the string and explodes it
      * into PHP arrays; it then fills a gameData array with these data. Return true
      * if decoding was successful, or false if anything failed.
+     *
+     * This method also converts Cookie Clicker's compressed binary arrays into
+     * expanded proper arrays of bits. It finally creates key/value pairs of the
+     * achievement or upgrade ID and its name.
      *
      * See also: $this->gameStat()
      *
@@ -232,7 +253,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     public function decode()
     {
         try {
-            $data = explode('|', base64_decode($this->data()));
+            $data = explode('|', $decodedData = base64_decode($this->data()));
             /**
              *  After exploding, the game data is broken up like this:
              *
@@ -279,40 +300,47 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
              *  array[7] => game achievements
              */
 
+            $this->decodedData = $decodedData;
+            $this->rawDataChunks = $data;
+
             $dates = explode(';', $data[2]);
             $cookieStats = explode(';', $data[4]);
+            $upgrades = $this->uncompressLargeBin($data[6]);
+            $achievements = $this->uncompressLargeBin($data[7]);
 
-            $this->gameData['game_version'] = $data[0];
-            $this->gameData['date_started'] = \Carbon\Carbon::createFromTimestamp(substr($dates[0], 0, -3));
-            $this->gameData['date_saved'] = \Carbon\Carbon::createFromTimestamp(substr($dates[2], 0, -3));
-            $this->gameData['banked_cookies'] = $cookieStats[0];
-            $this->gameData['alltime_cookies'] = $cookieStats[1];
-            $this->gameData['cookie_clicks'] = $cookieStats[2];
+            $this->gameData['game_version']                 = $data[0];
+            $this->gameData['date_started']                 =
+                \Carbon\Carbon::createFromTimestamp(substr($dates[0], 0, -3));
+            $this->gameData['date_saved']                   =
+                \Carbon\Carbon::createFromTimestamp(substr($dates[2], 0, -3));
+            $this->gameData['banked_cookies']               = $cookieStats[0];
+            $this->gameData['alltime_cookies']              = $cookieStats[1];
+            $this->gameData['cookie_clicks']                = $cookieStats[2];
             $this->gameData['alltime_golden_cookie_clicks'] = $cookieStats[3];
-            $this->gameData['handmade_cookies'] = $cookieStats[4];
-            $this->gameData['missed_golden_cookies'] = $cookieStats[5];
-            $this->gameData['background_type'] = $cookieStats[6];
-            $this->gameData['milk_type'] = $cookieStats[7];
-            $this->gameData['cookies_reset'] = $cookieStats[8];
-            $this->gameData['elder_wrath'] = $cookieStats[9];
-            $this->gameData['pledge_count'] = $cookieStats[10];
-            $this->gameData['pledge_time_left'] = $cookieStats[11];
-            $this->gameData['next_research'] = $cookieStats[12];
-            $this->gameData['research_time_left'] = $cookieStats[13];
-            $this->gameData['times_reset'] = $cookieStats[14];
-            $this->gameData['golden_cookie_clicks'] = $cookieStats[15];
+            $this->gameData['handmade_cookies']             = $cookieStats[4];
+            $this->gameData['missed_golden_cookies']        = $cookieStats[5];
+            $this->gameData['background_type']              = $cookieStats[6];
+            $this->gameData['milk_type']                    = $cookieStats[7];
+            $this->gameData['cookies_reset']                = $cookieStats[8];
+            $this->gameData['elder_wrath']                  = $cookieStats[9];
+            $this->gameData['pledge_count']                 = $cookieStats[10];
+            $this->gameData['pledge_time_left']             = $cookieStats[11];
+            $this->gameData['next_research']                = $cookieStats[12];
+            $this->gameData['research_time_left']           = $cookieStats[13];
+            $this->gameData['times_reset']                  = $cookieStats[14];
+            $this->gameData['golden_cookie_clicks']         = $cookieStats[15];
 
-            $buildings = explode(';', $data[5]);
-            $cursors = explode(',', $buildings[0]);
-            $grandmas = explode(',', $buildings[1]);
-            $farms = explode(',', $buildings[2]);
-            $factories = explode(',', $buildings[3]);
-            $mines = explode(',', $buildings[4]);
-            $shipments = explode(',', $buildings[5]);
-            $alchemyLabs = explode(',', $buildings[6]);
-            $portals = explode(',', $buildings[7]);
+            $buildings    = explode(';', $data[5]);
+            $cursors      = explode(',', $buildings[0]);
+            $grandmas     = explode(',', $buildings[1]);
+            $farms        = explode(',', $buildings[2]);
+            $factories    = explode(',', $buildings[3]);
+            $mines        = explode(',', $buildings[4]);
+            $shipments    = explode(',', $buildings[5]);
+            $alchemyLabs  = explode(',', $buildings[6]);
+            $portals      = explode(',', $buildings[7]);
             $timeMachines = explode(',', $buildings[8]);
-            $condensers = explode(',', $buildings[9]);
+            $condensers   = explode(',', $buildings[9]);
 
             $this->gameData['buildings.cursors']        = $cursors[0];
             $this->gameData['buildings.grandmas']       = $grandmas[0];
@@ -325,12 +353,45 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $this->gameData['buildings.time_machines']  = $timeMachines[0];
             $this->gameData['buildings.condensers']     = $condensers[0];
 
-            /** !==============================================================!
-             *
-             *  TODO: implement a PHP equivalent of Cookie Clicker's (un)compressBin methods.
-             *        PHP is not privy to the same string manipulation methods as JavaScript,
-             *        so (un)compressing arrays like CC does requires some finagling.
-             * */
+            $this->gameData['upgrades.binary'] = $upgrades;
+            $this->gameData['achievements.binary'] = $achievements;
+
+
+            // Split upgrades into pairs of bits, split achievements into single bits
+            // Upgrades are [bool, bool] which is [unlocked?, bought?]
+            $upgradesArray = str_split($upgrades, 2);
+            $achievementsArray = str_split($achievements);
+
+
+            // Decode upgrades
+            $upgradesArray =
+                array_filter($upgradesArray, function($upgrade)
+                {
+                    list($unlocked, $bought) = str_split($upgrade);
+                    return(min($bought, 1)) ? true : false;
+                });
+
+            array_walk($upgradesArray, function(&$upgrade, $key) {
+                $upgrade = Lang::get("upgrades.$key");
+            });
+
+
+            // Decode achievements
+            $achievementsArray = array_filter($achievementsArray);
+
+            array_walk($achievementsArray, function(&$achieve, $key) {
+                $achieve = Lang::get("achievements.$key");
+            });
+
+
+            $this->gameData['upgrades']     = $upgradesArray;
+            $this->gameData['achievements'] = $achievementsArray;
+
+
+            // Calculate prestige (a.k.a., Heavenly Chips)
+            // This is pretty much a direct PHP rewrite of the CC code. No Math object, kekekeke!
+            $prestige = intval(bcdiv($this->gameData['cookies_reset'], '1000000000000'));
+            $this->gameData['prestige'] = max(0,floor((-1+pow(1+8*$prestige, 0.5)) / 2));
 
             return true;
         } catch (ErrorException $e) {
@@ -347,15 +408,15 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     public function allStats()
     {
         return $this->gameStat('buildings.cursors') . " Cursors" . "\n" .
-        $this->gameStat('buildings.grandmas')  . " Grandmas" . "\n" .
-        $this->gameStat('buildings.farms')  . " Farms" . "\n" .
-        $this->gameStat('buildings.factories') . " Factories" . "\n" .
-        $this->gameStat('buildings.mines') . " Mines" . "\n" .
-        $this->gameStat('buildings.shipments') . " Shipments" . "\n" .
-        $this->gameStat('buildings.labs') . " Labs" . "\n" .
-        $this->gameStat('buildings.portals') . " Portals" . "\n" .
-        $this->gameStat('buildings.time_machines') . " T.M.s" . "\n" .
-        $this->gameStat('buildings.condensers') . " Condensers";
+               $this->gameStat('buildings.grandmas') . " Grandmas" . "\n" .
+               $this->gameStat('buildings.farms') . " Farms" . "\n" .
+               $this->gameStat('buildings.factories') . " Factories" . "\n" .
+               $this->gameStat('buildings.mines') . " Mines" . "\n" .
+               $this->gameStat('buildings.shipments') . " Shipments" . "\n" .
+               $this->gameStat('buildings.labs') . " Labs" . "\n" .
+               $this->gameStat('buildings.portals') . " Portals" . "\n" .
+               $this->gameStat('buildings.time_machines') . " T.M.s" . "\n" .
+               $this->gameStat('buildings.condensers') . " Condensers";
     }
 
 
@@ -379,9 +440,27 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         }
     }
 
-    private function uncompress($value)
+    private function uncompressLargeBin($value)
     {
-        // TODO: implement de-compression logic for cookie clicker property arrays
+        $output = '';
+
+        foreach(explode(';', $value) as $val)
+        {
+            $output .= $this->uncompressBin($val);
+        }
+
+        return $output;
+    }
+
+    private function uncompressBin($value)
+    {
+        // Explode, reverse, remove an element from both ends, send back binary string.
+        $binary =  decbin($value);
+        $binaryArray = str_split($binary);
+        $binaryArray = array_reverse($binaryArray);
+        array_shift($binaryArray);
+        array_pop($binaryArray);
+        return implode($binaryArray);
     }
 
     // FIXME: It's pretty hackish to put this implementation here
@@ -413,6 +492,31 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         }
 
     }
+
+
+    public function __get($var)
+    {
+        if ($var == 'buildings') {
+            return array(
+                'cursors'       => $this->gameData['buildings.cursors'],
+                'grandmas'      => $this->gameData['buildings.grandmas'],
+                'farms'         => $this->gameData['buildings.farms'],
+                'factories'     => $this->gameData['buildings.factories'],
+                'mines'         => $this->gameData['buildings.mines'],
+                'shipments'     => $this->gameData['buildings.shipments'],
+                'labs'          => $this->gameData['buildings.labs'],
+                'portals'       => $this->gameData['buildings.portals'],
+                'time_machines' => $this->gameData['buildings.time_machines'],
+                'condensers'    => $this->gameData['buildings.condensers'],
+            );
+        }
+        else
+        {
+            return parent::__get($var);
+        }
+    }
+
+
 
     /**
      * Convert the object to its JSON representation.
