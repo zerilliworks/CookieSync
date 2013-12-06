@@ -33,11 +33,26 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
+    h1,
+    h2,
+    h3 {
+        font-family: 'Kavoon','Helvetica','Arial', sans-serif;
+        text-align: center;
+    }
+
 </style>
 @stop
 
 @section('upper-body')
-<div class="video-container">
-    <iframe width="1280" height="720" src="//www.youtube-nocookie.com/embed/VzC3ly2YMgE?rel=0" frameborder="0" allowfullscreen></iframe>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2 col-sm-12">
+        <div class="jumbotron" style="box-shadow: 0 0 30px rgba(0,0,0,0.35); border-radius: 0 0 10px 10px">
+            <h1>Well, off you go.</h1>
+            <h2 class="text-muted">Come back any time.</h2>
+            <h3><a href="/">Back to CookieSync</a></h3>
+        </div>
+
+    </div>
 </div>
+
 @stop
