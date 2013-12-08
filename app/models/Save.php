@@ -214,6 +214,11 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         // FIXME: Dammit, again, don't prettify here!
         return $this->prettyNumbers($this->gameStat('alltime_cookies'));
     }
+    
+    public function heavenlyChips()
+    {
+        return $this->gameStat('prestige');
+    }
 
     /**
      * Has ELDER WRATH taken hold in this save?
@@ -496,16 +501,16 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     {
         if ($var == 'buildings') {
             return array(
-                'cursors'       => $this->gameData['buildings.cursors'],
-                'grandmas'      => $this->gameData['buildings.grandmas'],
-                'farms'         => $this->gameData['buildings.farms'],
-                'factories'     => $this->gameData['buildings.factories'],
-                'mines'         => $this->gameData['buildings.mines'],
-                'shipments'     => $this->gameData['buildings.shipments'],
-                'labs'          => $this->gameData['buildings.labs'],
-                'portals'       => $this->gameData['buildings.portals'],
-                'time_machines' => $this->gameData['buildings.time_machines'],
-                'condensers'    => $this->gameData['buildings.condensers'],
+                'cursors'       => $this->gameStat('buildings.cursors'),
+                'grandmas'      => $this->gameStat('buildings.grandmas'),
+                'farms'         => $this->gameStat('buildings.farms'),
+                'factories'     => $this->gameStat('buildings.factories'),
+                'mines'         => $this->gameStat('buildings.mines'),
+                'shipments'     => $this->gameStat('buildings.shipments'),
+                'labs'          => $this->gameStat('buildings.labs'),
+                'portals'       => $this->gameStat('buildings.portals'),
+                'time_machines' => $this->gameStat('buildings.time_machines'),
+                'condensers'    => $this->gameStat('buildings.condensers'),
             );
         }
         else
