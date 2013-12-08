@@ -1,6 +1,6 @@
 {
     "name": "zerilliworks/asirra",
-    "description": "",
+    "description": "A Laravel 4 package that embeds and validates Microsoft's Asirra CAPTCHAs",
     "authors": [
         {
             "name": "Armand Zerilli",
