@@ -56,6 +56,10 @@
         <td>Game Started on:</td>
         <td>{{ $save->gameStat('date_started')->toFormattedDateString() }}</td>
     </tr>
+    <tr>
+        <td>Heavenly Chips:</td>
+        <td>{{ $save->heavenlyChips() }}</td>
+    </tr>
     </tbody>
 </table>
 <div class="row" style="margin-bottom: 30px;">

@@ -33,6 +33,7 @@
     @foreach($saves as $save)
     <?php
     $allStatsHtml = implode('<br>', explode("\n", $save->allStats()));
+    $allStatsHtml .= "<hr>" . $save->heavenlyChips() . " Heavenly Chips";
     ?>
     <tr class="{{ ($save->isGrandmapocalypse()) ? 'danger' : '' }}">
         <td>
