@@ -116,6 +116,12 @@ return array(
     106 => "Wrinklesquisher",
     107 => "Moistburster",
     108 => "Spooky cookies",
+    109 => "Coming to town",
+    110 => "All heil Santa",
+    111 => "Let it snow",
+    112 => "Oh deer",
+    113 => "Sleigh of hand",
+    114 => "Reindeer sleigher",
 
 
 
