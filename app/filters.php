@@ -19,7 +19,7 @@ App::before(function($request)
 
 App::after(function($request, $response)
 {
-	//
+    Event::fire('cookiesync.done', array('response_time' => round(1000 * (microtime(true) - LARAVEL_START), 4)));
 });
 
 /*
