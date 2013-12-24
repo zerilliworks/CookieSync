@@ -46,11 +46,11 @@
     <tbody>
     <tr>
         <td>Cookies in Bank:</td>
-        <td><b>{{ $save->cookies(true) }}</b></td>
+        <td><b>{{ prettyNumbers($save->cookies()) }}</b></td>
     </tr>
     <tr>
         <td>Cookies Baked (All-Time):</td>
-        <td>{{ $save->allTimeCookies() }}</td>
+        <td>{{ prettyNumbers($save->allTimeCookies()) }}</td>
     </tr>
     </tbody>
 </table>

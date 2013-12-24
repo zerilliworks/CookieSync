@@ -40,7 +40,7 @@
             {{ $save->created_at->diffForHumans() }}
         </td>
         <td>
-            <b>{{ $save->cookies(true) }}</b> / <i class="text-muted">{{ $save->allTimeCookies() }}</i>
+            <b>{{ prettyNumbers($save->cookies()) }}</b> / <i class="text-muted">{{ prettyNumbers($save->allTimeCookies()) }}</i>
         </td>
         <td>
             <form class="form-inline" action="/mysaves/nuke/{{ $save->id }}" method="post">

@@ -30,6 +30,12 @@
         /* For momentum scrolling on iOS devices */
         -webkit-overflow-scrolling: touch;
     }
+
+    .cookie-count {
+        font-family: "Kavoon", "Helvetica", "Arial", "sans-serif";
+        text-align: center;
+        text-shadow: ;
+    }
 </style>
 @stop
 
@@ -38,6 +44,9 @@
 <div class="page-header">
     <h1>View Save Data <small>from {{ $save->updated_at }}</small></h1>
 </div>
+<h1 class="cookie-count">
+
+</h1>
 <table class="table">
     <thead>
         <th>Game Stats</th>
@@ -46,11 +55,11 @@
     <tbody>
     <tr>
         <td>Cookies in Bank:</td>
-        <td><b>{{ $cookiesBaked }}</b></td>
+        <td><b>{{ prettyNumbers($cookiesBaked) }}</b></td>
     </tr>
     <tr>
         <td>Cookies Baked (All-Time):</td>
-        <td>{{ $allTimeCookies }}</td>
+        <td>{{ prettyNumbers($allTimeCookies) }}</td>
     </tr>
     <tr>
         <td>Game Started on:</td>

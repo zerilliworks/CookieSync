@@ -9,7 +9,7 @@
  * Class Save
  *
  * The Big One. Cookie Clicker saves are a bit complicated, but essentially are
- * serialized data. Basically, this class is a PHP implementation of Cookie Clicker's
+ * serialized data. This class is a PHP implementation of Cookie Clicker's
  * save writing and importing functions.
  *
  * Because the numbers in Cookie Clicker can overflow most integer limits, we use
@@ -20,6 +20,8 @@
  * But you'd be crazy -- Nay, ABSOLUTELY BONKERS -- to collect that many cookies.
  */
 
+use Carbon\Carbon;
+
 class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInterface {
 
     protected $fillable = array('save_data');
@@ -28,6 +30,9 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     public $decodedData = '';
     public $rawDataChunks = array();
 
+    /**
+     *
+     */
     public static function boot()
     {
         parent::boot();
@@ -52,7 +57,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                     $game = Auth::user()->games()->save(new Game(array(
                                                    'name' => "Game on ".  $model->started_at->toFormattedDateString(),
                                                    'date_started' => $model->started_at,
-                                                   'date_saved' => with(new Carbon\Carbon())->toDateTimeString(),
+                                                   'date_saved' => with(new Carbon())->toDateTimeString(),
                                                    'cookie_history' => ''
                                               )));
 
@@ -92,6 +97,11 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         return $this->belongsTo('User');
     }
 
+    /**
+     * Get the parent game of this save
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function game()
     {
         return $this->belongsTo('Game');
@@ -99,6 +109,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
     /**
      * Check whether this save is public or not
+     *
      * @return bool
      */
     public function isShared()
@@ -189,32 +200,30 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         return $this->attributes['save_data'];
     }
 
-    // FIXME: Do not handle prettification here, extract $this->prettyNumbers() method to a more generic place
     /**
-     * @param bool $pretty
+     * @internal param bool $pretty
      *
      * @return null|string
-     */public function cookies($pretty = false)
+     */
+    public function cookies()
     {
-        if(!$pretty) {
             return $this->gameStat('banked_cookies');
-        }
-        else
-        {
-            return $this->prettyNumbers($this->gameStat('banked_cookies'));
-        }
     }
 
     /**
      * Returns the all-time number of baked cookies
      *
-     * @return string|integer
-     */public function allTimeCookies()
+     * @return integer
+     */
+    public function allTimeCookies()
     {
-        // FIXME: Dammit, again, don't prettify here!
-        return $this->prettyNumbers($this->gameStat('alltime_cookies'));
+        return $this->gameStat('alltime_cookies');
     }
-    
+
+    /**
+     * Get the number of Heavenly Chips for this save
+     * @return null
+     */
     public function heavenlyChips()
     {
         return $this->gameStat('prestige');
@@ -391,7 +400,12 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
             Event::fire('cookiesync.savedecoded', array($this));
 
-            return true;
+            if($this->gameData['game_version'])
+            {
+                return true;
+            } else {
+                return false;
+            }
         } catch (ErrorException $e) {
             Log::error('Failed to parse save with id '.$this->id);
             return false;
@@ -403,6 +417,9 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     // TODO: Extract Save->allStats() to the view code where it belongs
     // Basically, this is hacked in to give the list of all stats as seen in the 'Stats'
     // popover in the save list. Bad place for it, I know.
+    /**
+     * @return string
+     */
     public function allStats()
     {
         return $this->gameStat('buildings.cursors') . " Cursors" . "\n" .
@@ -425,8 +442,9 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      *
      * @param $name
      *
-     * @return null
-     */public function gameStat($name)
+     * @return null|mixed
+     */
+    public function gameStat($name)
     {
         if(!array_key_exists('game_version', $this->gameData))
         {
@@ -443,6 +461,10 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         }
     }
 
+    /**
+     * @param $value
+     * @return string
+     */
     private function uncompressLargeBin($value)
     {
         $output = '';
@@ -455,6 +477,10 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         return $output;
     }
 
+    /**
+     * @param $value
+     * @return string
+     */
     private function uncompressBin($value)
     {
         // Explode, reverse, remove an element from both ends, send back binary string.
@@ -464,36 +490,6 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         array_shift($binaryArray);
         array_pop($binaryArray);
         return implode($binaryArray);
-    }
-
-    // FIXME: It's pretty hackish to put this implementation here
-    // TODO: Extract number prettification to another class
-
-    private function prettyNumbers($num)
-    {
-        $numstring = strval($num);
-        if(strpos($numstring, '.'))
-        {
-            $components = explode('.', $numstring);
-            $vl = strrev($components[0]);
-            $output = "";
-            foreach (str_split($vl, 3) as $chunk){
-                $output = strrev($chunk) . ',' . $output;
-            }
-
-            return substr($output, 0, -1) . "." . substr($components[1],0,2);
-        }
-        else
-        {
-            $vl = strrev($numstring);
-            $output = "";
-            foreach (str_split($vl, 3) as $chunk){
-                $output = strrev($chunk) . ',' . $output;
-            }
-
-            return substr($output, 0, -1);
-        }
-
     }
 
 
@@ -518,6 +514,11 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             return parent::__get($var);
         }
     }
+
+//    public function __call($function, $args)
+//    {
+//
+//    }
 
 
 

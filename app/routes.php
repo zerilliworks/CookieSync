@@ -142,7 +142,7 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
         $thisSave->decode();
         return View::make('example')
                ->with('save', $thisSave)
-               ->with('cookiesBaked', $thisSave->cookies(true))
+               ->with('cookiesBaked', $thisSave->cookies())
                ->with('allTimeCookies', $thisSave->allTimeCookies());
     });
 
@@ -186,7 +186,7 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
 
         return View::make('singlesave')
                ->with('save', $thisSave)
-               ->with('cookiesBaked', $thisSave->cookies(true))
+               ->with('cookiesBaked', $thisSave->cookies())
                ->with('allTimeCookies', $thisSave->allTimeCookies());
     }));
 
@@ -337,6 +337,9 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
     {
         $victim = Auth::user();
 
+        $id = $victim->id;
+        $name = $victim->name;
+
         // Delete all game saves
         $victim->saves()->forceDelete();
         $victim->games()->forceDelete();
@@ -347,6 +350,7 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
         $victim->forceDelete();
 
         Session::flash('goodbye', 'yes');
+        Event::fire('cookiesync.userdestroyed', array($id, $name));
         return Redirect::to('goodbye');
     }));
 
@@ -390,6 +394,12 @@ Route::get('about', function() {
     return View::make('about');
 });
 
+Route::get('changelog', function()
+{
+    $log = DB::table('changelog')->orderBy('release_date', 'desc')->get();
+
+    return View::make('changelog')->with('changes', $log);
+});
 
 Route::get('goodbye', function() {
     if(Session::get('goodbye') == 'yes' || true)

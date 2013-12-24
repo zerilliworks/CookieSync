@@ -34,7 +34,7 @@
                 {{ $game->saves()->count() }}
             </td>
             <td>
-                <b>{{ $latestSave->cookies(true) }}</b> / <i class="text-muted">{{ $latestSave->allTimeCookies() }}</i>
+                <b>{{ prettyNumbers($latestSave->cookies()) }}</b> / <i class="text-muted">{{ prettyNumbers($latestSave->allTimeCookies()) }}</i>
             </td>
             <td>
                 {{ $latestSave->updated_at->diffForHumans() }}
