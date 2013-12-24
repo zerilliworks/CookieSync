@@ -9,6 +9,16 @@ class Game extends Eloquent {
     protected $fillable = array('user_id', 'date_started', 'date_saved', 'name', 'cookie_history');
     protected $softDelete = true;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function($model)
+        {
+            Event::fire('cookiesync.gamedeletes', array($model));
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo('User');
