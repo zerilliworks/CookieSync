@@ -68,7 +68,8 @@ return array(
     ),
     "unique"           => "The :attribute has already been taken.",
     "url"              => "The :attribute format is invalid.",
-
+    "recaptcha"        => 'The :attribute field is not correct.',
+    'asirra'           => 'Asirra validation failed.',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -81,10 +82,7 @@ return array(
 	|
 	*/
 
-	'custom' => array(
-        "recaptcha"        => 'The :attribute field is not correct.',
-        'asirra'           => 'Asirra validation failed.',
-    ),
+	'custom' => array(),
 
 	/*
 	|--------------------------------------------------------------------------

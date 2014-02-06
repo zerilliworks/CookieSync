@@ -1,61 +1,66 @@
 <?php namespace CookieSync\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Illuminate\Support\Facades\Event;
 use \User;
 use \Save;
 use \Game;
 
 class FixGamesCommand extends Command {
 
-	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'cookiesync:fixgames';
+    /**
+     * The console command name.
+     *
+     * @var string
+     */
+    protected $name = 'cookiesync:fixgames';
 
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
-	protected $description = 'Scan, repair, and upgrade CookieSync data.';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Scan, repair, and upgrade CookieSync data.';
 
     protected $errors = array();
 
-	/**
-	 * Create a new command instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
+    /**
+     * Create a new command instance.
+     *
+     * @return \CookieSync\Commands\FixGamesCommand
+     */
+    public function __construct()
+    {
 
-		parent::__construct();
+        parent::__construct();
 
+        // Write to our own log file
+        Log::useFiles(storage_path() . '/logs/fixgames.log');
 
-	}
+    }
 
-	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function fire()
-	{
-        $newGameCount = 0;
-        $fixedSaveCount = 0;
-
+    /**
+     * Execute the console command.
+     *
+     * @throws Exception
+     * @return mixed
+     */
+    public function fire()
+    {
         // Run through all users and correct their saved games
         $allUsers = User::all();
         $userCount = count($allUsers);
         $saveCount = Save::all()->count();
-        $brokenSaveCount = Save::whereGameId(null)->count();
 
         $this->info("Process started with $userCount users.");
+
+        // Error counters
+        $datelessSaves = 0;
+        $irreparableSaves = 0;
+        $corruptSaves = 0;
 
         $orphanedSaves = Save::whereUserId(null)->count();
         $this->info("Found $orphanedSaves orphaned saves.");
@@ -63,146 +68,199 @@ class FixGamesCommand extends Command {
         $orphanedGames = Game::whereUserId(null)->count();
         $this->info("Found $orphanedGames orphaned games.");
 
-        $orphanedGames = Save::whereSaveData(null)->count();
-        $this->info("Found $orphanedGames saves with no data.");
+        $emptySaves = Save::whereSaveData(null)->count();
+        $this->info("Found $emptySaves saves with no data.");
 
-        $this->info("Found $brokenSaveCount saves with no associated Game group.");
+        $emptySaves = Save::whereSavedAt(null)->count();
+        $this->info("Found $emptySaves saves with no data.");
 
+        $gamelessSaves = Save::whereGameId(null)->count();
+        $this->info("Found $gamelessSaves saves with no associated Game group.");
 
-        if(!$brokenSaveCount)
-        {
-            $this->error("No saved games need fixing.");
-            exit;
-        }
-
+        $brokenSaveCount = $orphanedSaves + $orphanedGames + $emptySaves + $gamelessSaves;
 
         $this->info("There are $saveCount saves, $brokenSaveCount of which need fixing.");
 
 
-
-
-        // Error counters
-        $emptySaves = 0;
-        $datelessSaves = 0;
-        $fixedDatelessSaves = 0;
-
-
-
         $this->error("MAKE A BACKUP BEFORE PROCEEDING.");
-        if($this->confirm("Shall we continue? [y|N]", false))
-        {
+        if ($this->confirm("Shall we continue? [y|N]", false)) {
             $this->info("Starting...");
 
             $this->info("Validating save data...");
 
+            //
+            // CHECK FOR ANY ERRORS IN SAVE DATA
+            //
+
             foreach (Save::all() as $save) {
 
-                try
+                /*
+                 * Confirm that the data is not corrupt
+                */
+
+                if (!$save->decode()) {
+                    $corruptSaves++;
+                }
+
+
+                /*
+                 * Confirm that the save has proper timestamps
+                */
+
+                if ($save->saved_at == null || $save->started_at == null) {
+                    $datelessSaves++;
+                }
+
+
+                /*
+                 * Confirm that the save is assigned to a game
+                */
+
+                if ($save->game_id == null) {
+                    $gamelessSaves++;
+
+                }
+
+                if($errorCount > 0)
                 {
-                    if($save->save_data == null)
-                    {
+                    Log::error("Save (id: $save->id) could not be repaired.");
+                }
+                else
+                {
+                    Log::info("Save (id: $save->id) was repaired.");
+                }
+
+            }
+
+
+
+
+
+
+            //
+            // FIX ALL ERRORS
+            //
+
+
+            foreach (Save::all() as $save) {
+
+                $errorCount = 0;
+
+                /*
+                 * Confirm that a save has some data
+                */
+
+                if ($save->save_data == null) {
+                    Log::notice("Save object with ID $save->id has no data.");
+                    try {
                         $emptySaves++;
                         $save->delete();
-                        throw new \Exception("Save with ID $save->id has no data.");
-
                     }
-
-                    if($save->user->exists)
-                    {
-                        $orphanedSaves++;
-                        $save->delete();
-                        throw new \Exception("Save with ID $save->id is orphaned.");
+                    catch (Exception $e) {
+                        $errorCount++;
+                        Log::error($e->getMessage());
                     }
+                }
 
-                    if($save->saved_at == null ||  $save->started_at == null)
-                    {
+                /*
+                 * Confirm that the data is not corrupt
+                */
+
+                try {
+                    if (!$save->decode()) {
+                        throw new Exception("IRREPARABLE: Save with ID $save->id is corrupt.");
+                    }
+                }
+                catch (Exception $e) {
+                    $corruptSaves++;
+                    $errorCount++;
+                    Log::error($e->getMessage());
+                }
+
+
+                /*
+                 * Confirm that the save has proper timestamps
+                */
+
+                try {
+                    if ($save->saved_at == null || $save->started_at == null) {
+                        Log::notice("Save object with ID $save->id has no timestamps.");
                         $datelessSaves++;
 
-                        try {
-                            $save->decode();
+                        // Assign actual Date/Time types to the start and save dates
+                        $save->started_at = $save->gameStat('date_started');
+                        $save->saved_at = $save->gameStat('date_saved');
 
-                            // Assign actual Date/Time types to the start and save dates
-                            $save->started_at = $save->gameStat('date_started');
-                            $save->saved_at = $save->gameStat('date_saved');
-
-                            $save->save();
-                            $fixedDatelessSaves++;
-                        }
-                        catch (\Exception $e)
-                        {
-                            throw new \Exception("Save with ID $save->id is corrupted.");
+                        if (!$save->save()) {
+                            throw new Exception("IRREPARABLE: Save object with ID $save->id has no timestamps.");
                         }
                     }
+                }
+                catch (Exception $e) {
+                    $errorCount++;
+                    Log::error($e->getMessage());
+                }
 
-                    if($save->game_id == null)
-                    {
-                        try
-                        {
-                            if(!$thisGame = Game::whereDateStarted($save->started_at)->first())
-                            {
-                                $game = new Game(array(
-                                                      'user_id' => $save->user->id,
-                                                      'name' => "Game on " . with(new \Carbon\Carbon($save->started_at))->toFormattedDateString(),
-                                                      'date_started' => $save->started_at,
-                                                      'date_saved' => time(),
-                                                      'cookie_history' => ''
-                                                 ));
-                                $game->save();
-                                $save->game_id = $game->id;
-                                $save->save();
-                            }
-                            else
-                            {
-                                $save->game_id = $thisGame->id;
-                                $save->save();
-                            }
+
+                /*
+                 * Confirm that the save is assigned to a game
+                */
+
+                if ($save->game_id == null) {
+                    Log::notice("Save object with ID $save->id is not assigned to a Game object.");
+                    try {
+                        if (!$thisGame = Game::whereDateStarted($save->started_at)->first()) {
+
+                            $game = new Game(array(
+                                                  'user_id' => $save->user->id,
+                                                  'name' =>
+                                                  "Game on "
+                                                  . with(new \Carbon\Carbon($save->started_at))->toFormattedDateString(),
+                                                  'date_started' => $save->started_at,
+                                                  'date_saved' => time(),
+                                                  'cookie_history' => ''
+                                             ));
+                            $game->save();
+                            $save->game_id = $game->id;
                         }
-                        catch(\Exception $e)
-                        {
-                            $this->errors[] = $e->getMessage();
-                            echo PHP_EOL;
+                        else {
+                            $save->game_id = $thisGame->id;
                         }
 
-                        echo ".";
-
+                        if (!$save->save()) {
+                            throw new Exception("IRREPARABLE: Save object with ID $save->id has no timestamps.");
+                        }
+                    }
+                    catch (Exception $e) {
+                        Log::error($e->getMessage());
                     }
 
+                    echo ".";
 
+                }
 
-
-                } catch (\Exception $e) {
-                    $this->errors[] = $e->getMessage();
+                if($errorCount > 0)
+                {
+                    Log::error("Save (id: $save->id) could not be repaired.");
+                }
+                else
+                {
+                    Log::info("Save (id: $save->id) was repaired.");
                 }
 
             }
 
             echo PHP_EOL;
             $this->info("Done!");
-            $this->comment("Found $emptySaves saves without data and deleted them.");
-            $this->comment("Added timestamps to $fixedDatelessSaves saves.");
 
-            $this->error("There were ". count($this->errors) . " errors.");
+            $this->error("There were " . count($this->errors) . " errors.");
+            $this->comment('You can find a log of all changes and errors in ' . storage_path() . '/logs/fixgames.log');
 
-            if(count($this->errors) >= 1 && count($this->errors) < 10)
-            {
-                foreach($this->errors as $error)
-                {
-                    $this->error($error);
-                }
-            }
-            else if (count($this->errors) > 10 &&  $this->confirm("Show all errors? [Y|n]", true))
-            {
-                foreach($this->errors as $error)
-                {
-                    $this->error($error);
-                }
-            }
         }
-        else
-        {
+        else {
             $this->error("Aborted.");
         }
-	}
+    }
 
     /**
      * Get the console command arguments.
@@ -211,8 +269,7 @@ class FixGamesCommand extends Command {
      */
     protected function getArguments()
     {
-        return array(
-        );
+        return array();
     }
 
     /**

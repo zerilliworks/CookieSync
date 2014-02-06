@@ -1,6 +1,7 @@
 <?php namespace Zerilliworks\Asirra;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Factory;
 
 class AsirraServiceProvider extends ServiceProvider {
 
@@ -51,7 +52,7 @@ class AsirraServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		//
+
 	}
 
 	/**
