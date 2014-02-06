@@ -111,6 +111,8 @@ return array(
         'Profiler\ProfilerServiceProvider',
         'Zerilliworks\Asirra\AsirraServiceProvider',
 
+        'Cartalyst\DataGrid\DataGridServiceProvider',
+
 	),
 
 	/*
@@ -178,6 +180,7 @@ return array(
         'View'            => 'Illuminate\Support\Facades\View',
 
         'Profiler' => 'Profiler\Facades\Profiler',
+        'DataGrid' => 'Cartalyst\DataGrid\Facades\DataGrid',
 
 	),
 
