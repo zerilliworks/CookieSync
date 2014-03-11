@@ -153,7 +153,13 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
     Route::get('mysaves', function() {
 
         $user = Auth::user();
-        $data = array('saveCount' => $user->saves()->count());
+        $user->load(array('saves' => function($query) {
+            $query->take(30);
+        }));
+        $data = array(
+//            'saveCount' => $user->saves()->count(),
+            'gameCount' => $user->games()->count()
+        );
 
         // FIXME: This uses two SQL queries to find the latest save date when one would do.
         // TODO: Use one query to grab all saves and then pick out the newest one.
@@ -166,7 +172,17 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
             $data['latestSaveDate'] = 'None';
         }
 
-        $data['saves'] = $user->saves()->orderBy('created_at', 'desc')->paginate(30);
+        $data['saves'] = $user->saves()->paginate(30);
+        $data['saveCount'] = count($data['saves']);
+
+        $careerCookies = '0';
+        // Calculate the total cookies earned in all games
+        foreach(User::with('games.saves')->find($user->id)->games as $game)   // Queries user twice, but cuts down on total query count
+        {
+            $careerCookies = bcadd($game->latestSave()->cookies(), $careerCookies);
+        }
+
+        $data['careerCookies'] = $careerCookies;
 
 
         return View::make('mysaves', $data);
@@ -374,6 +390,23 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
         return View::make('bookmark.save')->with('didSave', $didSave);
     });
 
+
+
+    Route::group(array('prefix' => '{api}/v1'), function()
+    {
+        Route::get("users/{id}", "ApiController@getUser");
+        Route::get("users/{id}/{attribute}", "ApiController@getUserAttribute");
+        Route::get("users/findby/email/{email}", "ApiController@getFindUserByEmail");
+        Route::get("users/findby/username/{username}", "ApiController@getFindUserByUsername");
+
+        Route::get('users/{id}/cookies', 'ApiController@getCookiesForUser');
+        Route::get('users/{id}/saves', 'ApiController@getSavesForUser');
+        Route::get('users/{id}/games', 'ApiController@getGamesForUser');
+        Route::get('users/{id}/shares', 'ApiController@getSharedSavesForUser');
+
+        Route::post('users/{id}/saves', 'ApiController@createSaveForUser');
+    });
+
 });
 /*
 | End Authenticated Routes
@@ -445,21 +478,6 @@ Route::get('shared/{id}', function($id)
 
 View::composer('mysaves', function($view)
 {
-//    $user = Auth::user();
-//    $view->with('saveCount',$user->saves()->count());
-//
-//    // FIXME: This uses two SQL queries to find the latest save date when one would do.
-//    // TODO: Use one query to grab all saves and then pick out the newest one.
-//
-//    if($c = $user->latestSave()) {
-//
-//        $view->with('latestSaveDate', $c->created_at->diffForHumans());
-//    }
-//    else {
-//        $view->with('latestSaveDate', 'None');
-//    }
-//
-//    $view->with('saves', $user->saves()->orderBy('created_at', 'desc')->paginate(30));
 
 });
 

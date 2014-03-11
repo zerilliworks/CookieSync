@@ -6,12 +6,30 @@
 // For: CookieSync
 
 namespace CookieSync\Traits;
+use Illuminate\Support\Facades\Lang;
 
 trait NumberFormatting {
 
-    function makeRoundedHumanReadable($number)
+    static function makeRoundedHumanReadable($number)
     {
+        $number = strval($number);
+        // Chop off the decimal if it has one
+        $number = explode('.', $number)[0];
+        $places = strlen($number);
 
+        // Determine how many powers of ten apply to this number, rounded to the
+        // next lowest increment of three (equates to thousand -> million -> trillion, etc.)
+        if($places > 3)
+        {
+            $powersOfTen = $places - ($places % 3);
+        } else {
+            return "Exactly $number";
+        }
+
+        // Slice off at most the first three digits of the number
+        $numericLead = substr($number, 0, ($places % 3 ? $places % 3 : 3 ));
+
+        return "$numericLead " . studly_case(Lang::get("numbers.powers_of_ten.$powersOfTen"));
     }
 
     function makeExactHumanReadable($number)
@@ -19,7 +37,7 @@ trait NumberFormatting {
 
     }
 
-    function makePrettyNumber($num, $placeSeparator = ',', $decimalSeparator = '.')
+    static function makePrettyNumber($num, $placeSeparator = ',', $decimalSeparator = '.')
     {
         $numstring = strval($num);
         if(strpos($numstring, '.'))

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-inverse" role="navigation">
+<nav class="navbar" role="navigation">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
         <a class="navbar-brand" href="/" style="font-family: Kavoon, Helvetica, Arial, sans-serif">CookieSync</a>

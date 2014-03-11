@@ -495,7 +495,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
     public function __get($var)
     {
-        if ($var == 'buildings') {
+        switch ($var) {
+            case "buildings":
             return array(
                 'cursors'       => $this->gameStat('buildings.cursors'),
                 'grandmas'      => $this->gameStat('buildings.grandmas'),
@@ -508,10 +509,15 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                 'time_machines' => $this->gameStat('buildings.time_machines'),
                 'condensers'    => $this->gameStat('buildings.condensers'),
             );
-        }
-        else
-        {
-            return parent::__get($var);
+
+            case "achievements":
+                return $this->gameStat("achievements");
+
+            case "upgrades":
+                return $this->gameStat("upgrades");
+
+            default:
+                return parent::__get($var);
         }
     }
 

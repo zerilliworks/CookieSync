@@ -6,6 +6,6 @@
 // For: CookieSync
 
 
-class ApiController {
+class ApiController extends BaseController {
 
 }

@@ -27,4 +27,22 @@ return array(
         39 => 'duodecillion',
         42 => 'tredecillion',
     ),
+
+    'natural_numbers' => array(
+        'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+        'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen',
+    ),
+
+    'tens' => array(
+        'zero',
+        'ten',
+        'twenty',
+        'thirty',
+        'forty',
+        'fifty',
+        'sixty',
+        'seventy',
+        'eighty',
+        'ninety',
+    ),
 );

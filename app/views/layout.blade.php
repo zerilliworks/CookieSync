@@ -11,9 +11,9 @@
     @endif
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
-    <link href='http://fonts.googleapis.com/css?family=Kavoon' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/cookiesync.css"/>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Kavoon' rel='stylesheet' type='text/css'>
     @yield('css')
 </head>
 <body>
@@ -33,6 +33,7 @@
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/slabText/2.3/jquery.slabtext.min.js" type="text/javascript"></script>
 
 <script type="text/javascript">
     var _gauges = _gauges || [];

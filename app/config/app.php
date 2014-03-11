@@ -52,7 +52,7 @@ return array(
 	|
 	*/
 
-	'locale' => 'en',
+	'locale' => 'en_us',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -110,6 +110,7 @@ return array(
         'Greggilbert\Recaptcha\RecaptchaServiceProvider',
         'Profiler\ProfilerServiceProvider',
         'Zerilliworks\Asirra\AsirraServiceProvider',
+        'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 
         'Cartalyst\DataGrid\DataGridServiceProvider',
         'Cartalyst\Sentry\SentryServiceProvider',
@@ -160,7 +161,7 @@ return array(
         'Form'            => 'Illuminate\Support\Facades\Form',
         'Hash'            => 'Illuminate\Support\Facades\Hash',
         'HTML'            => 'Illuminate\Support\Facades\HTML',
-//      'Input'           => 'Illuminate\Support\Facades\Input',
+        'Input'           => 'Illuminate\Support\Facades\Input',
         'Lang'            => 'Illuminate\Support\Facades\Lang',
         'Log'             => 'Illuminate\Support\Facades\Log',
         'Mail'            => 'Illuminate\Support\Facades\Mail',
@@ -169,8 +170,8 @@ return array(
         'Queue'           => 'Illuminate\Support\Facades\Queue',
         'Redirect'        => 'Illuminate\Support\Facades\Redirect',
         'Redis'           => 'Illuminate\Support\Facades\Redis',
-//      'Request'         => 'Illuminate\Support\Facades\Request',
-//      'Response'        => 'Illuminate\Support\Facades\Response',
+        'Request'         => 'Illuminate\Support\Facades\Request',
+        'Response'        => 'Illuminate\Support\Facades\Response',
         'Route'           => 'Illuminate\Support\Facades\Route',
         'Schema'          => 'Illuminate\Support\Facades\Schema',
         'Seeder'          => 'Illuminate\Database\Seeder',
@@ -183,11 +184,8 @@ return array(
 
         'Profiler'        => 'Profiler\Facades\Profiler',
         'DataGrid'        => 'Cartalyst\DataGrid\Facades\DataGrid',
-        'API'             => 'Cartalyst\Api\Laravel\Facades\API',
-        'Input'           => 'Cartalyst\Api\Laravel\Facades\Input',
-        'Request'         => 'Cartalyst\Api\Laravel\Facades\Request',
-        'Response'        => 'Cartalyst\Api\Laravel\Facades\Response',
         'Sentry'          => 'Cartalyst\Sentry\Facades\Laravel\Sentry',
+        'API'             => 'Cartalyst\Api\Laravel\Facades\API',
 	),
 
 );

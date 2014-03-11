@@ -26,11 +26,11 @@ class Game extends Eloquent {
 
     public function saves()
     {
-        return $this->hasMany('Save');
+        return $this->hasMany('Save')->orderBy('created_at', 'desc');
     }
 
     public function latestSave()
     {
-        return $this->saves()->orderBy('saved_at', 'desc')->first();
+        return $this->saves[0];
     }
 }

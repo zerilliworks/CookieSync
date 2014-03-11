@@ -6,6 +6,11 @@
 // For: CookieSync
 
 
+class NumericHelper {
+    use CookieSync\Traits\NumberFormatting;
+}
+
+
 /**
  * Checks the current URL against a pattern and returns one value or another
  *

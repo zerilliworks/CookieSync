@@ -41,6 +41,36 @@
 
 @section('body')
 @include('partials.navbar')
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="stat stat-large">
+                <h4 class="stat-title">Cookies:</h4>
+                <h1 class="stat-text">{{ NumericHelper::makeRoundedHumanReadable($save->cookies()) }} Cookies</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="stat stat-medium">
+                <h4 class="stat-title">Saved At:</h4>
+                <h1 class="stat-text">{{ $save->updated_at->toFormattedDateString() }}</h1>
+            </div>
+            <div class="stat stat-medium">
+                <h4 class="stat-title">Buildings:</h4>
+                <h1 class="stat-text">{{ count($save->buildings) }}</h1>
+            </div>
+            <div class="stat stat-medium">
+                <h4 class="stat-title">Achievements:</h4>
+                <h1 class="stat-text">{{ count($save->achievements) }}</h1>
+            </div>
+            <div class="stat stat-medium">
+                <h4 class="stat-title">Upgrades:</h4>
+                <h1 class="stat-text">{{ count($save->upgrades) }}</h1>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="page-header">
     <h1>View Save Data <small>from {{ $save->updated_at }}</small></h1>
 </div>
@@ -150,6 +180,12 @@
     {
         e.target.focus();
         e.target.select();
+    });
+
+    $(".stat-large h1.stat-text").slabText({
+        // Don't slabtext the headers if the viewport is under 380px
+        "viewportBreakpoint":380,
+        "maxFontSize" : 120
     });
 </script>
 @stop

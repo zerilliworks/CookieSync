@@ -2,8 +2,9 @@
 
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
+use Cartalyst\Attributes\Entity;
 
-class User extends Eloquent implements UserInterface, RemindableInterface {
+class User extends Entity implements UserInterface, RemindableInterface {
 
 	/**
 	 * The database table used by the model.
@@ -18,6 +19,17 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	 * @var array
 	 */
 	protected $hidden = array('password');
+
+    protected $guarded = array(
+        'id',
+        'created_at',
+        'updated_at',
+    );
+
+    public static function boot()
+    {
+        parent::boot();
+    }
 
 	/**
 	 * Get the unique identifier for the user.
@@ -51,7 +63,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     public function saves()
     {
-        return $this->hasMany('Save');
+        return $this->hasMany('Save')->orderBy('created_at', 'desc');
     }
 
     public function games()
@@ -61,7 +73,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     public function latestSave()
     {
-        return $this->saves()->orderBy('created_at', 'desc')->first();
+        return (!empty($this->saves[0])) ? $this->saves[0] : false;
     }
 
     public function addSave($data)
