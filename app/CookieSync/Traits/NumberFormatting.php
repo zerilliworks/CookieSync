@@ -19,11 +19,18 @@ trait NumberFormatting {
 
         // Determine how many powers of ten apply to this number, rounded to the
         // next lowest increment of three (equates to thousand -> million -> trillion, etc.)
-        if($places > 3)
+        if($places > 3 && $places < 46)
         {
-            $powersOfTen = $places - ($places % 3);
-        } else {
+            if($places % 3 == 0)
+            {
+                $powersOfTen = $places - 3;
+            } else {
+                $powersOfTen = max($places - ($places % 3), 0);
+            }
+        } else if ($places < 46) {
             return "Exactly $number";
+        } else {
+            return "An insane number";
         }
 
         // Slice off at most the first three digits of the number
