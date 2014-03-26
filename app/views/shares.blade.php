@@ -5,10 +5,7 @@
 <div class="jumbotron">
     <div class="row">
         <div class="col-xs-12">
-            <div class="stat stat-large">
-                <h4 class="stat-title">Cookies Saved:</h4>
-                <h1 class="stat-text">{{ NumericHelper::makeRoundedHumanReadable($careerCookies) }} Cookies</h1>
-            </div>
+            <h1>Shared Saves</h1>
         </div>
     </div>
     <div class="row">
@@ -17,12 +14,6 @@
                 <h4 class="stat-title">Saves:</h4>
                 <h1 class="stat-text">{{ $saveCount }}</h1>
             </div>
-            @if(isset($gameCount))
-            <div class="stat stat-medium">
-                <h4 class="stat-title">Games:</h4>
-                <h1 class="stat-text">{{ $gameCount }}</h1>
-            </div>
-            @endif
             <div class="stat stat-medium">
                 <h4 class="stat-title">Latest Save:</h4>
                 <h1 class="stat-text">{{ $latestSaveDate }}</h1>
@@ -37,7 +28,7 @@
 @if(!count($saves))
 <div class="panel text-center">
     <h3>Nothing here yet!</h3>
-    <p class="lead">Use the bookmarklet while playing Cookie Clicker or paste your save data in the field below.</p>
+    <p class="lead">Click the blue sharing icon in your saves list to make a Save public. </p>
 </div>
 @else
 <div class="table-responsive">
@@ -74,10 +65,10 @@
                 </form>
             </td>
             <td>
-                <form class="form-inline" action="/mysaves/makepublic" method="post">
+                <form class="form-inline" action="{{ action('SavesController@makePrivate') }}" method="post">
                     {{ Form::token() }}
                     {{ Form::hidden('save_id', $save->id) }}
-                    <button type="submit" class="btn btn-link" data-toggle="tooltip" data-placement="right" title="Share"
+                    <button type="submit" class="btn btn-link" data-toggle="tooltip" data-placement="right" title="Make Private"
                             href="/share/{{ $save->id }}"><span class="glyphicon glyphicon-share"></span></button>
                 </form>
             </td>
@@ -88,20 +79,6 @@
 </div>
 @endif
 {{ $saves->links() }}
-<div class="row">
-    <div class="col-xs-12">
-        <div class="page-header">
-            <h1>Add a New Save
-                <small>Paste in your save game here...</small>
-            </h1>
-
-        </div>
-        {{ Form::open(array('action' => 'SavesController@store')) }}
-        <textarea class="form-control" name="savedata" id="save-data-field" rows="5"></textarea>
-        <button type="submit" class="btn btn-lg btn-block btn-success">Save That Shit</button>
-        </form>
-    </div>
-</div>
 @stop
 
 @section('footer-js')

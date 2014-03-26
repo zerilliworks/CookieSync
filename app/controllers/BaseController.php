@@ -2,6 +2,13 @@
 
 class BaseController extends Controller {
 
+    protected $user;
+
+    public function setupUser()
+    {
+        $this->user = Auth::user();
+    }
+
 	/**
 	 * Setup the layout used by the controller.
 	 *
