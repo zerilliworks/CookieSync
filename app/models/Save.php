@@ -537,6 +537,18 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      */
     public function toJson($options = 0)
     {
-        // TODO: Implement Jsonification in Save model
+        $this->decode();
+        return json_encode(
+            array(
+                 'user' => $this->user->toJson(),
+                 'game' => $this->game->toJson(),
+                 'cookies' => $this->cookies(),
+                 'data' => $this->save_data,
+                 'game_data' => $this->gameData,
+                 'all_time_cookies' => $this->allTimeCookies(),
+                 'heavenly_chips' => $this->heavenlyChips(),
+                 'grandmapocalypse' => $this->isGrandmapocalypse(),
+            )
+        );
     }
 }
