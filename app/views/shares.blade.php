@@ -56,20 +56,16 @@
                 <b>{{ prettyNumbers($save->cookies()) }}</b> / <i class="text-muted">{{ prettyNumbers($save->allTimeCookies()) }}</i>
             </td>
             <td>
-                <form class="form-inline" action="/mysaves/nuke/{{ $save->id }}" method="post">
-                    {{ Form::token() }}
-                    <button type="submit" class="btn btn-xs btn-danger">Delete</button>
                     <a class="btn btn-success btn-xs" href="/mysaves/{{ $save->id }}">View</a>
                     <a class="btn btn-info btn-xs stat-popover" data-placement="right" data-toggle="popover"
                        data-content="{{ $allStatsHtml }}">Stats</a>
-                </form>
             </td>
             <td>
-                <form class="form-inline" action="{{ action('SavesController@makePrivate') }}" method="post">
+                <form class="form-inline" action="{{ action('SharesController@hide') }}" method="post">
                     {{ Form::token() }}
                     {{ Form::hidden('save_id', $save->id) }}
                     <button type="submit" class="btn btn-link" data-toggle="tooltip" data-placement="right" title="Make Private"
-                            href="/share/{{ $save->id }}"><span class="glyphicon glyphicon-share"></span></button>
+                            href="/share/hide/{{ $save->id }}"><span class="glyphicon glyphicon-eye-close"></span></button>
                 </form>
             </td>
         </tr>
@@ -77,8 +73,8 @@
         </tbody>
     </table>
 </div>
-@endif
 {{ $saves->links() }}
+@endif
 @stop
 
 @section('footer-js')

@@ -79,7 +79,7 @@ Route::post('options/nukeme/doit', 'OptionsController@postDeleteUserRequest');
 
 Route::resource('shared', 'SharesController');
 
-Route::post('shares/hide', 'SharesController@hide');
+Route::post('shares/hide/{id}', 'SharesController@hide');
 
 /*
 | End Authenticated Routes

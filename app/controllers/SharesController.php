@@ -16,10 +16,18 @@ class SharesController extends BaseController {
     public function index()
     {
         $shared = $this->user->saves()->whereIsShared(1);
-        return View::make('shares')
-            ->with('saves', $shared->paginate(30))
-            ->with('saveCount', $shared->count())
-            ->with('latestSaveDate', $shared->first()->created_at->diffForHumans());
+        if ($shared->count() > 0) {
+            return View::make('shares')
+                       ->with('saves', $shared->paginate(30))
+                       ->with('saveCount', $shared->count())
+                       ->with('latestSaveDate', $shared->first()->created_at->diffForHumans());
+        }
+        else {
+            return View::make('shares')
+                       ->with('saves', null)
+                       ->with('saveCount', 0)
+                       ->with('latestSaveDate', 'Never');
+        }
     }
 
     public function show($id)
@@ -34,7 +42,9 @@ class SharesController extends BaseController {
 
     public function hide($id)
     {
+        $this->user->saves()->whereId(Input::get('save_id'))->first()->makePrivate();
 
+        return Redirect::action('SharesController@index');
     }
 
 } 
