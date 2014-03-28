@@ -22,6 +22,9 @@
 
 use Carbon\Carbon;
 
+/**
+ * @property mixed data
+ */
 class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInterface {
 
     protected $fillable = array('save_data');
@@ -37,29 +40,32 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     {
         parent::boot();
 
-        static::creating(function($model)
-        {
+        static::creating(function ($model) {
             // Decode the raw save data
             $model->decode();
 
             // Assign actual Date/Time types to the start and save dates
             $model->started_at = $model->gameStat('date_started');
-            $model->saved_at = $model->gameStat('date_saved');
+            $model->saved_at   = $model->gameStat('date_saved');
 
             // Assign this save to a game if it doesn't already have one
-            if(!$model->game_id)
-            {
+            if (!$model->game_id) {
                 // Find the appropriate game...
                 $game = Auth::user()->games()->whereDateStarted($model->started_at)->first();
 
-                if(!$game)
-                {
-                    $game = Auth::user()->games()->save(new Game(array(
-                                                   'name' => "Game on ".  $model->started_at->toFormattedDateString(),
-                                                   'date_started' => $model->started_at,
-                                                   'date_saved' => with(new Carbon())->toDateTimeString(),
-                                                   'cookie_history' => ''
-                                              )));
+                if (!$game) {
+                    $game =
+                        Auth::user()
+                            ->games()
+                            ->save(new Game(
+                                       [
+                                           'name'           => "Game on " . $model->started_at->toFormattedDateString(),
+                                           'date_started'   => $model->started_at,
+                                           'date_saved'     => with(new Carbon())->toDateTimeString(),
+                                           'cookie_history' => ''
+                                       ]
+                                   )
+                            );
 
                 }
                 $model->game_id = $game->id;
@@ -69,8 +75,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             Event::fire('cookiesync.newsave', array(&$model));
         });
 
-        static::deleting(function($model)
-        {
+        static::deleting(function ($model) {
 
             Event::fire('cookiesync.savedeleted', array(&$model));
 
@@ -78,8 +83,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             // delete that game if it is.
             $saveCount = $model->game->saves()->count();
 
-            if($saveCount <= 1)
-            {
+            if ($saveCount <= 1) {
                 $model->game->delete();
                 Session::flash('deleted_game', true);
             }
@@ -114,7 +118,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      */
     public function isShared()
     {
-        return ($this->is_shared == 0)? false : true;
+        return ($this->is_shared == 0) ? false : true;
     }
 
     /**
@@ -125,18 +129,16 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      */
     public function makePublic()
     {
-        if($this->isShared())
-        {
+        if ($this->isShared()) {
             // It's already shared, so don't repeat the process
             // just return the current shared instance.
             return $this->sharedInstance;
         }
 
-        $shr = new SharedSave();
+        $shr          = new SharedSave();
         $shr->save_id = $this->id;
         $this->sharedInstance()->save($shr);
-        if($this->save())
-        {
+        if ($this->save()) {
             $this->is_shared = 1;
             $this->save();
 
@@ -144,8 +146,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
             return $shr;
         }
-        else
-        {
+        else {
             return false;
         }
     }
@@ -157,15 +158,13 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      */
     public function makePrivate()
     {
-        if(!$this->isShared())
-        {
+        if (!$this->isShared()) {
             // It's not shared, so forget about it.
             return false;
         }
 
 
-        if($this->sharedInstance->delete())
-        {
+        if ($this->sharedInstance->delete()) {
             $this->is_shared = 0;
             $this->save();
 
@@ -174,8 +173,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             return true;
 
         }
-        else
-        {
+        else {
             return false;
         }
     }
@@ -195,9 +193,33 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      *
      * @return mixed
      */
-    public function data()
+    public function getDataAttribute()
     {
         return $this->attributes['save_data'];
+    }
+
+    public function getBuildingsAttribute()
+    {
+        return array(
+            'cursors'       => $this->gameStat('buildings.cursors'),
+            'grandmas'      => $this->gameStat('buildings.grandmas'),
+            'farms'         => $this->gameStat('buildings.farms'),
+            'factories'     => $this->gameStat('buildings.factories'),
+            'mines'         => $this->gameStat('buildings.mines'),
+            'shipments'     => $this->gameStat('buildings.shipments'),
+            'labs'          => $this->gameStat('buildings.labs'),
+            'portals'       => $this->gameStat('buildings.portals'),
+            'time_machines' => $this->gameStat('buildings.time_machines'),
+            'condensers'    => $this->gameStat('buildings.condensers'),
+        );
+    }
+
+    public function getBuildingCountAttribute()
+    {
+        return array_reduce($this->buildings, function($count, $item)
+        {
+            return $count + intval($item);
+        }, 0);
     }
 
     /**
@@ -207,7 +229,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      */
     public function cookies()
     {
-            return $this->gameStat('banked_cookies');
+        return $this->gameStat('banked_cookies');
     }
 
     /**
@@ -222,6 +244,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
     /**
      * Get the number of Heavenly Chips for this save
+     *
      * @return null
      */
     public function heavenlyChips()
@@ -233,7 +256,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      * Has ELDER WRATH taken hold in this save?
      *
      * @return bool
-     */public function isGrandmapocalypse()
+     */
+    public function isGrandmapocalypse()
     {
         return ($this->gameStat('elder_wrath') >= 1) ? true : false;
     }
@@ -258,7 +282,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     public function decode()
     {
         try {
-            $data = explode('|', $decodedData = base64_decode($this->data()));
+            $data = explode('|', $decodedData = base64_decode($this->data));
             /**
              *  After exploding, the game data is broken up like this:
              *
@@ -305,12 +329,12 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
              *  array[7] => game achievements
              */
 
-            $this->decodedData = $decodedData;
+            $this->decodedData   = $decodedData;
             $this->rawDataChunks = $data;
 
-            $dates = explode(';', $data[2]);
-            $cookieStats = explode(';', $data[4]);
-            $upgrades = $this->uncompressLargeBin($data[6]);
+            $dates        = explode(';', $data[2]);
+            $cookieStats  = explode(';', $data[4]);
+            $upgrades     = $this->uncompressLargeBin($data[6]);
             $achievements = $this->uncompressLargeBin($data[7]);
 
             $this->gameData['game_version']                 = $data[0];
@@ -347,36 +371,36 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $timeMachines = explode(',', $buildings[8]);
             $condensers   = explode(',', $buildings[9]);
 
-            $this->gameData['buildings.cursors']        = $cursors[0];
-            $this->gameData['buildings.grandmas']       = $grandmas[0];
-            $this->gameData['buildings.farms']          = $farms[0];
-            $this->gameData['buildings.factories']      = $factories[0];
-            $this->gameData['buildings.mines']          = $mines[0];
-            $this->gameData['buildings.shipments']      = $shipments[0];
-            $this->gameData['buildings.labs']           = $alchemyLabs[0];
-            $this->gameData['buildings.portals']        = $portals[0];
-            $this->gameData['buildings.time_machines']  = $timeMachines[0];
-            $this->gameData['buildings.condensers']     = $condensers[0];
+            $this->gameData['buildings.cursors']       = $cursors[0];
+            $this->gameData['buildings.grandmas']      = $grandmas[0];
+            $this->gameData['buildings.farms']         = $farms[0];
+            $this->gameData['buildings.factories']     = $factories[0];
+            $this->gameData['buildings.mines']         = $mines[0];
+            $this->gameData['buildings.shipments']     = $shipments[0];
+            $this->gameData['buildings.labs']          = $alchemyLabs[0];
+            $this->gameData['buildings.portals']       = $portals[0];
+            $this->gameData['buildings.time_machines'] = $timeMachines[0];
+            $this->gameData['buildings.condensers']    = $condensers[0];
 
-            $this->gameData['upgrades.binary'] = $upgrades;
+            $this->gameData['upgrades.binary']     = $upgrades;
             $this->gameData['achievements.binary'] = $achievements;
 
 
             // Split upgrades into pairs of bits, split achievements into single bits
             // Upgrades are [bool, bool] which is [unlocked?, bought?]
-            $upgradesArray = str_split($upgrades, 2);
+            $upgradesArray     = str_split($upgrades, 2);
             $achievementsArray = str_split($achievements);
 
 
             // Decode upgrades
             $upgradesArray =
-                array_filter($upgradesArray, function($upgrade)
-                {
+                array_filter($upgradesArray, function ($upgrade) {
                     list($unlocked, $bought) = str_split($upgrade);
-                    return(min($bought, 1)) ? true : false;
+
+                    return (min($bought, 1)) ? true : false;
                 });
 
-            array_walk($upgradesArray, function(&$upgrade, $key) {
+            array_walk($upgradesArray, function (&$upgrade, $key) {
                 $upgrade = Lang::get("upgrades.$key");
             });
 
@@ -384,7 +408,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             // Decode achievements
             $achievementsArray = array_filter($achievementsArray);
 
-            array_walk($achievementsArray, function(&$achieve, $key) {
+            array_walk($achievementsArray, function (&$achieve, $key) {
                 $achieve = Lang::get("achievements.$key");
             });
 
@@ -395,19 +419,21 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
             // Calculate prestige (a.k.a., Heavenly Chips)
             // This is pretty much a direct PHP rewrite of the CC code. No Math object, kekekeke!
-            $prestige = intval(bcdiv($this->gameData['cookies_reset'], '1000000000000'));
-            $this->gameData['prestige'] = max(0,floor((-1+pow(1+8*$prestige, 0.5)) / 2));
+            $prestige                   = intval(bcdiv($this->gameData['cookies_reset'], '1000000000000'));
+            $this->gameData['prestige'] = max(0, floor((-1 + pow(1 + 8 * $prestige, 0.5)) / 2));
 
             Event::fire('cookiesync.savedecoded', array($this));
 
-            if($this->gameData['game_version'])
-            {
+            if ($this->gameData['game_version']) {
                 return true;
-            } else {
+            }
+            else {
                 return false;
             }
-        } catch (ErrorException $e) {
-            Log::error('Failed to parse save with id '.$this->id);
+        }
+        catch (ErrorException $e) {
+            Log::error('Failed to parse save with id ' . $this->id);
+
             return false;
         }
 
@@ -446,31 +472,28 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      */
     public function gameStat($name)
     {
-        if(!array_key_exists('game_version', $this->gameData))
-        {
+        if (!array_key_exists('game_version', $this->gameData)) {
             $this->decode();
         }
 
-        if(array_key_exists($name, $this->gameData))
-        {
+        if (array_key_exists($name, $this->gameData)) {
             return $this->gameData[$name];
         }
-        else
-        {
+        else {
             return null;
         }
     }
 
     /**
      * @param $value
+     *
      * @return string
      */
     private function uncompressLargeBin($value)
     {
         $output = '';
 
-        foreach(explode(';', $value) as $val)
-        {
+        foreach (explode(';', $value) as $val) {
             $output .= $this->uncompressBin($val);
         }
 
@@ -479,45 +502,29 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
     /**
      * @param $value
+     *
      * @return string
      */
     private function uncompressBin($value)
     {
         // Explode, reverse, remove an element from both ends, send back binary string.
-        $binary =  decbin($value);
+        $binary      = decbin($value);
         $binaryArray = str_split($binary);
         $binaryArray = array_reverse($binaryArray);
         array_shift($binaryArray);
         array_pop($binaryArray);
+
         return implode($binaryArray);
     }
 
 
     public function __get($var)
     {
-        switch ($var) {
-            case "buildings":
-            return array(
-                'cursors'       => $this->gameStat('buildings.cursors'),
-                'grandmas'      => $this->gameStat('buildings.grandmas'),
-                'farms'         => $this->gameStat('buildings.farms'),
-                'factories'     => $this->gameStat('buildings.factories'),
-                'mines'         => $this->gameStat('buildings.mines'),
-                'shipments'     => $this->gameStat('buildings.shipments'),
-                'labs'          => $this->gameStat('buildings.labs'),
-                'portals'       => $this->gameStat('buildings.portals'),
-                'time_machines' => $this->gameStat('buildings.time_machines'),
-                'condensers'    => $this->gameStat('buildings.condensers'),
-            );
-
-            case "achievements":
-                return $this->gameStat("achievements");
-
-            case "upgrades":
-                return $this->gameStat("upgrades");
-
-            default:
-                return parent::__get($var);
+        if (array_key_exists($var, $this->gameData)) {
+            return $this->gameStat($var);
+        }
+        else {
+            return parent::__get($var);
         }
     }
 
@@ -525,7 +532,6 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 //    {
 //
 //    }
-
 
 
     /**
@@ -538,16 +544,17 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     public function toJson($options = 0)
     {
         $this->decode();
+
         return json_encode(
             array(
-                 'user' => $this->user->toJson(),
-                 'game' => $this->game->toJson(),
-                 'cookies' => $this->cookies(),
-                 'data' => $this->save_data,
-                 'game_data' => $this->gameData,
-                 'all_time_cookies' => $this->allTimeCookies(),
-                 'heavenly_chips' => $this->heavenlyChips(),
-                 'grandmapocalypse' => $this->isGrandmapocalypse(),
+                'user'             => $this->user->toJson(),
+                'game'             => $this->game->toJson(),
+                'cookies'          => $this->cookies(),
+                'data'             => $this->save_data,
+                'game_data'        => $this->gameData,
+                'all_time_cookies' => $this->allTimeCookies(),
+                'heavenly_chips'   => $this->heavenlyChips(),
+                'grandmapocalypse' => $this->isGrandmapocalypse(),
             )
         );
     }
