@@ -17,7 +17,8 @@
         "cartalyst/attributes": "1.0.*",
         "cartalyst/api": "2.0.*@dev",
         "cartalyst/sentry": "2.0.*",
-		"barryvdh/laravel-ide-helper": "1.*"
+		"barryvdh/laravel-ide-helper": "1.*",
+		"brainboxlabs/brain-socket": "v1.0.0"
 	},
 	"autoload": {
 		"classmap": [

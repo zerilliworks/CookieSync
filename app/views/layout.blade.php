@@ -33,7 +33,9 @@
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/slabText/2.3/jquery.slabtext.min.js" type="text/javascript"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/slabText/2.3/jquery.slabtext.min.js"></script>
+<script src="/js/cs-async.js"></script>
+<script src="/js/brainsocket.min.js"></script>
 
 <script type="text/javascript">
     var _gauges = _gauges || [];
@@ -47,6 +49,9 @@
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(t, s);
     })();
+
+    setUpAsync('{{ $pulseIdentifier }}', '{{ Config::get('cookiesync.pulse_server') }}');
+
 </script>
 @yield('footer-js')
 </body>
