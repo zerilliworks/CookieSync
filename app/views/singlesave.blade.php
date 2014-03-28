@@ -58,7 +58,7 @@
             </div>
             <div class="stat stat-medium">
                 <h4 class="stat-title">Buildings:</h4>
-                <h1 class="stat-text">{{ count($save->buildings) }}</h1>
+                <h1 class="stat-text">{{ $save->building_count }}</h1>
             </div>
             <div class="stat stat-medium">
                 <h4 class="stat-title">Achievements:</h4>
@@ -171,7 +171,7 @@
     </tr>
     </tbody>
 </table>
-<textarea id="data-field" class="form-control" rows="6" readonly>{{ $save->save_data }}</textarea>
+<textarea id="data-field" class="form-control" rows="6" readonly>{{ $save->data }}</textarea>
 @stop
 
 @section('footer-js')
