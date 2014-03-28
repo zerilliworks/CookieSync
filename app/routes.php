@@ -152,8 +152,15 @@ Route::group(['prefix' => '{api}/v1'], function () {
  * View Composers
  */
 
-View::composer('mysaves', function ($view) {
-
+View::composer(['layout', 'bookmark.save'], function ($view) {
+    if(Auth::check())
+    {
+        $view->with('pulseIdentifier', Auth::user()->name . '.' . Session::getId());
+    }
+    else
+    {
+        $view->with('pulseIdentifier', null);
+    }
 });
 
 View::composer('about', function ($view) {
