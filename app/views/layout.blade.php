@@ -50,7 +50,7 @@
         s.parentNode.insertBefore(t, s);
     })();
 
-    setUpAsync('{{ $pulseIdentifier }}');
+    setUpAsync('{{ $pulseIdentifier }}', '{{ Config::get('cookiesync.pulse_server') }}');
 
 </script>
 @yield('footer-js')

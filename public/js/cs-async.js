@@ -1,8 +1,8 @@
 window.CSPulse = {};
 
-function setUpAsync(identifier) {
+function setUpAsync(identifier, server) {
     CSPulse.BrainSocket = new BrainSocket(
-        new WebSocket('ws://localhost:8080'),
+        new WebSocket(server),
         new BrainSocketPubSub()
     );
 

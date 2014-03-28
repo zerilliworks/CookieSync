@@ -9,7 +9,7 @@
 <script src="/js/brainsocket.min.js"></script>
 <script type="text/javascript">
     window.CSPulse = {};
-    var pulseSocket = new WebSocket('ws://localhost:8080');
+    var pulseSocket = new WebSocket('{{ Config::get('cookiesync.pulse_server') }}');
     CSPulse.BrainSocket = new BrainSocket(
         pulseSocket,
         new BrainSocketPubSub()
