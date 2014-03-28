@@ -42,13 +42,7 @@ class GamesController extends BaseController {
             $data['latestSaveDate'] = 'None';
         }
 
-        $careerCookies = '0';
-        foreach($data['saves'] as $save)
-        {
-            $careerCookies = bcadd($careerCookies, $save->cookies());
-        }
-
-        $data['careerCookies'] = $careerCookies;
+        $data['careerCookies'] = $c->cookies();
         $data['saveCount'] = $game->saves()->count();
 
         return View::make('mysaves', $data);
