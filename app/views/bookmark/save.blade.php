@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="/css/bookmarklet.css"/>
 </head>
 <body>
-<button id="finish">Click to close</button>
 
 <script src="/js/brainsocket.min.js"></script>
 <script type="text/javascript">
