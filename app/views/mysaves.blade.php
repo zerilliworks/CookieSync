@@ -65,7 +65,8 @@
                 <b>{{ prettyNumbers($save->cookies()) }}</b> / <i class="text-muted">{{ prettyNumbers($save->allTimeCookies()) }}</i>
             </td>
             <td>
-                <form class="form-inline" action="/mysaves/nuke/{{ $save->id }}" method="post">
+                {{ Form::open(['action' => ['SavesController@destroy', $save->id], 'method' => 'DELETE', 'class' => 'form-inline']) }}
+<!--                <form class="form-inline" action="{{ action('SavesController@destroy', $save->id) }}" method="DELETE">-->
                     {{ Form::token() }}
                     <button type="submit" class="btn btn-xs btn-danger">Delete</button>
                     <a class="btn btn-success btn-xs" href="/mysaves/{{ $save->id }}">View</a>

@@ -67,6 +67,7 @@ Route::resource('mysaves', 'SavesController');
 Route::post('mysaves/undelete', 'SavesController@undoDestroy');
 Route::post('mysaves/makepublic', 'SavesController@makePublic');
 Route::post('mysaves/makeprivate', 'SavesController@makePrivate');
+Route::get('external', 'SavesController@storeExternal');
 
 
 
