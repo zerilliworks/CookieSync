@@ -25,6 +25,11 @@ Route::get('/', function () {
     Route::get('access', ['as' => 'login', 'uses' => 'AuthController@getLoginView']);
     Route::post('access/login', 'AuthController@postLoginCredentials');
     Route::post('access/register', 'AuthController@postRegistrationInfo');
+    Route::get('logout', function()
+    {
+        Auth::logout();
+        return Redirect::route('login');
+    });
 //});
 
 
