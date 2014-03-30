@@ -111,7 +111,6 @@ return array(
         'Profiler\ProfilerServiceProvider',
         'Zerilliworks\Asirra\AsirraServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-        'BrainSocket\BrainSocketServiceProvider',
 
         'Cartalyst\DataGrid\DataGridServiceProvider',
         'Cartalyst\Sentry\SentryServiceProvider',
@@ -188,7 +187,6 @@ return array(
         'Sentry'          => 'Cartalyst\Sentry\Facades\Laravel\Sentry',
         'API'             => 'Cartalyst\Api\Laravel\Facades\API',
 
-        'BrainSocket'     => 'BrainSocket\BrainSocketFacade',
 	),
 
 );
