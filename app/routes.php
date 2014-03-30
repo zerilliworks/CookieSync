@@ -152,17 +152,6 @@ Route::group(['prefix' => '{api}/v1'], function () {
  * View Composers
  */
 
-View::composer(['layout', 'bookmark.save'], function ($view) {
-    if(Auth::check())
-    {
-        $view->with('pulseIdentifier', Auth::user()->name . '.' . Session::getId());
-    }
-    else
-    {
-        $view->with('pulseIdentifier', null);
-    }
-});
-
 View::composer('about', function ($view) {
     $view->with('userCount', User::all()->count());
     $view->with('saveCount', Save::all()->count());
