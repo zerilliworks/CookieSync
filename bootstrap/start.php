@@ -31,12 +31,9 @@ $app = new Illuminate\Foundation\Application;
 
 ));*/
 
-$env = $app->detectEnvironment(function() use ($app)
-{
-    if(isset($_SERVER['SERVER_NAME']))
-    {
-        switch ($_SERVER['SERVER_NAME'])
-        {
+$env = $app->detectEnvironment(function () use ($app) {
+    if (isset($_SERVER['SERVER_NAME'])) {
+        switch ($_SERVER['SERVER_NAME']) {
             case 'localhost':
                 return 'local';
                 break;
@@ -48,8 +45,9 @@ $env = $app->detectEnvironment(function() use ($app)
 
     return $app->detectEnvironment(array(
 
-                                        'local'      => array('localhost'),
-                                        'gridserver' => array('n*'),
+                                       'local'      => array('localhost'),
+                                       'gridserver' => array('n*'),
+                                       'digocean'   => array('cookiesync*'),
 
                                    ));
 
@@ -66,7 +64,7 @@ $env = $app->detectEnvironment(function() use ($app)
 |
 */
 
-$app->bindInstallPaths(require __DIR__.'/paths.php');
+$app->bindInstallPaths(require __DIR__ . '/paths.php');
 
 /*
 |--------------------------------------------------------------------------
@@ -79,9 +77,9 @@ $app->bindInstallPaths(require __DIR__.'/paths.php');
 |
 */
 
-$framework = $app['path.base'].'/vendor/laravel/framework/src';
+$framework = $app['path.base'] . '/vendor/laravel/framework/src';
 
-require $framework.'/Illuminate/Foundation/start.php';
+require $framework . '/Illuminate/Foundation/start.php';
 
 /*
 |--------------------------------------------------------------------------
