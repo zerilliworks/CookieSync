@@ -49,15 +49,18 @@
     Clicker saves.</p>
 
 <h1>The Maker</h1>
-<p class="lead">My name is Armand, and I very obviously build software. You can tweet <a href="https://twitter.com/zerilliworks">@zerilliworks</a> or email me: armand
+<p class="lead">My name is Armand, and I very obviously build software. You can tweet <a
+        href="https://twitter.com/zerilliworks">@zerilliworks</a> or email me: armand
     (at) zerilliworks (dot) net. I also run
     <a href="http://blog.zerilliworks.net">a blog.</a></p>
 
 <h1>The Guts & Magic</h1>
-<p class="lead">This bitch is trippin' on Laravel & PHP. Aaroooo! This site uses Greg Gilbert's <a
-        href="https://github.com/greggilbert/recaptcha">Laravel 4 reCaptcha package</a> and Loic Sharma's <a
-        href="https://github.com/loic-sharma/profiler">Profiler package.</a> The rest is MySQL and Bootstrap, plus some
-    unremarkable JavaScript. Hosted with MediaTemple. </p>
+<p class="lead">This bitch is trippin' on <a href="http://laravel.com">Laravel</a> & PHP. Aaroooo! CookieSync runs on <a
+        href="http://hhvm.com">HHVM</a> with <a href="http://nginx.com">Nginx</a> for speed. It uses
+    <a href="http://redis.io">Redis</a> for caching and MySQL for storage. Work queues are handled by <a
+        href="http://kr.github.io/beanstalkd/">Beanstalk</a>. The rest is Twitter Bootstrap and
+    some unremarkable JavaScript.</p>
+<p class="lead">CookieSync is driven in part by Cartalyst's Arsenal packages.</p>
 
 <p class="lead">Right now, <b>{{ $userCount }}</b> people use the site, with <b>{{ $saveCount }}</b> games saved.</p>
 
