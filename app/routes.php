@@ -106,7 +106,7 @@ Route::get('about', function () {
 });
 
 Route::get('changelog', function () {
-    $log = DB::table('changelog')->orderBy('release_date', 'desc')->get();
+    $log = DB::table('changelog')->orderBy('release_date', 'desc')->remember(120)->get();
 
     return View::make('changelog')->with('changes', $log);
 });
@@ -158,8 +158,14 @@ Route::group(['prefix' => '{api}/v1'], function () {
  */
 
 View::composer('about', function ($view) {
-    $view->with('userCount', User::all()->count());
-    $view->with('saveCount', Save::all()->count());
+    $view->with('userCount', Cache::remember('user_count', 30, function()
+    {
+        return User::count();
+    }));
+    $view->with('saveCount', Cache::remember('save_count', 30, function()
+    {
+        return Save::count();
+    }));
 });
 // ---
 // End View Composers
