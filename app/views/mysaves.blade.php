@@ -31,9 +31,6 @@
     </div>
 </div>
 @include('partials.alerts')
-<div class="col-md-3">
-
-</div>
 @if(!count($saves))
 <div class="panel text-center">
     <h3>Nothing here yet!</h3>
