@@ -59,7 +59,7 @@
 <p class="lead">This bitch is trippin' on <a href="http://laravel.com">Laravel</a> & PHP. Aaroooo! CookieSync runs on <a
         href="http://hhvm.com">HHVM</a> with <a href="http://nginx.com">Nginx</a> for speed. It uses
     <a href="http://redis.io">Redis</a> for caching and MySQL for storage. Work queues are handled by <a
-        href="http://kr.github.io/beanstalkd/">Beanstalk</a>. The rest is Twitter Bootstrap and
+        href="http://iron.io/">IronMQ</a>. The rest is Twitter Bootstrap and
     some unremarkable JavaScript.</p>
 <p class="lead">CookieSync is driven in part by Cartalyst's Arsenal packages.</p>
 

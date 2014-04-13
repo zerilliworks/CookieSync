@@ -8,24 +8,40 @@
 
 namespace CookieSync\Workers\Statistical;
 
-
 use CookieSync\Stat\GlobalCookieCounter;
 use Game;
+use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\Cache;
+use Log;
 use Save;
 
 class GlobalStats {
 
-    public function fire($job, $data)
+    public function fire(Job $job, $data)
     {
         try {
-        $counter = new GlobalCookieCounter(new Game, new Save);
-        Cache::remember('global_cookie_count', 1, $counter->calculateEverySave());
-        } catch (\Exception $e) {
-            App::abort('500');
-        }
+            Log::info('Computing cookie total...');
+            $counter = new GlobalCookieCounter(new Game, new Save);
 
-        $job->delete();
+            if(!Cache::has('soft_global_cookie_count'))
+            {
+                $cookieTotal = $counter->calculateEverySave();
+                Cache::add('soft_global_cookie_count',  $cookieTotal, 15);
+                Cache::put('sticky_global_cookie_count', $cookieTotal, 30);
+            }
+
+
+
+            Log::info('Computing done in worker ' . get_class($this));
+        }
+        catch (\Exception $e) {
+            Log::error('Computing failed in worker '
+                       . get_class($this)
+                       . ' retried '
+                       . $job->attempts()
+                       . ' times with message: '
+                       . $e->getMessage());
+        }
     }
 
 } 

@@ -15,7 +15,7 @@ return array(
 	|
 	*/
 
-	'default' => 'beanstalkd',
+	'default' => 'iron',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -37,7 +37,7 @@ return array(
 		'beanstalkd' => array(
 			'driver' => 'beanstalkd',
 			'host'   => 'localhost',
-			'queue'  => 'cookiesync',
+			'queue'  => 'default',
 		),
 
 		'sqs' => array(
@@ -50,9 +50,9 @@ return array(
 
 		'iron' => array(
 			'driver'  => 'iron',
-			'project' => 'your-project-id',
-			'token'   => 'your-token',
-			'queue'   => 'your-queue-name',
+			'project' => '5349f6aca0504f000900005f',
+			'token'   => 'DNuzvIJfZuPyNhv97sjQ8v967XY',
+			'queue'   => 'statworker',
 		),
 
 		'redis' => array(

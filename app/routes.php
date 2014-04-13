@@ -125,7 +125,7 @@ Route::get('goodbye', function () {
 */
 
 
-Route::get('queue/grind', function()
+Route::post('queue/grind', function()
 {
     return Queue::marshal();
 });
@@ -170,14 +170,15 @@ View::composer('about', function ($view) {
     {
         return Save::count();
     }));
-    $view->with('cookieCount', function() {
-        if (Cache::has('global_cookie_count')) {
-           return \NumericHelper::makeRoundedHumanReadable(Cache::get('global_cookie_count'));
-        } else {
+
+    $compute = function() {
+        if (!Cache::has('soft_global_cookie_count')) {
             Queue::push('CookieSync\Workers\Statistical\GlobalStats', []);
-            return "A whole lot of cookies";
         }
-    });
+        return \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count'));
+    };
+
+    $view->with('cookieCount', $compute());
 });
 // ---
 // End View Composers
