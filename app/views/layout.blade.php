@@ -51,8 +51,8 @@
     })();
 
     window.addEventListener('storage', function(e) {
-        if(e.key === 'cookiesync.pulse') {
-            localStorage.setItem(e.key, '');
+        if(e.key == 'cookiesync.pulse') {
+            window.localStorage.setItem(e.key, '');
             window.location.reload(true);
         }
     });
