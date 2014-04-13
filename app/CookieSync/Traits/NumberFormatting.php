@@ -36,6 +36,11 @@ trait NumberFormatting {
         // Slice off at most the first three digits of the number
         $numericLead = substr($number, 0, ($places % 3 ? $places % 3 : 3 ));
 
+        // Add a few decimals for precision if necessary
+        if($places > 6) {
+            $numericLead .= '.' . substr($number, ($places % 3 ? $places % 3 : 3 ), 3);
+        }
+
         return "$numericLead " . studly_case(Lang::get("numbers.powers_of_ten.$powersOfTen"));
     }
 
