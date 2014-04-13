@@ -38,6 +38,7 @@
 @stop
 
 @section('body')
+<h1>{{ $cookieCount }} cookies saved so far!</h1>
 <h1>The <span class="text-muted">(ir)</span>Rationale</h1>
 <p class="lead">CookieSync was thrown together one weekend after I had gotten a little tired of emailing cookie clicker
     saves to

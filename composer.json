@@ -17,7 +17,8 @@
         "cartalyst/attributes": "1.0.*",
         "cartalyst/api": "2.0.*@dev",
         "cartalyst/sentry": "2.0.*",
-		"barryvdh/laravel-ide-helper": "1.*"
+		"barryvdh/laravel-ide-helper": "1.*",
+        "iron-io/iron_mq" : "1.4.8"
 	},
 	"autoload": {
 		"classmap": [

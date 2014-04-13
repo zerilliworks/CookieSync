@@ -125,6 +125,10 @@ Route::get('goodbye', function () {
 */
 
 
+Route::get('queue/grind', function()
+{
+    return Queue::marshal();
+});
 
 
 /*
@@ -166,6 +170,14 @@ View::composer('about', function ($view) {
     {
         return Save::count();
     }));
+    $view->with('cookieCount', function() {
+        if (Cache::has('global_cookie_count')) {
+           return \NumericHelper::makeRoundedHumanReadable(Cache::get('global_cookie_count'));
+        } else {
+            Queue::push('CookieSync\Workers\Statistical\GlobalStats', []);
+            return "A whole lot of cookies";
+        }
+    });
 });
 // ---
 // End View Composers
