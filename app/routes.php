@@ -11,26 +11,31 @@
 |
 */
 
-Route::get('/', function () {
-    // Send them to the login page
-    if (Auth::guest()) {
-        return Redirect::route('login');
-    }
-    else {
-        return Redirect::to('mysaves');
-    }
-});
+Route::get('cookiesync', [
+  'as' => 'root',
+  function () {
+      // Send them to the login page
+      if (Auth::guest()) {
+          return Redirect::route('login');
+      }
+      else {
+          return Redirect::action('SavesController@index');
+      }
+  }
+]);
 
-//Route::group(['before' => 'guest'], function () {
+Route::group(['prefix' => 'cookiesync'], function () {
     Route::get('access', ['as' => 'login', 'uses' => 'AuthController@getLoginView']);
     Route::post('access/login', 'AuthController@postLoginCredentials');
     Route::post('access/register', 'AuthController@postRegistrationInfo');
-    Route::get('logout', function()
-    {
-        Auth::logout();
-        return Redirect::route('login');
-    });
-//});
+    Route::get('logout', [
+      'as' => 'logout',
+      function () {
+          Auth::logout();
+          return Redirect::route('root');
+      }
+    ]);
+});
 
 
 /*
@@ -42,91 +47,103 @@ Route::get('/', function () {
 |
 */
 
-Route::group(['before' => 'auth'], function () // Auth route group
+Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth route group
 {
 
     Route::get('welcome', [
-        'as' => 'welcome_page',
-        function () {
-            return View::make('welcome');
-        }
+      'as' => 'welcome_page',
+      function () {
+          return View::make('welcome');
+      }
     ]);
 
     Route::get('welcome/example', [
-        'as' => 'welcome_example',
-        function () {
-            $thisSave            = new Save();
-            $thisSave->save_data = Config::get('cookiesync.example_data');
-            $thisSave->decode();
+      'as' => 'welcome_example',
+      function () {
+          $thisSave            = new Save();
+          $thisSave->save_data = Config::get('cookiesync.example_data');
+          $thisSave->decode();
 
-            return View::make('example')
-                       ->with('save', $thisSave)
-                       ->with('cookiesBaked', $thisSave->cookies())
-                       ->with('allTimeCookies', $thisSave->allTimeCookies());
-        }
+          return View::make('example')
+                     ->with('save', $thisSave)
+                     ->with('cookiesBaked', $thisSave->cookies())
+                     ->with('allTimeCookies', $thisSave->allTimeCookies());
+      }
     ]);
 });
 
-Route::resource('mysaves', 'SavesController');
-
-Route::post('mysaves/undelete', 'SavesController@undoDestroy');
-Route::post('mysaves/makepublic', 'SavesController@makePublic');
-Route::post('mysaves/makeprivate', 'SavesController@makePrivate');
-Route::get('external', 'SavesController@storeExternal');
-
-
-
-Route::resource('games', 'GamesController');
-
-Route::get('options', 'OptionsController@getIndex');
-Route::get('options/bookmarklet', 'OptionsController@getBookmarklet');
-Route::get('options/nukeme', 'OptionsController@getDeleteUserView');
-Route::post('options/nukeme/doit', 'OptionsController@postDeleteUserRequest');
-
-Route::resource('shared', 'SharesController');
-
-Route::post('shares/hide/{id}', 'SharesController@hide');
-
-/*
-| End Authenticated Routes
-*/
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Ancillary Public Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::get('shared/{id}', 'SavesController@shared');
-
-Route::get('about', function () {
-    return View::make('about');
-});
-
-Route::get('changelog', function () {
-    $log = DB::table('changelog')->orderBy('release_date', 'desc')->remember(120)->get();
-
-    return View::make('changelog')->with('changes', $log);
-});
-
-Route::get('goodbye', function () {
-    if (Session::get('goodbye') == 'yes' || true) {
-        return View::make('goodbye');
-    }
-    else {
-        return Redirect::to('access');
-    }
-});
-
-/*
-| End Public Routes
-*/
-
-
-Route::post('queue/grind', function()
+Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth route group
 {
+
+    Route::resource('mysaves', 'SavesController');
+
+    Route::post('mysaves/undelete', 'SavesController@undoDestroy');
+    Route::post('mysaves/makepublic', 'SavesController@makePublic');
+    Route::post('mysaves/makeprivate', 'SavesController@makePrivate');
+    Route::get('external', 'SavesController@storeExternal');
+
+
+    Route::resource('games', 'GamesController');
+
+    Route::get('options', 'OptionsController@getIndex');
+    Route::get('options/bookmarklet', 'OptionsController@getBookmarklet');
+    Route::get('options/nukeme', 'OptionsController@getDeleteUserView');
+    Route::post('options/nukeme/doit', 'OptionsController@postDeleteUserRequest');
+
+    Route::resource('shared', 'SharesController');
+
+    Route::post('shares/hide/{id}', 'SharesController@hide');
+
+
+    /*
+    | End Authenticated Routes
+    */
+
+});
+
+Route::group(['prefix' => 'cookiesync'], function ()
+{
+    /*
+    |--------------------------------------------------------------------------
+    | Ancillary Public Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('shared/{id}', 'SavesController@shared');
+
+    Route::get('about', [
+      'as' => 'about_page',
+      function () {
+          return View::make('about');
+      }
+    ]);
+
+    Route::get('changelog', function () {
+        $log = DB::table('changelog')->orderBy('release_date', 'desc')->remember(120)->get();
+
+        return View::make('changelog')->with('changes', $log);
+    });
+
+    Route::get('goodbye', [
+      'as' => 'goodbye',
+      function () {
+          if (Session::get('goodbye') == 'yes' || true) {
+              return View::make('goodbye');
+          }
+          else {
+              return Redirect::to('access');
+          }
+      }
+    ]);
+
+    /*
+    | End Public Routes
+    */
+
+});
+
+
+Route::post('queue/grind', function () {
     return Queue::marshal();
 });
 
@@ -162,16 +179,14 @@ Route::group(['prefix' => '{api}/v1'], function () {
  */
 
 View::composer('about', function ($view) {
-    $view->with('userCount', Cache::remember('user_count', 30, function()
-    {
+    $view->with('userCount', Cache::remember('user_count', 30, function () {
         return User::count();
     }));
-    $view->with('saveCount', Cache::remember('save_count', 30, function()
-    {
+    $view->with('saveCount', Cache::remember('save_count', 30, function () {
         return Save::count();
     }));
 
-    $compute = function() {
+    $compute = function () {
         if (!Cache::has('soft_global_cookie_count')) {
             Queue::push('CookieSync\Workers\Statistical\GlobalStats', []);
             return \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count'));

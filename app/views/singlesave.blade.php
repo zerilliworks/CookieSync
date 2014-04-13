@@ -8,7 +8,7 @@
         color: white;
         background-color: darkred;
         box-shadow: inset 0 0 10px black;
-        background-image: url('/images/WrathGlasses.png');
+        background-image: url('{{ Config::get('app.url') }}/images/WrathGlasses.png');
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;

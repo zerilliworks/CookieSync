@@ -37,7 +37,7 @@
     <div class="panel-body">
         <p class="lead">Drag this into your browser's bookmarks bar:
             <span class="label label-primary"><span class="glyphicon glyphicon-bookmark"></span> <a class="bookmarklet"
-                                                                                                    href="javascript:window.open('http://cookiesync.zerilliworks.net/external?d=' + Game.WriteSave(1), 'CookieSync_Save', 'toolbar=no,scrollbars=yes,width=600,height=700');">Save
+                                                                                                    href="javascript:window.open('http://zeril.li/cookiesync/external?d=' + Game.WriteSave(1), 'CookieSync_Save', 'toolbar=no,scrollbars=yes,width=600,height=700');">Save
                     to CookieSync</a></span>
         </p>
 

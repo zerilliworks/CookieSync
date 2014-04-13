@@ -11,11 +11,12 @@ class SharesController extends BaseController {
     public function __construct()
     {
         $this->user = Auth::user();
+        $this->beforeFilter('auth', ['only' => 'index']);
     }
 
     public function index()
     {
-        $shared = $this->user->saves()->whereIsShared(1);
+        $shared = $this->user->saves()->with('sharedInstance')->whereIsShared(1);
         if ($shared->count() > 0) {
             return View::make('shares')
                        ->with('saves', $shared->paginate(30))

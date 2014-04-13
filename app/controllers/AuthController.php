@@ -29,7 +29,7 @@ class AuthController extends BaseController {
                 )
         )) {
             // Go to dashboard
-            return Redirect::intended('mysaves');
+            return Redirect::intended('cookiesync/mysaves');
         }
         else {
             // Return to login page with errors
@@ -76,7 +76,7 @@ class AuthController extends BaseController {
     public function logout()
     {
         Auth::logout();
-        return Redirect::root();
+        return Redirect::to('cookiesync');
     }
 
 } 

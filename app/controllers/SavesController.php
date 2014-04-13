@@ -99,7 +99,7 @@ class SavesController extends BaseController {
     {
         $this->user->saves()->save(new Save(array('save_data' => Input::get('savedata'))));
 
-        return Redirect::to('mysaves');
+        return Redirect::action('SavesController@index');
     }
 
 
@@ -191,7 +191,7 @@ class SavesController extends BaseController {
         $s->delete();
 
         if (Session::has('deleted_game')) {
-            return Redirect::to('games')->with('info', View::make('partials.undelete')->render());
+            return Redirect::action('GamesController@index')->with('info', View::make('partials.undelete')->render());
         }
         else {
             return Redirect::back()->with('info', View::make('partials.undelete')->render());
@@ -240,7 +240,7 @@ class SavesController extends BaseController {
         $saveToShare = $this->user->saves()->whereId(Input::get('save_id'))->first();
         $pub         = $saveToShare->makePublic();
 
-        return Redirect::to('shared/' . $pub->share_code);
+        return Redirect::action('SharesController@show', $pub->share_code);
     }
 
 

@@ -15,7 +15,7 @@ return array(
 	|
 	*/
 
-	'enabled' => null,
+	'enabled' => false,
 
 	/*
 	| -----------------------------------------------------------------------------
@@ -42,6 +42,6 @@ return array(
 	|
 	*/
 
-	'require_password' => array('production', 'prod', 'gridserver'),
+	'require_password' => array('production', 'prod', 'gridserver', 'digocean'),
 
 );

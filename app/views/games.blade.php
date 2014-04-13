@@ -41,7 +41,7 @@
                     {{ $latestSave->updated_at->diffForHumans() }}
                 </td>
                 <td>
-                    <a href="/games/{{ $game->id }}" class="btn btn-block btn-primary btn-sm">Details...</a>
+                    <a href="{{ action('GamesController@show', $game->id) }}" class="btn btn-block btn-primary btn-sm">Details...</a>
                 </td>
             </tr>
         <?php endforeach; ?>

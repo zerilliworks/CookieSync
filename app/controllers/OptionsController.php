@@ -50,7 +50,7 @@ class OptionsController extends BaseController {
         Session::flash('goodbye', 'yes');
         Event::fire('cookiesync.userdestroyed', array($id, $name));
 
-        return Redirect::to('goodbye');
+        return Redirect::route('goodbye');
     }
 
 } 

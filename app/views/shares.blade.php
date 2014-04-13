@@ -56,7 +56,7 @@
                 <b>{{ prettyNumbers($save->cookies()) }}</b> / <i class="text-muted">{{ prettyNumbers($save->allTimeCookies()) }}</i>
             </td>
             <td>
-                    <a class="btn btn-success btn-xs" href="/mysaves/{{ $save->id }}">View</a>
+                    <a class="btn btn-success btn-xs" href="{{ action('SharesController@show', $save->sharedInstance->share_code) }}">View</a>
                     <a class="btn btn-info btn-xs stat-popover" data-placement="right" data-toggle="popover"
                        data-content="{{ $allStatsHtml }}">Stats</a>
             </td>
@@ -65,7 +65,7 @@
                     {{ Form::token() }}
                     {{ Form::hidden('save_id', $save->id) }}
                     <button type="submit" class="btn btn-link" data-toggle="tooltip" data-placement="right" title="Make Private"
-                            href="/share/hide/{{ $save->id }}"><span class="glyphicon glyphicon-eye-close"></span></button>
+                            href="{{ action('SharesController@hide') }}"><span class="glyphicon glyphicon-eye-close"></span></button>
                 </form>
             </td>
         </tr>

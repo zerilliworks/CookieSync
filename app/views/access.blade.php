@@ -153,7 +153,7 @@
 
 
     <!-- Login form -->
-    <form id="login" class="form-signup" method="POST" action="access/login">
+    <form id="login" class="form-signup" method="POST" action="{{ action('AuthController@postLoginCredentials') }}">
         <div class="form-container">
             <h4 style="text-align: center" class="text-muted">Log In to your account</h4>
             <a id="switch-to-register" class="btn btn-small btn-link btn-block" href="#">Or Create an Account</a>
@@ -173,7 +173,7 @@
 
     <!-- registration form -->
     <form id="registration" class="form-signup form-register animated" style="height: 0px" method="POST"
-          action="access/register"
+          action="{{ action('AuthController@postRegistrationInfo') }}"
           onsubmit="return ValidateAsirra();">
         <div class="form-container">
             <h4 style="text-align: center" class="text-muted">Register a new account</h4>
@@ -213,39 +213,34 @@
         <p>This thing stores and retrieves <a href="http://orteil.dashnet.org/cookieclicker">Cookie Clicker</a> saves.
             It's really easy. Create an account
             get a bookmarklet to stick in your browser. While you're Cookie Clickin', just mash that bookmark to
-            save a game. That's pretty much it, just please do not forget your passkey. If you do, I can't help you.
-            (Though I am working on a password reset and retrieval feature.)
+            save a game. That's pretty much it. You can keep track of each separate Cookie Clicker game and follow its
+            progress. Marvel as the system shows you how many cookies you've baked over your entire career!
+        </p>
+
+        <p>Yes, CookieSync is more than a convenience tool; it's a Cookie Clicker stat aggregator. As the user base grows,
+            so does our knowledge of how people play Cookie Clicker and (ultimately) the measure of all the cookies collected
+            by everyone ever. Interesting, no?
         </p>
 
         <p>
             Log in anywhere to get your saves back. Don't worry, nothing is too tricky. You can add and delete saves at
-            any time. You can also completely erase your account at any time. It's on the options page. No personal
-            information <i>of any kind</i> is collected; only an anonymous analytics cookie (no ads or spam).
+            any time. You can also completely erase your account at any time. It's on the options page. Minimal personal
+            information is collected; only an anonymous analytics cookie (no ads or spam).
         </p>
     </div>
     <div class="col-md-6 col-xs-12">
-        <p>Still alpha-level, CookieSync evolves fairly quickly. Right now, plenty of stuff is unimplemented.
-            In its current state, CookieSync represents significant time spent working. I don't anticipate that
-            it will stay bare-bones for long.</p>
+        <p>Still alpha-level, CookieSync evolves fairly quickly. Right now, some things are unimplemented.
+            In its current state, CookieSync represents significant time spent working.</p>
 
         <h4>Features in the works:</h4>
         <ol>
-            <li>Forked saves - Resuming from a save splits off another path of games going forward</li>
-            <li>
-                <del>NO SCIENTIFIC NOTATION, MMKAY?</del>
-                Proper decimals now.
-            </li>
-            <li>
-                <del>Better Cookie Clicker save format support (reading achievements, upgrades, etc.)</del>
-                Full save decoding, including upgrades and achievements.
-            </li>
-            <li>Stat tracking and career progress</li>
-            <li>Slick, slick graphs</li>
-            <li>
-                <del>Sharing saved games</del>
-                Use the share icon!
-            </li>
-            <li>Less Shitty interface design</li>
+            <li>Complete stat tracking and "career" progress</li>
+            <li>Graphing of cookie counts and other stats</li>
+            <li>Better details of buildings</li>
+            <li>Email-based password resets</li>
+            <li>Social media logins (Maybe. If I did add them, they'd be totally optional, nothing but an auth token stored)</li>
+            <li>Improved Cookie Clicker integration</li>
+            <li>Automatic saving</li>
         </ol>
     </div>
     <small class="text-muted">{{ App::environment() }}</small>
@@ -291,7 +286,7 @@
     $('#asirra-wrapper').click(function()
     {
         $('#asirra-wrapper').tooltip('hide');
-    })
+    });
 
     var passThroughFormSubmit = false;
     function ValidateAsirra() {

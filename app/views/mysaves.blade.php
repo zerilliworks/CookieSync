@@ -66,17 +66,17 @@
 <!--                <form class="form-inline" action="{{ action('SavesController@destroy', $save->id) }}" method="DELETE">-->
                     {{ Form::token() }}
                     <button type="submit" class="btn btn-xs btn-danger">Delete</button>
-                    <a class="btn btn-success btn-xs" href="/mysaves/{{ $save->id }}">View</a>
+                    <a class="btn btn-success btn-xs" href="{{ action('SavesController@show', $save->id) }}">View</a>
                     <a class="btn btn-info btn-xs stat-popover" data-placement="right" data-toggle="popover"
                        data-content="{{ $allStatsHtml }}">Stats</a>
                 </form>
             </td>
             <td>
-                <form class="form-inline" action="/mysaves/makepublic" method="post">
+                <form class="form-inline" action="{{ action('SavesController@makePublic') }}" method="post">
                     {{ Form::token() }}
                     {{ Form::hidden('save_id', $save->id) }}
                     <button type="submit" class="btn btn-link" data-toggle="tooltip" data-placement="right" title="Share"
-                            href="/share/{{ $save->id }}"><span class="glyphicon glyphicon-share"></span></button>
+                            href="{{ action('SharesController@show', $save->id) }}"><span class="glyphicon glyphicon-share"></span></button>
                 </form>
             </td>
         </tr>

@@ -30,7 +30,7 @@
 <p>Alternatively, you can use this box at the bottom of any list:</p>
 <div class="row">
     <div class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
-        {{ Form::open(array('url' => 'addsave')) }}
+        {{ Form::open(array('action' => 'SavesController@store')) }}
         <textarea class="form-control" name="savedata" id="save-data-field" rows="3"></textarea>
         <button type="submit" class="btn btn-block btn-success">Save That Shit</button>
         </form>
@@ -69,7 +69,7 @@ Njg1MjQ5OzEzNzQzODk1MzQ3M3wyMjcxNjk0MTAyMzMxNDA3OzIyNTE3OTk4MTM2ODUyNDk7MTAyNQ%3
         </td>
         <td>
                 <a class="btn btn-xs btn-danger" href="#">Delete</a>
-                <a class="btn btn-success btn-xs" href="/welcome/example">View</a>
+                <a class="btn btn-success btn-xs" href="{{ route('welcome_example') }}">View</a>
                 <a class="btn btn-info btn-xs stat-popover" data-placement="right" data-toggle="popover"
                    data-content="{{ $allStatsHtml }}">Stats</a>
         </td>
@@ -92,7 +92,7 @@ data. </p>
 <p>Click the options link up top and you can find some tweaks and other features. Notably, you can delete your account
 at any time. <em class="text-danger">Deleting an account is permanent and all-encompassing.</em> Your games, saves,
 and preferences will be gone forever.</p>
-<p class="lead">That's pretty much it! Go click <a href="/mysaves">My Saves</a> to visit your dashboard. Click away,
+<p class="lead">That's pretty much it! Go click <a href="{{ action('SavesController@index') }}">My Saves</a> to visit your dashboard. Click away,
 fella. Grandma is waiting.</p>
 @stop
 
