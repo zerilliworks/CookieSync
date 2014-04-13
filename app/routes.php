@@ -174,8 +174,9 @@ View::composer('about', function ($view) {
     $compute = function() {
         if (!Cache::has('soft_global_cookie_count')) {
             Queue::push('CookieSync\Workers\Statistical\GlobalStats', []);
+            return \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count'));
         }
-        return \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count'));
+        return \NumericHelper::makeRoundedHumanReadable(Cache::get('soft_global_cookie_count'));
     };
 
     $view->with('cookieCount', $compute());

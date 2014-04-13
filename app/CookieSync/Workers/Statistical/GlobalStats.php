@@ -27,7 +27,7 @@ class GlobalStats {
             {
                 $cookieTotal = $counter->calculateEverySave();
                 Cache::add('soft_global_cookie_count',  $cookieTotal, 15);
-                Cache::put('sticky_global_cookie_count', $cookieTotal, 30);
+                Cache::forever('sticky_global_cookie_count', $cookieTotal);
             }
 
 
