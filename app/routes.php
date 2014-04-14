@@ -89,6 +89,8 @@ Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth
     Route::get('options/bookmarklet', 'OptionsController@getBookmarklet');
     Route::get('options/nukeme', 'OptionsController@getDeleteUserView');
     Route::post('options/nukeme/doit', 'OptionsController@postDeleteUserRequest');
+    Route::get('options/password', 'OptionsController@getResetPassword');
+    Route::post('options/password', 'OptionsController@postResetPassword');
 
     Route::resource('shared', 'SharesController');
 
@@ -178,7 +180,7 @@ Route::group(['prefix' => '{api}/v1'], function () {
  * View Composers
  */
 
-View::composer('about', function ($view) {
+View::composer(['about', 'access'], function ($view) {
     $view->with('userCount', Cache::remember('user_count', 30, function () {
         return User::count();
     }));

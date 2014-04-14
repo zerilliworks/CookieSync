@@ -5,7 +5,7 @@
 @section('css')
 <style type="text/css">
     body {
-        padding-top: 40px;
+        padding-top: 0;
         padding-bottom: 0px;
         background-color: #eee;
     }
@@ -18,7 +18,7 @@
     }
 
     p.lead {
-        font-family: 'Kavoon', 'Georgia', 'Helvetica', sans-serif;
+        font-family: 'Helvetica', 'Arial', sans-serif;
     }
 
     .forms-wrapper {
@@ -32,7 +32,7 @@
     .form-container {
         width: 355px;
         overflow: visible;
-        padding: 30px 0;
+        padding: 0px 0;
         margin: 0;
     }
 
@@ -41,7 +41,6 @@
         position: absolute;
         width: 355px;
         /*padding: 15px;*/
-        overflow: visible;
         -webkit-transition: all 400ms cubic-bezier(0.785, 0.135, 0.150, 0.860);
         -moz-transition: all 400ms cubic-bezier(0.785, 0.135, 0.150, 0.860);
         -o-transition: all 400ms cubic-bezier(0.785, 0.135, 0.150, 0.860);
@@ -123,17 +122,39 @@
     .btn-link {
         text-align: center;
     }
+
+    .headline {
+        background-image: url('{{ Config::get('app.url') }}/images/CookieSync-web.svg'), url('{{ Config::get('app.url') }}/images/gold_scale.png');
+        background-size: contain, auto;
+        background-position: center, top;
+        background-repeat: no-repeat, repeat;
+        width: 100%;
+        padding-top: 8em;
+        padding-bottom: 8em;
+        box-shadow: inset 0px -20px 30px -20px rgba(0, 0, 0, 0.33);
+        color: white;
+        text-align: center;
+        text-shadow: #000000 0 10px 30px;
+    }
+
+    .headline > h1 {
+        font-size: 5.3em;
+    }
 </style>
+@stop
+
+@section('upper-body')
+<div class="headline">
+    <h1>CookieSync</h1>
+
+    <h3>For dopes that play <br>a lotta Cookie Clicker.</h3>
+</div>
 @stop
 
 @section('body')
 <div class="row" style="">
     <div class="col-md-4 col-md-offset-4 col-sm-12">
-        <h1 style="text-align: center">CookieSync</h1>
-        <h5 style="text-align: center" class="text-muted">For dopes that Cookie Click everywhere.</h5>
-
         @if( $errors->any() )
-
         <div class="alert alert-danger">
             <h4>Better double-check that.</h4>
 
@@ -148,14 +169,14 @@
     </div>
 </div>
 
+<h3 class="text-center text-info">{{ $cookieCount }} cookies saved so far!</h3>
 
 <div class="forms-wrapper animated">
-
 
     <!-- Login form -->
     <form id="login" class="form-signup" method="POST" action="{{ action('AuthController@postLoginCredentials') }}">
         <div class="form-container">
-            <h4 style="text-align: center" class="text-muted">Log In to your account</h4>
+            <h3 style="text-align: center" class="text-muted">Log In to your account</h3>
             <a id="switch-to-register" class="btn btn-small btn-link btn-block" href="#">Or Create an Account</a>
             {{ Form::token() }}
             <div id="username-field" class="form-group">
@@ -176,7 +197,7 @@
           action="{{ action('AuthController@postRegistrationInfo') }}"
           onsubmit="return ValidateAsirra();">
         <div class="form-container">
-            <h4 style="text-align: center" class="text-muted">Register a new account</h4>
+            <h3 style="text-align: center" class="text-muted">Register a new account</h3>
             <a id="switch-to-login" class="btn btn-small btn-link btn-block" href="#">Or Log In to an Account</a>
             {{ Form::token() }}
             <div id="username-field" class="form-group">
@@ -210,6 +231,8 @@
 </div>
 <div class="row">
     <div class="col-md-6 col-xs-12">
+        <p class="lead">Keep your Cookie Clicker save data synced up and in line. Track stats, share saves, and compare
+                        your stats with others.</p>
         <p>This thing stores and retrieves <a href="http://orteil.dashnet.org/cookieclicker">Cookie Clicker</a> saves.
             It's really easy. Create an account
             get a bookmarklet to stick in your browser. While you're Cookie Clickin', just mash that bookmark to
@@ -248,34 +271,6 @@
 @stop
 
 @section('footer-js')
-<!--<script type="text/javascript">-->
-<!--    var availability = '';-->
-<!---->
-<!--    $("#username-field").tooltip({ placement: 'top', trigger: 'manual', title: 'Nope. Try another one.'});-->
-<!---->
-<!--    $("#username-input").blur(function (e) {-->
-<!--        $("#username-input").removeClass('available');-->
-<!--        $("#username-input").removeClass('unavailable');-->
-<!---->
-<!--        if (!$(e.target).val()) {-->
-<!--            $("#username-field").tooltip('hide');-->
-<!--            return;-->
-<!--        }-->
-<!--        $.get('jax/nametaken', { name: $(e.target).val() })-->
-<!--            .done(function (data) {-->
-<!--                availability = data;-->
-<!--                if (data == 'available') {-->
-<!--                    $("#username-input").addClass('available');-->
-<!--                    $("#username-field").tooltip('hide');-->
-<!--                }-->
-<!--                else {-->
-<!--                    $("#username-input").addClass('unavailable');-->
-<!--                    $("#username-field").tooltip('show');-->
-<!--                }-->
-<!--            });-->
-<!--    });-->
-<!--</script>-->
-
 <script type="text/javascript">
     $('#asirra-wrapper').tooltip({
         'placement' : 'top',

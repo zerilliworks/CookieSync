@@ -12,6 +12,7 @@ class OptionsController extends BaseController {
 
     public function __construct()
     {
+        $this->beforeFilter('auth');
         $this->beforeFilter('csrf', ['on' => 'post']);
         $this->user = Auth::user();
     }
@@ -51,6 +52,37 @@ class OptionsController extends BaseController {
         Event::fire('cookiesync.userdestroyed', array($id, $name));
 
         return Redirect::route('goodbye');
+    }
+
+    public function getResetPassword()
+    {
+        return View::make('password');
+    }
+
+    public function postResetPassword()
+    {
+        $data = Input::only('password', 'password_confirmation');
+
+        $rules = [
+            'password' => 'required|min:6|confirmed'
+        ];
+
+        $messages = [
+          'confirmed' => 'Those passwords didn\'t match. Try again.',
+          'min'       => 'Passwords must be at least 6 characters long'
+        ];
+
+        $v = Validator::make($data, $rules, $messages);
+
+        if ($v->passes())
+        {
+            $this->user->password = Hash::make($data['password']);
+            $this->user->save();
+
+            return Redirect::action('OptionsController@getIndex')->withSuccess('Password has been reset!');
+        } else {
+            return Redirect::back()->withErrors($v);
+        }
     }
 
 } 
