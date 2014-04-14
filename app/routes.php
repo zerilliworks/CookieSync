@@ -92,7 +92,7 @@ Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth
     Route::get('options/password', 'OptionsController@getResetPassword');
     Route::post('options/password', 'OptionsController@postResetPassword');
 
-    Route::resource('shared', 'SharesController');
+    Route::get('shared', 'SharesController@index');
 
     Route::post('shares/hide/{id}', 'SharesController@hide');
 
@@ -111,7 +111,7 @@ Route::group(['prefix' => 'cookiesync'], function ()
     |--------------------------------------------------------------------------
     */
 
-    Route::get('shared/{id}', 'SavesController@shared');
+    Route::get('shared/{id}', 'SharesController@show');
 
     Route::get('about', [
       'as' => 'about_page',

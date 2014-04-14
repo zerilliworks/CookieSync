@@ -10,8 +10,8 @@ class SharesController extends BaseController {
 
     public function __construct()
     {
-        $this->user = Auth::user();
-        $this->beforeFilter('auth', ['only' => 'index']);
+//        $this->user = Auth::user();
+//        $this->beforeFilter('auth', ['only' => 'index']);
     }
 
     public function index()
@@ -35,7 +35,10 @@ class SharesController extends BaseController {
     {
         $sharedSave = SharedSave::whereShareCode($id)->first()->savedGame;
         if ($sharedSave) {
-            return View::make('shared')->with('save', $sharedSave);
+            return View::make('shared')
+              ->with('save', $sharedSave)
+              ->with('cookiesBaked', $sharedSave->cookies())
+              ->with('allTimeCookies', $sharedSave->allTimeCookies());
         }
         // Else
         App::abort(404);

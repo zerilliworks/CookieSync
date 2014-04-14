@@ -24,20 +24,55 @@
         font-family: monospace;
     }
 
-    .panel-sized {
-        max-height: 20em;
-        overflow-y: scroll;
-        /* For momentum scrolling on iOS devices */
-        -webkit-overflow-scrolling: touch;
+
+    .cookie-count {
+        font-family: "Kavoon", "Helvetica", "Arial", "sans-serif";
+        text-align: center;
+        text-shadow: ;
     }
 </style>
 @stop
 
 @section('body')
 @include('partials.navbar')
-<div class="page-header">
-    <h1>View Save Data <small>shared by {{ $save->user->name }}</small></h1>
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-xs-12 col-sm-4">
+            <h2>Shared by <span class="text-info">{{ $save->user->name }}</span></h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="stat stat-large">
+                <h4 class="stat-title">Cookies:</h4>
+                <h1 class="stat-text">{{ NumericHelper::makeRoundedHumanReadable($save->cookies()) }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="stat stat-medium">
+                <h4 class="stat-title">Saved At:</h4>
+                <h1 class="stat-text">{{ $save->updated_at->toFormattedDateString() }}</h1>
+            </div>
+            <div class="stat stat-medium">
+                <h4 class="stat-title">Buildings:</h4>
+                <h1 class="stat-text">{{ $save->building_count }}</h1>
+            </div>
+            <div class="stat stat-medium">
+                <h4 class="stat-title">Achievements:</h4>
+                <h1 class="stat-text">{{ count($save->achievements) }}</h1>
+            </div>
+            <div class="stat stat-medium">
+                <h4 class="stat-title">Upgrades:</h4>
+                <h1 class="stat-text">{{ count($save->upgrades) }}</h1>
+            </div>
+        </div>
+    </div>
 </div>
+<h1 class="cookie-count">
+
+</h1>
 <table class="table">
     <thead>
     <th>Game Stats</th>
@@ -46,11 +81,19 @@
     <tbody>
     <tr>
         <td>Cookies in Bank:</td>
-        <td><b>{{ prettyNumbers($save->cookies()) }}</b></td>
+        <td><b>{{ prettyNumbers($cookiesBaked) }}</b></td>
     </tr>
     <tr>
         <td>Cookies Baked (All-Time):</td>
-        <td>{{ prettyNumbers($save->allTimeCookies()) }}</td>
+        <td>{{ prettyNumbers($allTimeCookies) }}</td>
+    </tr>
+    <tr>
+        <td>Game Started on:</td>
+        <td>{{ $save->gameStat('date_started')->toFormattedDateString() }}</td>
+    </tr>
+    <tr>
+        <td>Heavenly Chips:</td>
+        <td>{{ $save->heavenlyChips() }}</td>
     </tr>
     </tbody>
 </table>
@@ -105,6 +148,7 @@
     <h1>Elder Wrath has Taken Hold...</h1>
 </div>
 @endif
+<h2>Building Stats:</h2>
 <table class="table-bordered table table-condensed">
     <tbody>
     <tr>
@@ -123,5 +167,21 @@
     </tr>
     </tbody>
 </table>
-<pre><code>{{ $save->save_data }}</code></pre>
+<textarea id="data-field" class="form-control" rows="6" readonly>{{ $save->data }}</textarea>
+@stop
+
+@section('footer-js')
+<script type="text/javascript">
+    $("#data-field").hover(function(e)
+    {
+        e.target.focus();
+        e.target.select();
+    });
+
+    $(".stat-large h1.stat-text").slabText({
+        // Don't slabtext the headers if the viewport is under 380px
+        "viewportBreakpoint":380,
+        "maxFontSize" : 120
+    });
+</script>
 @stop
