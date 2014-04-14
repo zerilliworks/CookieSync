@@ -152,9 +152,11 @@
 @stop
 
 @section('body')
+
+<h3 class="text-center text-info">{{ $cookieCount }} cookies saved so far!</h3>
+@if( $errors->any() )
 <div class="row" style="">
     <div class="col-md-4 col-md-offset-4 col-sm-12">
-        @if( $errors->any() )
         <div class="alert alert-danger">
             <h4>Better double-check that.</h4>
 
@@ -165,12 +167,9 @@
                 @endforeach
             </ul>
         </div>
-        @endif
     </div>
 </div>
-
-<h3 class="text-center text-info">{{ $cookieCount }} cookies saved so far!</h3>
-
+@endif
 <div class="forms-wrapper animated">
 
     <!-- Login form -->
@@ -180,10 +179,9 @@
             <a id="switch-to-register" class="btn btn-small btn-link btn-block" href="#">Or Create an Account</a>
             {{ Form::token() }}
             <div id="username-field" class="form-group">
-                <input id="username-input" type="text" class="form-control" placeholder="User name" name="username"
-                       autocapitalize="off" autocorrect="off" spellcheck="false" autofocus>
+                {{ Form::text('username', null, ['class' => 'form-control', 'placeholder' => 'User name', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'spellcheck' => 'false', 'autofocus' => 'true']); }}
             </div>
-            <input type="password" class="form-control" placeholder="Passkey" name="password">
+            {{ Form::password('password', ['class' => 'form-control', 'placeholder' => 'Passkey']) }}
             <button class="btn btn-lg btn-primary btn-block" type="submit">Let Me In!</button>
 
         </div>
@@ -201,12 +199,10 @@
             <a id="switch-to-login" class="btn btn-small btn-link btn-block" href="#">Or Log In to an Account</a>
             {{ Form::token() }}
             <div id="username-field" class="form-group">
-                <input id="username-input" type="text" class="form-control" placeholder="User name" name="username"
-                       autocapitalize="off" autocorrect="off" spellcheck="false" autofocus>
+                {{ Form::text('username', null, ['class' => 'form-control', 'placeholder' => 'User name', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'spellcheck' => 'false']); }}
             </div>
-            <input type="password" class="form-control" placeholder="Passkey" name="password" style="margin-bottom: -1px; border-radius: 0;">
-            <input type="password" class="form-control" placeholder="Confirm Passkey" name="password_confirmation">
-
+            {{ Form::password('password', ['placeholder' => 'Passkey', 'class' => 'form-control', 'style' => 'margin-bottom: -1px; border-radius: 0;']) }}
+            {{ Form::password('password_confirmation', ['placeholder' => 'Confirm Passkey', 'class' => 'form-control']) }}
             <div id="asirra-wrapper"
                  style="margin-top: 30px; margin-bottom: 20px; position: relative; overflow: visible;">
                 {{ Form::asirra() }}
@@ -232,7 +228,8 @@
 <div class="row">
     <div class="col-md-6 col-xs-12">
         <p class="lead">Keep your Cookie Clicker save data synced up and in line. Track stats, share saves, and compare
-                        your stats with others.</p>
+            your stats with others.</p>
+
         <p>This thing stores and retrieves <a href="http://orteil.dashnet.org/cookieclicker">Cookie Clicker</a> saves.
             It's really easy. Create an account
             get a bookmarklet to stick in your browser. While you're Cookie Clickin', just mash that bookmark to
@@ -240,8 +237,10 @@
             progress. Marvel as the system shows you how many cookies you've baked over your entire career!
         </p>
 
-        <p>Yes, CookieSync is more than a convenience tool; it's a Cookie Clicker stat aggregator. As the user base grows,
-            so does our knowledge of how people play Cookie Clicker and (ultimately) the measure of all the cookies collected
+        <p>Yes, CookieSync is more than a convenience tool; it's a Cookie Clicker stat aggregator. As the user base
+            grows,
+            so does our knowledge of how people play Cookie Clicker and (ultimately) the measure of all the cookies
+            collected
             by everyone ever. Interesting, no?
         </p>
 
@@ -261,7 +260,9 @@
             <li>Graphing of cookie counts and other stats</li>
             <li>Better details of buildings</li>
             <li>Email-based password resets</li>
-            <li>Social media logins (Maybe. If I did add them, they'd be totally optional, nothing but an auth token stored)</li>
+            <li>Social media logins (Maybe. If I did add them, they'd be totally optional, nothing but an auth token
+                stored)
+            </li>
             <li>Improved Cookie Clicker integration</li>
             <li>Automatic saving</li>
         </ol>
@@ -273,13 +274,12 @@
 @section('footer-js')
 <script type="text/javascript">
     $('#asirra-wrapper').tooltip({
-        'placement' : 'top',
-        'title' : 'Please correctly identify the cats.',
-        'trigger' : 'manual'
+        'placement': 'top',
+        'title': 'Please correctly identify the cats.',
+        'trigger': 'manual'
     });
 
-    $('#asirra-wrapper').click(function()
-    {
+    $('#asirra-wrapper').click(function () {
         $('#asirra-wrapper').tooltip('hide');
     });
 

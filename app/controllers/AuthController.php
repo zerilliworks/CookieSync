@@ -33,7 +33,9 @@ class AuthController extends BaseController {
         }
         else {
             // Return to login page with errors
-            return Redirect::route('login')->withErrors("Username and password didn't match any registered combination.");
+            return Redirect::route('login')
+              ->withErrors("Username and password didn't match any registered combination.")
+              ->with('username', Input::get('username'));
         }
     }
 
