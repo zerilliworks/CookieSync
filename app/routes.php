@@ -145,7 +145,7 @@ Route::group(['prefix' => 'cookiesync'], function ()
 });
 
 
-Route::post('queue/grind', function () {
+Route::post('cookiesync/queue/grind', function () {
     return Queue::marshal();
 });
 
@@ -195,9 +195,17 @@ View::composer(['about', 'access'], function ($view) {
         }
         return \NumericHelper::makeRoundedHumanReadable(Cache::get('soft_global_cookie_count'));
     };
-
-    $view->with('cookieCount', $compute());
+    try {
+        $view->with('cookieCount', $compute());
+    } catch (Exception $e) {
+        return $view->with('cookieCount', \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count', 'A lot of ')));
+    }
 });
 // ---
 // End View Composers
 // ---
+
+App::missing(function() {
+    Log::error('HTTP 404: No route found to handle '. Request::fullUrl());
+    return Response::make('Not Found', 404);
+});
