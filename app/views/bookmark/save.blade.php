@@ -6,7 +6,7 @@
 <body>
 
 <script type="text/javascript">
-    window.localStorage.setItem('cookiesync.pulse', 'new save');
+    window.localStorage.setItem('cookiesync.pulse', 'new save ' + '{{ time() }}');
     window.close();
 </script>
 </body>

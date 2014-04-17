@@ -34,8 +34,6 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="{{ Config::get('app.url') }}/js/bootstrap.min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/slabText/2.3/jquery.slabtext.min.js"></script>
-<script src="{{ Config::get('app.url') }}/js/cs-async.js"></script>
-<script src="{{ Config::get('app.url') }}/js/brainsocket.min.js"></script>
 
 <script type="text/javascript">
     var _gauges = _gauges || [];
@@ -52,6 +50,7 @@
 
     window.addEventListener('storage', function(e) {
         if(e.key == 'cookiesync.pulse') {
+            console.log("New save, reloading...");
             window.localStorage.setItem(e.key, '');
             window.location.reload(true);
         }

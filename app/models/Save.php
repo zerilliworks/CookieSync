@@ -438,7 +438,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $this->gameData['buildings.portals']       = $portals[0];
             $this->gameData['buildings.time_machines'] = $timeMachines[0];
             $this->gameData['buildings.condensers']    = $condensers[0];
-            $this->gameData['buildings.prisms']        = $prisms[0];
+            $this->gameData['buildings.prisms']        = $prisms[0] ? $prisms[0] : 0;
 
             $this->gameData['buildings.cursors.production']       = $cursors[2];
             $this->gameData['buildings.grandmas.production']      = $grandmas[2];
@@ -450,7 +450,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $this->gameData['buildings.portals.production']       = $portals[2];
             $this->gameData['buildings.time_machines.production'] = $timeMachines[2];
             $this->gameData['buildings.condensers.production']    = $condensers[2];
-            $this->gameData['buildings.prisms.production']        = $prisms[2];
+            $this->gameData['buildings.prisms.production']        = isset($prisms[2]) ? $prisms[2] : 0;
 
             $this->gameData['upgrades.binary']     = $upgrades;
             $this->gameData['achievements.binary'] = $achievements;
@@ -503,6 +503,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         }
         catch (ErrorException $e) {
             Log::error('Failed to parse save with id ' . $this->id);
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
 
             return false;
         }

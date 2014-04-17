@@ -22,4 +22,8 @@ class BaseController extends Controller {
 		}
 	}
 
+    protected function autoJson($item, $defaultView) {
+
+    }
+
 }

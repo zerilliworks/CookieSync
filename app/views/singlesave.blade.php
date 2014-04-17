@@ -82,30 +82,30 @@
         </div>
     </div>
 </div>
-<table class="table">
-    <thead>
-    <th>Game Stats</th>
-    </th>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Cookies in Bank:</td>
-        <td><b>{{ prettyNumbers($cookiesBaked) }}</b></td>
-    </tr>
-    <tr>
-        <td>Cookies Baked (All-Time):</td>
-        <td>{{ prettyNumbers($allTimeCookies) }}</td>
-    </tr>
-    <tr>
-        <td>Game Started on:</td>
-        <td>{{ $save->gameStat('date_started')->toFormattedDateString() }}</td>
-    </tr>
-    <tr>
-        <td>Heavenly Chips:</td>
-        <td>{{ $save->heavenlyChips() }}</td>
-    </tr>
-    </tbody>
-</table>
+<!--<table class="table">-->
+<!--    <thead>-->
+<!--    <th>Game Stats</th>-->
+<!--    </th>-->
+<!--    </thead>-->
+<!--    <tbody>-->
+<!--    <tr>-->
+<!--        <td>Cookies in Bank:</td>-->
+<!--        <td><b>{{ prettyNumbers($cookiesBaked) }}</b></td>-->
+<!--    </tr>-->
+<!--    <tr>-->
+<!--        <td>Cookies Baked (All-Time):</td>-->
+<!--        <td>{{ prettyNumbers($allTimeCookies) }}</td>-->
+<!--    </tr>-->
+<!--    <tr>-->
+<!--        <td>Game Started on:</td>-->
+<!--        <td>{{ $save->gameStat('date_started')->toFormattedDateString() }}</td>-->
+<!--    </tr>-->
+<!--    <tr>-->
+<!--        <td>Heavenly Chips:</td>-->
+<!--        <td>{{ $save->heavenlyChips() }}</td>-->
+<!--    </tr>-->
+<!--    </tbody>-->
+<!--</table>-->
 
 
 <h2>Buildings Owned:</h2>

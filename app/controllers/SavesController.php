@@ -136,7 +136,11 @@ class SavesController extends BaseController {
      */
     public function show($id)
     {
-        $thisSave = Auth::user()->saves()->whereId($id)->first();
+        if($id == 'latest') {
+            $thisSave = Auth::user()->saves()->orderBy('created_at', 'desc')->first();
+        } else {
+            $thisSave = Auth::user()->saves()->whereId($id)->first();
+        }
 
         if (!$thisSave) {
             App::abort(404);
@@ -149,7 +153,12 @@ class SavesController extends BaseController {
             $investment = $thisSave->buildings_expense[$name];
             $grossProfit = $thisSave->building_income[$name];
             $netProfit = bcsub($grossProfit, $investment);
-            $ROIArray[$name] = floatval(bcmul(bcdiv($netProfit, $investment, 2), 100, 2));
+            if($investment)
+            {
+                $ROIArray[$name] = floatval(bcmul(bcdiv($netProfit, $investment, 2), 100, 2));
+            } else {
+                $ROIArray[$name] = 0;
+            }
         }
 
         $totalInvestment = $thisSave->total_buildings_expense;
@@ -172,6 +181,11 @@ class SavesController extends BaseController {
                    ->with('buildingROI', $ROIArray)
                    ->with('totalROI', $totalROI)
                    ->with('totalBuildingExpenses', $totalInvestment);
+    }
+
+    public function getLatest()
+    {
+        return $this->show(22);
     }
 
 
