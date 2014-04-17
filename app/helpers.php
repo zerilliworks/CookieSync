@@ -57,3 +57,7 @@ function prettyNumbers($num, $placeSeparator = ',', $decimalSeparator = '.')
     }
 
 }
+
+function round_num($num) {
+    return NumericHelper::makeRoundedHumanReadable($num);
+}

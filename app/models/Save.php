@@ -21,6 +21,7 @@
  */
 
 use Carbon\Carbon;
+use CookieSync\Stat\Income;
 
 /**
  * @property mixed data
@@ -211,7 +212,33 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             'portals'       => $this->gameStat('buildings.portals'),
             'time_machines' => $this->gameStat('buildings.time_machines'),
             'condensers'    => $this->gameStat('buildings.condensers'),
+            'prisms'        => $this->gameStat('buildings.prisms'),
         );
+    }
+
+    public function getBuildingIncomeAttribute()
+    {
+        return array(
+          'cursors'       => $this->gameStat('buildings.cursors.production'),
+          'grandmas'      => $this->gameStat('buildings.grandmas.production'),
+          'farms'         => $this->gameStat('buildings.farms.production'),
+          'factories'     => $this->gameStat('buildings.factories.production'),
+          'mines'         => $this->gameStat('buildings.mines.production'),
+          'shipments'     => $this->gameStat('buildings.shipments.production'),
+          'labs'          => $this->gameStat('buildings.labs.production'),
+          'portals'       => $this->gameStat('buildings.portals.production'),
+          'time_machines' => $this->gameStat('buildings.time_machines.production'),
+          'condensers'    => $this->gameStat('buildings.condensers.production'),
+          'prisms'        => $this->gameStat('buildings.prisms.production'),
+        );
+    }
+
+    public function getTotalBuildingIncomeAttribute()
+    {
+        return array_reduce($this->getBuildingIncomeAttribute(), function($total, $building){
+            return bcadd($total, $building);
+        }, 0);
+
     }
 
     public function getBuildingCountAttribute()
@@ -220,6 +247,35 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         {
             return $count + intval($item);
         }, 0);
+    }
+
+    public function getBuildingsExpenseAttribute()
+    {
+        return array(
+          'cursors'       => Income::spentOnBuilding('cursor', $this->gameStat('buildings.cursors')),
+          'grandmas'      => Income::spentOnBuilding('grandma', $this->gameStat('buildings.grandmas')),
+          'farms'         => Income::spentOnBuilding('farm', $this->gameStat('buildings.farms')),
+          'factories'     => Income::spentOnBuilding('factory', $this->gameStat('buildings.factories')),
+          'mines'         => Income::spentOnBuilding('mine', $this->gameStat('buildings.mines')),
+          'shipments'     => Income::spentOnBuilding('shipment', $this->gameStat('buildings.shipments')),
+          'labs'          => Income::spentOnBuilding('lab', $this->gameStat('buildings.labs')),
+          'portals'       => Income::spentOnBuilding('portal', $this->gameStat('buildings.portals')),
+          'time_machines' => Income::spentOnBuilding('time_machine', $this->gameStat('buildings.time_machines')),
+          'condensers'    => Income::spentOnBuilding('condenser', $this->gameStat('buildings.condensers')),
+          'prisms'        => Income::spentOnBuilding('prism', $this->gameStat('buildings.prisms')),
+        );
+    }
+
+    public function getTotalBuildingsExpenseAttribute()
+    {
+        $expense = '0';
+
+        foreach($this->buildings as $name => $owned)
+        {
+            $expense = bcadd(Income::spentOnBuilding(str_singular($name), $owned), $expense);
+        }
+
+        return $expense;
     }
 
     /**
@@ -370,6 +426,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $portals      = explode(',', $buildings[7]);
             $timeMachines = explode(',', $buildings[8]);
             $condensers   = explode(',', $buildings[9]);
+            $prisms       = explode(',', $buildings[10]);
 
             $this->gameData['buildings.cursors']       = $cursors[0];
             $this->gameData['buildings.grandmas']      = $grandmas[0];
@@ -381,6 +438,19 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $this->gameData['buildings.portals']       = $portals[0];
             $this->gameData['buildings.time_machines'] = $timeMachines[0];
             $this->gameData['buildings.condensers']    = $condensers[0];
+            $this->gameData['buildings.prisms']        = $prisms[0];
+
+            $this->gameData['buildings.cursors.production']       = $cursors[2];
+            $this->gameData['buildings.grandmas.production']      = $grandmas[2];
+            $this->gameData['buildings.farms.production']         = $farms[2];
+            $this->gameData['buildings.factories.production']     = $factories[2];
+            $this->gameData['buildings.mines.production']         = $mines[2];
+            $this->gameData['buildings.shipments.production']     = $shipments[2];
+            $this->gameData['buildings.labs.production']          = $alchemyLabs[2];
+            $this->gameData['buildings.portals.production']       = $portals[2];
+            $this->gameData['buildings.time_machines.production'] = $timeMachines[2];
+            $this->gameData['buildings.condensers.production']    = $condensers[2];
+            $this->gameData['buildings.prisms.production']        = $prisms[2];
 
             $this->gameData['upgrades.binary']     = $upgrades;
             $this->gameData['achievements.binary'] = $achievements;

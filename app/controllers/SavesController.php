@@ -142,10 +142,36 @@ class SavesController extends BaseController {
             App::abort(404);
         }
 
+        $ROIArray = [];
+
+        foreach ($thisSave->buildings as $name => $owned)
+        {
+            $investment = $thisSave->buildings_expense[$name];
+            $grossProfit = $thisSave->building_income[$name];
+            $netProfit = bcsub($grossProfit, $investment);
+            $ROIArray[$name] = floatval(bcmul(bcdiv($netProfit, $investment, 2), 100, 2));
+        }
+
+        $totalInvestment = $thisSave->total_buildings_expense;
+        $totalProfit = $thisSave->total_building_income;
+        $netProfit = bcsub($totalProfit, $totalInvestment);
+
+        $totalROI = floatval(bcmul(bcdiv($netProfit, $totalInvestment), 100));
+
+
         return View::make('singlesave')
                    ->with('save', $thisSave)
                    ->with('cookiesBaked', $thisSave->cookies())
-                   ->with('allTimeCookies', $thisSave->allTimeCookies());
+                   ->with('allTimeCookies', $thisSave->allTimeCookies())
+                   ->with('buildingCount', $thisSave->building_count)
+                   ->with('buildings', $thisSave->buildings)
+                   ->with('clickedCookies', $thisSave->handmade_cookies)
+                   ->with('buildingIncome', $thisSave->building_income)
+                   ->with('totalBuildingIncome', $totalProfit)
+                   ->with('buildingExpenses', $thisSave->buildings_expense)
+                   ->with('buildingROI', $ROIArray)
+                   ->with('totalROI', $totalROI)
+                   ->with('totalBuildingExpenses', $totalInvestment);
     }
 
 

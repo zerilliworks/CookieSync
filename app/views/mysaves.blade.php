@@ -7,7 +7,7 @@
         <div class="col-xs-12">
             <div class="stat stat-large">
                 <h4 class="stat-title">Cookies Saved:</h4>
-                <h1 class="stat-text">{{ NumericHelper::makeRoundedHumanReadable($careerCookies) }} Cookies</h1>
+                <h1 class="stat-text">{{ NumericHelper::makeRoundedHumanReadable($careerCookies) }}</h1>
             </div>
         </div>
     </div>

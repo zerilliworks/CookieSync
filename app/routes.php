@@ -75,6 +75,9 @@ Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth
 Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth route group
 {
 
+    Route::get('career', 'CareerController@getCareerPage');
+    Route::get('career/history', 'CareerController@getCookieHistory');
+
     Route::resource('mysaves', 'SavesController');
 
     Route::post('mysaves/undelete', 'SavesController@undoDestroy');
@@ -198,6 +201,7 @@ View::composer(['about', 'access'], function ($view) {
     try {
         $view->with('cookieCount', $compute());
     } catch (Exception $e) {
+        Log::error('Worker queue push failed');
         return $view->with('cookieCount', \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count', 'A lot of ')));
     }
 });
