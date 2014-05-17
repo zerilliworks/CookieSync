@@ -1,6 +1,6 @@
 @extends('layout')
 
-<?php View::share('_page_title', 'Sign Up') ?>
+<?php View::share('_page_title', 'Out to Lunch') ?>
 
 @section('css')
 <style type="text/css">

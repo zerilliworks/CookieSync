@@ -5,7 +5,10 @@
 // Time: 11:23 PM
 // For: CookieSync
 
-class Game extends Eloquent {
+use Illuminate\Support\Contracts\ArrayableInterface;
+use \Illuminate\Support\Contracts\JsonableInterface;
+
+class Game extends Eloquent implements JsonableInterface, ArrayableInterface {
     protected $fillable = array('user_id', 'date_started', 'date_saved', 'name', 'cookie_history');
     protected $softDelete = true;
 
@@ -15,7 +18,7 @@ class Game extends Eloquent {
 
         static::deleting(function($model)
         {
-            Event::fire('cookiesync.gamedeletes', array($model));
+            Event::fire('cookiesync.gamedeleted', array($model));
         });
     }
 
@@ -32,5 +35,15 @@ class Game extends Eloquent {
     public function latestSave()
     {
         return $this->saves[0];
+    }
+
+    public function toJson($options = 0)
+    {
+        return json_encode($this, $options);
+    }
+
+    public function toArray()
+    {
+
     }
 }

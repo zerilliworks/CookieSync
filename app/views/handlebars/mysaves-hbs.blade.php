@@ -2,12 +2,13 @@
 
 @section('body')
 @include('partials.navbar')
+<script type="text/x-handlebars">
 <div class="jumbotron">
     <div class="row">
         <div class="col-xs-12">
             <div class="stat stat-large">
                 <h4 class="stat-title">Cookies Saved:</h4>
-                <h1 class="stat-text">{{ NumericHelper::makeRoundedHumanReadable($careerCookies) }}</h1>
+                <h1 class="stat-text">{{ NumericHelper::makeRoundedHumanReadable($careerCookies) }} Cookies</h1>
             </div>
         </div>
     </div>
@@ -17,20 +18,20 @@
                 <h4 class="stat-title">Saves:</h4>
                 <h1 class="stat-text">{{ $saveCount }}</h1>
             </div>
-            @if(isset($gameCount))
             <div class="stat stat-medium">
                 <h4 class="stat-title">Games:</h4>
                 <h1 class="stat-text">{{ $gameCount }}</h1>
             </div>
-            @endif
             <div class="stat stat-medium">
                 <h4 class="stat-title">Latest Save:</h4>
-                <h1 class="stat-text"><a href="mysaves/latest">{{ $latestSaveDate }}</a></h1>
+                <h1 class="stat-text">{{ $latestSaveDate }}</h1>
             </div>
         </div>
     </div>
 </div>
+<div class="col-md-3">
 @include('partials.alerts')
+</div>
 @if(!count($saves))
 <div class="panel text-center">
     <h3>Nothing here yet!</h3>
@@ -62,21 +63,20 @@
                 <b>{{ prettyNumbers($save->cookies()) }}</b> / <i class="text-muted">{{ prettyNumbers($save->allTimeCookies()) }}</i>
             </td>
             <td>
-                {{ Form::open(['action' => ['SavesController@destroy', $save->id], 'method' => 'DELETE', 'class' => 'form-inline']) }}
-<!--                <form class="form-inline" action="{{ action('SavesController@destroy', $save->id) }}" method="DELETE">-->
+                <form class="form-inline" action="/mysaves/nuke/{{ $save->id }}" method="post">
                     {{ Form::token() }}
                     <button type="submit" class="btn btn-xs btn-danger">Delete</button>
-                    <a class="btn btn-success btn-xs" href="{{ action('SavesController@show', $save->id) }}">View</a>
+                    <a class="btn btn-success btn-xs" href="/mysaves/{{ $save->id }}">View</a>
                     <a class="btn btn-info btn-xs stat-popover" data-placement="right" data-toggle="popover"
                        data-content="{{ $allStatsHtml }}">Stats</a>
                 </form>
             </td>
             <td>
-                <form class="form-inline" action="{{ action('SavesController@makePublic') }}" method="post">
+                <form class="form-inline" action="/mysaves/makepublic" method="post">
                     {{ Form::token() }}
                     {{ Form::hidden('save_id', $save->id) }}
                     <button type="submit" class="btn btn-link" data-toggle="tooltip" data-placement="right" title="Share"
-                            href="{{ action('SharesController@show', $save->id) }}"><span class="glyphicon glyphicon-share"></span></button>
+                            href="/share/{{ $save->id }}"><span class="glyphicon glyphicon-share"></span></button>
                 </form>
             </td>
         </tr>
@@ -94,12 +94,13 @@
             </h1>
 
         </div>
-        {{ Form::open(array('action' => 'SavesController@store')) }}
+        {{ Form::open(array('url' => 'addsave')) }}
         <textarea class="form-control" name="savedata" id="save-data-field" rows="5"></textarea>
         <button type="submit" class="btn btn-lg btn-block btn-success">Save That Shit</button>
         </form>
     </div>
 </div>
+</script>
 @stop
 
 @section('footer-js')

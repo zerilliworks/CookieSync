@@ -116,6 +116,8 @@ return array(
         'Cartalyst\Sentry\SentryServiceProvider',
         'Cartalyst\Api\Laravel\ApiServiceProvider',
 
+        'CookieSync\Tools\Observers\ObserversServiceProvider',
+
 	),
 
 	/*
@@ -186,6 +188,8 @@ return array(
         'DataGrid'        => 'Cartalyst\DataGrid\Facades\DataGrid',
         'Sentry'          => 'Cartalyst\Sentry\Facades\Laravel\Sentry',
         'API'             => 'Cartalyst\Api\Laravel\Facades\API',
+
+        'Income'          => 'CookieSync\Stat\Income',
 
 	),
 

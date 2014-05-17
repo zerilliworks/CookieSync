@@ -152,18 +152,18 @@
 <table class="table-bordered table table-condensed">
     <tbody>
     <tr>
-        <td>{{ $save->gameData['buildings.cursors'] }} Cursors</td>
-        <td>{{ $save->gameData['buildings.grandmas'] }} Grandmas</td>
-        <td>{{ $save->gameData['buildings.farms'] }} Farms</td>
-        <td>{{ $save->gameData['buildings.factories'] }} Factories</td>
-        <td>{{ $save->gameData['buildings.mines'] }} Mines</td>
+        <td>{{ $save->gameData['buildings']['cursors'] }} Cursors</td>
+        <td>{{ $save->gameData['buildings']['grandmas'] }} Grandmas</td>
+        <td>{{ $save->gameData['buildings']['farms'] }} Farms</td>
+        <td>{{ $save->gameData['buildings']['factories'] }} Factories</td>
+        <td>{{ $save->gameData['buildings']['mines'] }} Mines</td>
     </tr>
     <tr>
-        <td>{{ $save->gameData['buildings.shipments'] }} Shipments</td>
-        <td>{{ $save->gameData['buildings.labs'] }} Alchemy Labs</td>
-        <td>{{ $save->gameData['buildings.portals'] }} Portals</td>
-        <td>{{ $save->gameData['buildings.time_machines'] }} Time Machines</td>
-        <td>{{ $save->gameData['buildings.condensers'] }} Antimatter Condensers</td>
+        <td>{{ $save->gameData['buildings']['shipments'] }} Shipments</td>
+        <td>{{ $save->gameData['buildings']['labs'] }} Alchemy Labs</td>
+        <td>{{ $save->gameData['buildings']['portals'] }} Portals</td>
+        <td>{{ $save->gameData['buildings']['time_machines'] }} Time Machines</td>
+        <td>{{ $save->gameData['buildings']['condensers'] }} Antimatter Condensers</td>
     </tr>
     </tbody>
 </table>

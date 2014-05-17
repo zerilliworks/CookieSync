@@ -3,8 +3,9 @@
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
 use Cartalyst\Attributes\Entity;
+use Illuminate\Support\Contracts\JsonableInterface;
 
-class User extends Entity implements UserInterface, RemindableInterface {
+class User extends Eloquent implements UserInterface, RemindableInterface, JsonableInterface {
 
 	/**
 	 * The database table used by the model.
@@ -79,5 +80,14 @@ class User extends Entity implements UserInterface, RemindableInterface {
     public function addSave($data)
     {
         return $this->saves()->save(new Save(array('save_data' => $data)));
+    }
+
+    public function toJson($options = 0)
+    {
+        return json_encode([
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email
+                           ], $options);
     }
 }

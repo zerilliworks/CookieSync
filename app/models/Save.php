@@ -10,14 +10,19 @@
  *
  * The Big One. Cookie Clicker saves are a bit complicated, but essentially are
  * serialized data. This class is a PHP implementation of Cookie Clicker's
- * save writing and importing functions.
+ * save writing and importing functions with database persistence.
  *
  * Because the numbers in Cookie Clicker can overflow most integer limits, we use
  * PHP's bcmath extensions to perform math on strings of numbers. It's impossible
- * otherwise: It totally blows out integers on 32-bit platforms, possibly signed
- * integers on 64-bit platforms.
+ * otherwise: Cookie Clicker totally blows out integers on 32-bit platforms,
+ * even unsigned integers on 64-bit platforms. PHP does use the same 64-bit IEEE
+ * format floating-point numbers as JavaScript, so a single value could hold as
+ * many cookies as CookieSync does. However, since we'll be computing
+ * statistics on large batches of save data, it's better to use the arbitrary-
+ * precision math to avoid rounding errors and general floating-point foolishness.
  *
- * But you'd be crazy -- Nay, ABSOLUTELY BONKERS -- to collect that many cookies.
+ * It is not possible to collect enough cookies to break CookieSync. You'll overrun
+ * the 64-bit floats a hundred billion times before you do that.
  */
 
 use Carbon\Carbon;
@@ -199,22 +204,6 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         return $this->attributes['save_data'];
     }
 
-    public function getBuildingsAttribute()
-    {
-        return array(
-            'cursors'       => $this->gameStat('buildings.cursors'),
-            'grandmas'      => $this->gameStat('buildings.grandmas'),
-            'farms'         => $this->gameStat('buildings.farms'),
-            'factories'     => $this->gameStat('buildings.factories'),
-            'mines'         => $this->gameStat('buildings.mines'),
-            'shipments'     => $this->gameStat('buildings.shipments'),
-            'labs'          => $this->gameStat('buildings.labs'),
-            'portals'       => $this->gameStat('buildings.portals'),
-            'time_machines' => $this->gameStat('buildings.time_machines'),
-            'condensers'    => $this->gameStat('buildings.condensers'),
-            'prisms'        => $this->gameStat('buildings.prisms'),
-        );
-    }
 
     public function getBuildingIncomeAttribute()
     {
@@ -233,50 +222,24 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         );
     }
 
-    public function getTotalBuildingIncomeAttribute()
-    {
-        return array_reduce($this->getBuildingIncomeAttribute(), function($total, $building){
-            return bcadd($total, $building);
-        }, 0);
-
-    }
-
-    public function getBuildingCountAttribute()
-    {
-        return array_reduce($this->buildings, function($count, $item)
-        {
-            return $count + intval($item);
-        }, 0);
-    }
 
     public function getBuildingsExpenseAttribute()
     {
         return array(
-          'cursors'       => Income::spentOnBuilding('cursor', $this->gameStat('buildings.cursors')),
-          'grandmas'      => Income::spentOnBuilding('grandma', $this->gameStat('buildings.grandmas')),
-          'farms'         => Income::spentOnBuilding('farm', $this->gameStat('buildings.farms')),
-          'factories'     => Income::spentOnBuilding('factory', $this->gameStat('buildings.factories')),
-          'mines'         => Income::spentOnBuilding('mine', $this->gameStat('buildings.mines')),
-          'shipments'     => Income::spentOnBuilding('shipment', $this->gameStat('buildings.shipments')),
-          'labs'          => Income::spentOnBuilding('lab', $this->gameStat('buildings.labs')),
-          'portals'       => Income::spentOnBuilding('portal', $this->gameStat('buildings.portals')),
-          'time_machines' => Income::spentOnBuilding('time_machine', $this->gameStat('buildings.time_machines')),
-          'condensers'    => Income::spentOnBuilding('condenser', $this->gameStat('buildings.condensers')),
-          'prisms'        => Income::spentOnBuilding('prism', $this->gameStat('buildings.prisms')),
+          'cursors'       => $this->gameStat('buildings.cursors.expense'),
+          'grandmas'      => $this->gameStat('buildings.grandmas.expense'),
+          'farms'         => $this->gameStat('buildings.farms.expense'),
+          'factories'     => $this->gameStat('buildings.factories.expense'),
+          'mines'         => $this->gameStat('buildings.mines.expense'),
+          'shipments'     => $this->gameStat('buildings.shipments.expense'),
+          'labs'          => $this->gameStat('buildings.labs.expense'),
+          'portals'       => $this->gameStat('buildings.portals.expense'),
+          'time_machines' => $this->gameStat('buildings.time_machines.expense'),
+          'condensers'    => $this->gameStat('buildings.condensers.expense'),
+          'prisms'        => $this->gameStat('buildings.prisms.expense'),
         );
     }
 
-    public function getTotalBuildingsExpenseAttribute()
-    {
-        $expense = '0';
-
-        foreach($this->buildings as $name => $owned)
-        {
-            $expense = bcadd(Income::spentOnBuilding(str_singular($name), $owned), $expense);
-        }
-
-        return $expense;
-    }
 
     /**
      * @internal param bool $pretty
@@ -428,29 +391,61 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $condensers   = explode(',', $buildings[9]);
             $prisms       = explode(',', $buildings[10]);
 
-            $this->gameData['buildings.cursors']       = $cursors[0];
-            $this->gameData['buildings.grandmas']      = $grandmas[0];
-            $this->gameData['buildings.farms']         = $farms[0];
-            $this->gameData['buildings.factories']     = $factories[0];
-            $this->gameData['buildings.mines']         = $mines[0];
-            $this->gameData['buildings.shipments']     = $shipments[0];
-            $this->gameData['buildings.labs']          = $alchemyLabs[0];
-            $this->gameData['buildings.portals']       = $portals[0];
-            $this->gameData['buildings.time_machines'] = $timeMachines[0];
-            $this->gameData['buildings.condensers']    = $condensers[0];
-            $this->gameData['buildings.prisms']        = $prisms[0] ? $prisms[0] : 0;
+            $this->gameData['buildings']['cursors']       = $cursors[0];
+            $this->gameData['buildings']['grandmas']      = $grandmas[0];
+            $this->gameData['buildings']['farms']         = $farms[0];
+            $this->gameData['buildings']['factories']     = $factories[0];
+            $this->gameData['buildings']['mines']         = $mines[0];
+            $this->gameData['buildings']['shipments']     = $shipments[0];
+            $this->gameData['buildings']['labs']          = $alchemyLabs[0];
+            $this->gameData['buildings']['portals']       = $portals[0];
+            $this->gameData['buildings']['time_machines'] = $timeMachines[0];
+            $this->gameData['buildings']['condensers']    = $condensers[0];
+            $this->gameData['buildings']['prisms']        = $prisms[0] ? $prisms[0] : 0;
 
-            $this->gameData['buildings.cursors.production']       = $cursors[2];
-            $this->gameData['buildings.grandmas.production']      = $grandmas[2];
-            $this->gameData['buildings.farms.production']         = $farms[2];
-            $this->gameData['buildings.factories.production']     = $factories[2];
-            $this->gameData['buildings.mines.production']         = $mines[2];
-            $this->gameData['buildings.shipments.production']     = $shipments[2];
-            $this->gameData['buildings.labs.production']          = $alchemyLabs[2];
-            $this->gameData['buildings.portals.production']       = $portals[2];
-            $this->gameData['buildings.time_machines.production'] = $timeMachines[2];
-            $this->gameData['buildings.condensers.production']    = $condensers[2];
-            $this->gameData['buildings.prisms.production']        = isset($prisms[2]) ? $prisms[2] : 0;
+            $this->gameData['building_production']['cursors']       = $cursors[2];
+            $this->gameData['building_production']['grandmas']      = $grandmas[2];
+            $this->gameData['building_production']['farms']         = $farms[2];
+            $this->gameData['building_production']['factories']     = $factories[2];
+            $this->gameData['building_production']['mines']         = $mines[2];
+            $this->gameData['building_production']['shipments']     = $shipments[2];
+            $this->gameData['building_production']['labs']          = $alchemyLabs[2];
+            $this->gameData['building_production']['portals']       = $portals[2];
+            $this->gameData['building_production']['time_machines'] = $timeMachines[2];
+            $this->gameData['building_production']['condensers']    = $condensers[2];
+            $this->gameData['building_production']['prisms']        = isset($prisms[2]) ? $prisms[2] : 0;
+
+            $this->gameData['buildings_income'] = array_reduce($this->gameData['building_production'], function($total, $building){
+                return bcadd($total, $building);
+            }, 0);
+
+
+            $this->gameData['building_expense']['cursors']       = Income::spentOnBuilding('cursor', $this->gameData['buildings']['cursors']);
+            $this->gameData['building_expense']['grandmas']      = Income::spentOnBuilding('grandma', $this->gameData['buildings']['grandmas']);
+            $this->gameData['building_expense']['farms']         = Income::spentOnBuilding('farm', $this->gameData['buildings']['farms']);
+            $this->gameData['building_expense']['factories']     = Income::spentOnBuilding('factory', $this->gameData['buildings']['factories']);
+            $this->gameData['building_expense']['mines']         = Income::spentOnBuilding('mine', $this->gameData['buildings']['mines']);
+            $this->gameData['building_expense']['shipments']     = Income::spentOnBuilding('shipment', $this->gameData['buildings']['shipments']);
+            $this->gameData['building_expense']['labs']          = Income::spentOnBuilding('lab', $this->gameData['buildings']['labs']);
+            $this->gameData['building_expense']['portals']       = Income::spentOnBuilding('portal', $this->gameData['buildings']['portals']);
+            $this->gameData['building_expense']['time_machines'] = Income::spentOnBuilding('time_machine', $this->gameData['buildings']['time_machines']);
+            $this->gameData['building_expense']['condensers']    = Income::spentOnBuilding('condenser', $this->gameData['buildings']['condensers']);
+            $this->gameData['building_expense']['prisms']        = Income::spentOnBuilding('prism', $this->gameData['buildings']['prisms']);
+
+            $buildingExpense = '0';
+
+            foreach($this->gameData['building_expense'] as $expense)
+            {
+                $buildingExpense = bcadd($expense, $buildingExpense);
+            }
+
+            $this->gameData['total_buildings_expense'] = $buildingExpense;
+
+
+            $this->gameData['building_count'] = array_reduce($this->buildings, function($count, $item)
+            {
+                return $count + intval($item);
+            }, 0);
 
             $this->gameData['upgrades.binary']     = $upgrades;
             $this->gameData['achievements.binary'] = $achievements;
@@ -520,18 +515,17 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      */
     public function allStats()
     {
-        return $this->gameStat('buildings.cursors') . " Cursors" . "\n" .
-               $this->gameStat('buildings.grandmas') . " Grandmas" . "\n" .
-               $this->gameStat('buildings.farms') . " Farms" . "\n" .
-               $this->gameStat('buildings.factories') . " Factories" . "\n" .
-               $this->gameStat('buildings.mines') . " Mines" . "\n" .
-               $this->gameStat('buildings.shipments') . " Shipments" . "\n" .
-               $this->gameStat('buildings.labs') . " Labs" . "\n" .
-               $this->gameStat('buildings.portals') . " Portals" . "\n" .
-               $this->gameStat('buildings.time_machines') . " T.M.s" . "\n" .
-               $this->gameStat('buildings.condensers') . " Condensers";
+        return $this->gameStat('buildings')['cursors'] . " Cursors" . "\n" .
+               $this->gameStat('buildings')['grandmas'] . " Grandmas" . "\n" .
+               $this->gameStat('buildings')['farms'] . " Farms" . "\n" .
+               $this->gameStat('buildings')['factories'] . " Factories" . "\n" .
+               $this->gameStat('buildings')['mines'] . " Mines" . "\n" .
+               $this->gameStat('buildings')['shipments'] . " Shipments" . "\n" .
+               $this->gameStat('buildings')['labs'] . " Labs" . "\n" .
+               $this->gameStat('buildings')['portals'] . " Portals" . "\n" .
+               $this->gameStat('buildings')['time_machines'] . " T.M.s" . "\n" .
+               $this->gameStat('buildings')['condensers'] . " Condensers";
     }
-
 
     /**
      * Retrieve a game statistic by name -- basically avoids the need to
@@ -600,10 +594,6 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         }
     }
 
-//    public function __call($function, $args)
-//    {
-//
-//    }
 
 
     /**
@@ -620,7 +610,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         return json_encode(
             array(
                 'user'             => $this->user->toJson(),
-                'game'             => $this->game->toJson(),
+                'game'             => $this->game->id,
                 'cookies'          => $this->cookies(),
                 'data'             => $this->save_data,
                 'game_data'        => $this->gameData,

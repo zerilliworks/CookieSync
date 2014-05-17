@@ -15,7 +15,7 @@ return array(
 	|
 	*/
 
-	'driver' => 'file',
+	'driver' => 'redis',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -85,5 +85,21 @@ return array(
 	*/
 
 	'prefix' => 'laravel',
+
+    /*
+	|--------------------------------------------------------------------------
+	| Cache Key Namespaces
+	|--------------------------------------------------------------------------
+	|
+	| Patterns to use when namespacing stored keys in Redis
+	|
+	*/
+
+    'namespaces' => array(
+        'user' => 'users:#',
+        'save' => 'saves:#',
+        'user_saves' => 'users:#:saves',
+        'user_save' => 'users:#:saves:#'
+    ),
 
 );

@@ -136,25 +136,25 @@
         <table class="table-bordered table table-condensed">
             <tbody>
             <tr>
-                <td>{{ $save->gameData['buildings.cursors'] }} Cursors</td>
-                <td>{{ $save->gameData['buildings.grandmas'] }} Grandmas</td>
+                <td>{{ $save->gameData['buildings']['cursors'] }} Cursors</td>
+                <td>{{ $save->gameData['buildings']['grandmas'] }} Grandmas</td>
             </tr>
             <tr>
-                <td>{{ $save->gameData['buildings.farms'] }} Farms</td>
-                <td>{{ $save->gameData['buildings.factories'] }} Factories</td>
+                <td>{{ $save->gameData['buildings']['farms'] }} Farms</td>
+                <td>{{ $save->gameData['buildings']['factories'] }} Factories</td>
             </tr>
-                <td>{{ $save->gameData['buildings.mines'] }} Mines</td>
-                <td>{{ $save->gameData['buildings.shipments'] }} Shipments</td>
+                <td>{{ $save->gameData['buildings']['mines'] }} Mines</td>
+                <td>{{ $save->gameData['buildings']['shipments'] }} Shipments</td>
             <tr>
-                <td>{{ $save->gameData['buildings.labs'] }} Alchemy Labs</td>
-                <td>{{ $save->gameData['buildings.portals'] }} Portals</td>
-            </tr>
-            <tr>
-                <td>{{ $save->gameData['buildings.time_machines'] }} Time Machines</td>
-                <td>{{ $save->gameData['buildings.condensers'] }} Antimatter Condensers</td>
+                <td>{{ $save->gameData['buildings']['labs'] }} Alchemy Labs</td>
+                <td>{{ $save->gameData['buildings']['portals'] }} Portals</td>
             </tr>
             <tr>
-                <td>{{ $save->gameData['buildings.prisms'] }} Prisms</td>
+                <td>{{ $save->gameData['buildings']['time_machines'] }} Time Machines</td>
+                <td>{{ $save->gameData['buildings']['condensers'] }} Antimatter Condensers</td>
+            </tr>
+            <tr>
+                <td>{{ $save->gameData['buildings']['prisms'] }} Prisms</td>
             </tr>
             </tbody>
         </table>
@@ -418,7 +418,7 @@
             value: {{ $buildings['prisms'] }},
             color: '#f9c600'
         }
-    ], { animationEasing: "easeOutBack", animationSteps: 50});
+    ], { animation: false, animationEasing: "easeOutBack", animationSteps: 50});
 
     incomeChart.Doughnut([
         {
@@ -469,6 +469,6 @@
             value: {{ $buildingIncome['prisms'] }},
             color: '#f9c600'
         }
-    ], { animationEasing: "easeOutBack", animationSteps: 50});
+    ], { animation: false, animationEasing: "easeOutBack", animationSteps: 50});
 </script>
 @stop

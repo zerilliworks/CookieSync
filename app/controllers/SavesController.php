@@ -24,6 +24,7 @@ class SavesController extends BaseController {
         $this->beforeFilter('csrf', ['on' => 'post']);
         $this->beforeFilter('auth', ['except' => 'shared']);
         $this->user = Auth::user();
+        $this->redis = Redis::connection();
     }
 
 
@@ -39,7 +40,8 @@ class SavesController extends BaseController {
         $this->user->load(array(
                               'saves' => function ($query) {
                                       $query->take(30);
-                                  }
+                                  },
+                              'games'
                           ));
         $data = array(
             'saveCount' => $this->user->saves()->count(),
@@ -59,13 +61,15 @@ class SavesController extends BaseController {
 
         $data['saves'] = $this->user->saves()->paginate(30);
 
-        $careerCookies = '0';
-        // Calculate the total cookies earned in all games
-        foreach ($this->user->games()->get() as $game) {
-            $careerCookies = bcadd($game->latestSave()->cookies(), $careerCookies);
-        }
-
-        $data['careerCookies'] = $careerCookies;
+        $uid                   = $this->user->id;
+        $data['careerCookies'] = Cache::remember("users:$uid:cookies", 5, function() {
+            $careerCookies = '0';
+            // Calculate the total cookies earned in all games
+            foreach ($this->user->games as $game) {
+                $careerCookies = bcadd($game->latestSave()->cookies(), $careerCookies);
+            }
+            return $careerCookies;
+        });
 
 
         return View::make('mysaves', $data);
@@ -136,36 +140,45 @@ class SavesController extends BaseController {
      */
     public function show($id)
     {
-        if($id == 'latest') {
+        $userId   = $this->user->id;
+        if ($id == 'latest') {
             $thisSave = Auth::user()->saves()->orderBy('created_at', 'desc')->first();
-        } else {
-            $thisSave = Auth::user()->saves()->whereId($id)->first();
+        }
+        else {
+            $thisSave = Cache::remember("users:$userId:saves:$id", 30, function() use ($id) {
+                return Auth::user()->saves()->whereId($id)->first();
+            });
         }
 
         if (!$thisSave) {
             App::abort(404);
         }
 
-        $ROIArray = [];
+        $thisSave->decode();
 
-        foreach ($thisSave->buildings as $name => $owned)
-        {
-            $investment = $thisSave->buildings_expense[$name];
-            $grossProfit = $thisSave->building_income[$name];
-            $netProfit = bcsub($grossProfit, $investment);
-            if($investment)
-            {
-                $ROIArray[$name] = floatval(bcmul(bcdiv($netProfit, $investment, 2), 100, 2));
-            } else {
-                $ROIArray[$name] = 0;
+        $cacheId = ($id == 'latest') ? $thisSave->id : $id;
+
+        $ROIArray = Cache::remember("users:$userId:saves:$cacheId:roi", 120, function () use ($thisSave) {
+            $_ROIArray = [];
+            foreach ($thisSave->buildings as $name => $owned) {
+                $investment  = $thisSave->building_expense[$name];
+                $grossProfit = $thisSave->building_production[$name];
+                $netProfit   = bcsub($grossProfit, $investment);
+                if ($investment) {
+                    $_ROIArray[$name] = floatval(bcmul(bcdiv($netProfit, $investment, 2), 100, 2));
+                }
+                else {
+                    $_ROIArray[$name] = 0;
+                }
             }
-        }
+            return $_ROIArray;
+        });
 
         $totalInvestment = $thisSave->total_buildings_expense;
-        $totalProfit = $thisSave->total_building_income;
-        $netProfit = bcsub($totalProfit, $totalInvestment);
+        $totalProfit = $thisSave->buildings_income;
+        $netProfit       = bcsub($totalProfit, $totalInvestment);
 
-        $totalROI = floatval(bcmul(bcdiv($netProfit, $totalInvestment), 100));
+        $totalROI = $totalInvestment ? floatval(bcmul(bcdiv($netProfit, $totalInvestment), 100)) : 0;
 
 
         return View::make('singlesave')
@@ -175,9 +188,9 @@ class SavesController extends BaseController {
                    ->with('buildingCount', $thisSave->building_count)
                    ->with('buildings', $thisSave->buildings)
                    ->with('clickedCookies', $thisSave->handmade_cookies)
-                   ->with('buildingIncome', $thisSave->building_income)
+                   ->with('buildingIncome', $thisSave->building_production)
                    ->with('totalBuildingIncome', $totalProfit)
-                   ->with('buildingExpenses', $thisSave->buildings_expense)
+                   ->with('buildingExpenses', $thisSave->building_expense)
                    ->with('buildingROI', $ROIArray)
                    ->with('totalROI', $totalROI)
                    ->with('totalBuildingExpenses', $totalInvestment);

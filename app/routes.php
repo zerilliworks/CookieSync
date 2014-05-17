@@ -70,10 +70,7 @@ Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth
                      ->with('allTimeCookies', $thisSave->allTimeCookies());
       }
     ]);
-});
 
-Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth route group
-{
 
     Route::get('career', 'CareerController@getCareerPage');
     Route::get('career/history', 'CareerController@getCookieHistory');
@@ -98,6 +95,9 @@ Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth
     Route::get('shared', 'SharesController@index');
 
     Route::post('shares/hide/{id}', 'SharesController@hide');
+
+    Route::post('external/autosync', 'ExternalController@asyncPostSaveData');
+    Route::get('playthestupidgame', 'ExternalController@redirectToCookieClicker');
 
 
     /*

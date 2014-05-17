@@ -26,7 +26,8 @@ class AuthController extends BaseController {
                 array(
                     'name' => Input::get('username'),
                     'password' => Input::get('password')
-                )
+                ),
+            true
         )) {
             // Go to dashboard
             return Redirect::intended('cookiesync/mysaves');
