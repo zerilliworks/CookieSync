@@ -39,7 +39,18 @@ class Aggregator {
     {
         $history = new Collection;
 
-        foreach($user->saves()->take($sample)->get() as $save) {
+        if(!Redis::exists("users:$user->id:career:updated_at"))
+        {
+            $lastUpdate = Carbon::now();
+            Redis::set("users:$user->id:career:updated_at", $lastUpdate);
+            Redis::expire("users:$user->id:career:updated_at", Carbon::now()->addHour()->diffInSeconds());
+            $query = $user->saves()->take($sample);
+        } else {
+            $lastUpdate = Redis::get("users:$user->id:career:updated_at");
+            $query = $user->saves()->take($sample)->where('created_at', '<', $lastUpdate);
+        }
+
+        foreach($query->get() as $save) {
             $history->push([$save->created_at, $save->cookies()]);
         }
 

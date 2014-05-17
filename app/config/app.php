@@ -117,6 +117,7 @@ return array(
         'Cartalyst\Api\Laravel\ApiServiceProvider',
 
         'CookieSync\Tools\Observers\ObserversServiceProvider',
+        'CookieSync\Cache\CacheServiceProvider',
 
 	),
 
@@ -190,6 +191,7 @@ return array(
         'API'             => 'Cartalyst\Api\Laravel\Facades\API',
 
         'Income'          => 'CookieSync\Stat\Income',
+        'ObjectCache'     => 'CookieSync\Tools\Facades\ObjectCacheFacade',
 
 	),
 

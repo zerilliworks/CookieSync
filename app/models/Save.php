@@ -301,6 +301,15 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     public function decode()
     {
         try {
+
+            if(Cache::has("saves:$this->id:gamedata"))
+            {
+                $this->gameData = Cache::get("saves:$this->id:gamedata");
+                $this->gameData['date_saved'] = \Carbon\Carbon::parse($this->gameData['date_saved']);
+                $this->gameData['date_started'] = \Carbon\Carbon::parse($this->gameData['date_started']);
+                return true;
+            }
+
             $data = explode('|', $decodedData = base64_decode($this->data));
             /**
              *  After exploding, the game data is broken up like this:
@@ -490,6 +499,13 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             Event::fire('cookiesync.savedecoded', array($this));
 
             if ($this->gameData['game_version']) {
+                Cache::put("saves:$this->id:gamedata",
+                           array_merge($this->gameData,
+                                       [
+                                            'date_started' => $this->gameData['date_started']->toDateTimeString(),
+                                            'date_saved' => $this->gameData['date_saved']->toDateTimeString(),
+                                       ]
+                           ), 60);
                 return true;
             }
             else {
