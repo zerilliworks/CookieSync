@@ -1,51 +1,115 @@
 @extends('layout')
 
+@section('css')
+<link rel="stylesheet" href="{{ Config::get('app.url') }}/css/nv.d3.css"/>
+@stop
+
 @section('body')
 @include('partials.navbar')
 
 <div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-4">
+        <div class="input-group">
+            <span class="input-group-addon">
+                    Show
+                </span>
+            <select class="form-control" id="career-sample" name="sample">
+                <option value="10"> 10 Saves</option>
+                <option value="25"> 25 Saves</option>
+                <option value="50"> 50 Saves</option>
+                <option value="75"> 75 Saves</option>
+                <option value="100"> 100 Saves</option>
+                <option value="150"> 150 Saves</option>
+                <option value="200"> 200 Saves</option>
+                <option value="300"> 300 Saves</option>
+                <option value="400"> 400 Saves</option>
+                <option value="500"> 500 Saves</option>
+            </select>
+                <span class="input-group-btn">
+                    <button id="sample-button" class="btn btn-success" type="button" data-loading-text="Loading...">Go!</button>
+                </span>
+        </div>
+        <!-- /input-group -->
+    </div>
+</div>
+<div class="row">
     <div class="col-xs-12">
         <div class="panel">
-            <canvas id="career-chart" width="960" height="300"></canvas>
+            <svg id="career-chart" style="width: 100%; height: 400px;"></svg>
         </div>
     </div>
 </div>
 
 @stop
 
+
+
 @section('footer-js')
-<script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/0.2.0/Chart.min.js" type="text/javascript"></script>
+<script src="//d3js.org/d3.v3.min.js" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js"></script>
+
 <script type="text/javascript">
-    var ctx = document.getElementById("career-chart").getContext("2d");
-    var careerChart = new Chart(ctx);
 
-    $.getJSON('/cookiesync/career/history', {}, function(data, textStats, jqXHR) {
-
-        var cookieData = data.map(function(c)
-        {
-            console.log(c[1]);
-            return parseFloat(c[1]);
-        });
-
-        var timeData = data.map(function(c)
-        {
-//            return c[0].date;
-            return '';
-        });
-
-
-        careerChart.Line({
-            labels : timeData,
-            datasets : [
-                {
-                    fillColor : "rgba(151,187,205,0.5)",
-                    strokeColor : "rgba(151,187,205,1)",
-                    pointColor : "rgba(151,187,205,1)",
-                    pointStrokeColor : "#fff",
-                    data : cookieData
-                }
-            ]
-        }, {});
+    @section('override_reloader')
+    window.addEventListener('storage', function(e) {
+        if(e.key == 'cookiesync.pulse') {
+            console.log("New save, reloading...");
+            window.localStorage.setItem(e.key, '');
+            updateChart();
+        }
     });
+    @stop
+
+    function updateChart() {
+        $("#sample-button").button('loading');
+        $.getJSON('/cookiesync/career/history?sample=' + $("#career-sample").val(), {}, function (data, textStats, jqXHR) {
+
+            $("#sample-button").button('reset');
+
+            var cookieData = data.map(function (c, idx) {
+                console.log(c[1]);
+                return { x: idx + 1, y: parseFloat(c[1])};
+            });
+
+            console.debug(cookieData);
+
+            var timeData = data.map(function (c) {
+//            return c[0].date;
+                return '';
+            });
+
+            nv.addGraph(function () {
+                var chart = nv.models.lineWithFocusChart();
+                chart.xAxis
+                  .tickFormat(d3.format(',f'));
+
+                chart.yAxis
+                  .tickFormat(d3.format(',f'));
+
+                chart.y2Axis
+                  .tickFormat(d3.format(',f'));
+
+                d3.select('svg#career-chart')
+                  .datum([
+                      { key: 'Cookies', values: cookieData, color: "#0000ff" }
+                  ])
+                  .transition().duration(500)
+                  .call(chart);
+
+                nv.utils.windowResize(chart.update);
+
+                return chart;
+            });
+
+        });
+    }
+
+    updateChart();
+
+    $("#sample-button").click(function()
+    {
+        updateChart();
+    });
+
 </script>
 @stop

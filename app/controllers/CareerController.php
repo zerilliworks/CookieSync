@@ -28,6 +28,7 @@ class CareerController extends BaseController {
 
     public function getCookieHistory()
     {
-        return Stats::cookieHistory($this->user)->toJson();
+        $sample = Input::get('sample', 30);
+        return Stats::cookieHistory($this->user, $sample)->toJson();
     }
 }

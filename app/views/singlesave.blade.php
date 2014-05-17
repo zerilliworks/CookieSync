@@ -2,6 +2,8 @@
 
 @section('css')
 <link href='http://fonts.googleapis.com/css?family=Underdog' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="{{ Config::get('app.url') }}/css/nv.d3.css"/>
+
 <style type="text/css">
     .wrath {
         text-align: center;
@@ -111,26 +113,7 @@
 <h2>Buildings Owned:</h2>
 <div class="row">
     <div class="col-xs-12 col-sm-6">
-        <div class="row">
-            <div class="col-xs-8">
-                <canvas id="buildings-chart" width="250px" height="250px"></canvas>
-            </div>
-            <div class="col-xs-4">
-                <ul class="list-unstyled">
-                    <li><span class="swatch" style="background-color: #68071c;"></span> Cursors</li>
-                    <li><span class="swatch" style="background-color: #ff3e67;"></span> Grandmas</li>
-                    <li><span class="swatch" style="background-color: #b41a3a;"></span> Farms</li>
-                    <li><span class="swatch" style="background-color: #006811;"></span> Factories</li>
-                    <li><span class="swatch" style="background-color: #1ab433;"></span> Mines</li>
-                    <li><span class="swatch" style="background-color: #1977e7;"></span> Shipments</li>
-                    <li><span class="swatch" style="background-color: #303d4e;"></span> Labs</li>
-                    <li><span class="swatch" style="background-color: #26b1b4;"></span> Portals</li>
-                    <li><span class="swatch" style="background-color: #e72c19;"></span> Time Machines</li>
-                    <li><span class="swatch" style="background-color: #b326b4;"></span> Condensers</li>
-                    <li><span class="swatch" style="background-color: #f9c600;"></span> Prisms</li>
-                </ul>
-            </div>
-        </div>
+        <svg id="buildings-chart" style="width: auto; height: 500px;"></svg>
     </div>
     <div class="col-xs-9 col-sm-6">
         <table class="table-bordered table table-condensed">
@@ -172,12 +155,12 @@
     <h1 class="stat-text">{{ round_num(bcsub($save->allTimeCookies(), $save->cookies())) }}</h1>
 </div>
 <div class="row">
-    <div class="col-xs-12 col-lg-8 col-lg-offset-2">
+    <div class="col-xs-12">
         <div class="row">
-            <div class="col-xs-8 col-sm-5">
-                <canvas id="income-chart" width="250px" height="250px"></canvas>
+            <div class="col-xs-12 col-md-7">
+                <svg id="income-chart" style="width: auto; height: 500px;"></svg>
             </div>
-            <div class="col-xs-4 col-sm-7">
+            <div class="col-xs-12 col-md-5">
                 <dl class="dl-horizontal">
                     <dt><span class="swatch" style="background-color: #68071c;"></span> Cursors</dt>
                     <dd>{{ round_num($buildingIncome['cursors']) }}</dd>
@@ -354,7 +337,8 @@
 @stop
 
 @section('footer-js')
-<script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/0.2.0/Chart.min.js" type="text/javascript"></script>
+<script src="//d3js.org/d3.v3.min.js" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js"></script>
 <script type="text/javascript">
     $("#data-field").hover(function (e) {
         e.target.focus();
@@ -367,108 +351,143 @@
         "maxFontSize": 120
     });
 
-    var ctx = document.getElementById("buildings-chart").getContext("2d");
-    var buildingsChart = new Chart(ctx);
+    nv.addGraph(function() {
+        var chart = nv.models.pieChart()
+          .x(function(d) { return d.label })
+          .y(function(d) { return d.value })
+          .showLabels(true)
+          .labelThreshold(0.06)
+          .labelType("value")
+          .donut(true)
+          .donutRatio(0.35);
 
-    ctx = document.getElementById("income-chart").getContext("2d");
-    var incomeChart = new Chart(ctx);
+        d3.select("svg#buildings-chart")
+          .datum(buildingsData.sort(function(a, b) {
+              return parseFloat(a.value) - parseFloat(b.value);
+          }).reverse())
+          .transition().duration(350)
+          .call(chart);
 
-    buildingsChart.Doughnut([
+        return chart;
+    });
+
+    nv.addGraph(function() {
+        var chart = nv.models.pieChart()
+          .x(function(d) { return d.label })
+          .y(function(d) { return d.value })
+          .showLabels(true)
+          .showLegend(true)
+          .labelThreshold(0.06)
+          .labelType("percent")
+          .donut(true)
+          .donutRatio(0.35);
+
+        d3.select("svg#income-chart")
+          .datum(incomeData.sort(function(a, b) {
+              return parseFloat(a.value) - parseFloat(b.value);
+          }).reverse())
+          .transition().duration(350)
+          .call(chart);
+
+        return chart;
+    });
+
+    var buildingsData = [
         {
             value: {{ $buildings['cursors'] }},
-            color: '#68071c'
+            label: 'Cursors'
         },
         {
             value: {{ $buildings['grandmas'] }},
-            color: '#ff3e67'
+            label: 'Grandmas'
         },
         {
             value: {{ $buildings['farms'] }},
-            color: '#b41a3a'
+            label: 'Farms'
         },
         {
             value: {{ $buildings['factories'] }},
-            color: '#006811'
+            label: 'Factories'
         },
         {
             value: {{ $buildings['mines'] }},
-            color: '#1ab433'
+            label: 'Mines'
         },
         {
             value: {{ $buildings['shipments'] }},
-            color: '#1977e7'
+            label: 'Shipments'
         },
         {
             value: {{ $buildings['labs'] }},
-            color: '#303d4e'
+            label: 'Labs'
         },
         {
             value: {{ $buildings['portals'] }},
-            color: '#26b1b4'
+            label: 'Portals'
         },
         {
             value: {{ $buildings['time_machines'] }},
-            color: '#e72c19'
+            label: 'Time machines'
         },
         {
             value: {{ $buildings['condensers'] }},
-            color: '#b326b4'
+            label: 'Condensers'
         },
         {
             value: {{ $buildings['prisms'] }},
-            color: '#f9c600'
+            label: 'Prisms'
         }
-    ], { animation: false, animationEasing: "easeOutBack", animationSteps: 50});
+    ];
 
-    incomeChart.Doughnut([
+    incomeData = [
         {
             value: {{ $clickedCookies }},
-            color: '#e58600'
+            label: 'Handmade Cookies'
         },
         {
             value: {{ $buildingIncome['cursors'] }},
-            color: '#68071c'
+            label: 'Cursor Income'
         },
         {
             value: {{ $buildingIncome['grandmas'] }},
-            color: '#ff3e67'
+            label: 'Grandma Income'
         },
         {
             value: {{ $buildingIncome['farms'] }},
-            color: '#b41a3a'
+            label: 'Farm Income'
         },
         {
             value: {{ $buildingIncome['factories'] }},
-            color: '#006811'
+            label: 'Factory Income'
         },
         {
             value: {{ $buildingIncome['mines'] }},
-            color: '#1ab433'
+            label: 'Mine Income'
         },
         {
             value: {{ $buildingIncome['shipments'] }},
-            color: '#1977e7'
+            label: 'Shipment Income'
         },
         {
             value: {{ $buildingIncome['labs'] }},
-            color: '#303d4e'
+            label: 'Lab Income'
         },
         {
             value: {{ $buildingIncome['portals'] }},
-            color: '#26b1b4'
+            label: 'Portal Income'
         },
         {
             value: {{ $buildingIncome['time_machines'] }},
-            color: '#e72c19'
+            label: 'Time Machine Income'
         },
         {
             value: {{ $buildingIncome['condensers'] }},
-            color: '#b326b4'
+            label: 'Condenser Income'
         },
         {
             value: {{ $buildingIncome['prisms'] }},
-            color: '#f9c600'
+            label: 'Prism Income'
         }
-    ], { animation: false, animationEasing: "easeOutBack", animationSteps: 50});
+    ];
 </script>
 @stop

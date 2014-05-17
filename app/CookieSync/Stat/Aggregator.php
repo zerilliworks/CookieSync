@@ -35,11 +35,11 @@ class Aggregator {
         return $user->games()->count();
     }
 
-    public static function cookieHistory(User $user)
+    public static function cookieHistory(User $user, $sample = 30)
     {
         $history = new Collection;
 
-        foreach($user->saves()->take(30)->get() as $save) {
+        foreach($user->saves()->take($sample)->get() as $save) {
             $history->push([$save->created_at, $save->cookies()]);
         }
 

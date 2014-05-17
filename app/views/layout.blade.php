@@ -47,7 +47,7 @@
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(t, s);
     })();
-
+@section('override_reloader')
     window.addEventListener('storage', function(e) {
         if(e.key == 'cookiesync.pulse') {
             console.log("New save, reloading...");
@@ -55,6 +55,7 @@
             window.location.reload(true);
         }
     });
+@show
 
 </script>
 @yield('footer-js')
