@@ -35,10 +35,49 @@ class SharesController extends BaseController {
     {
         $sharedSave = SharedSave::whereShareCode($id)->first()->savedGame;
         if ($sharedSave) {
-            return View::make('shared')
-              ->with('save', $sharedSave)
-              ->with('cookiesBaked', $sharedSave->cookies())
-              ->with('allTimeCookies', $sharedSave->allTimeCookies());
+
+            $sharedSave->decode();
+
+            $cacheId = ($id == 'latest') ? $sharedSave->id : $id;
+            $userId = $sharedSave->user->id;
+
+            $ROIArray = Cache::remember("users:$userId:saves:$cacheId:roi", 120, function () use ($sharedSave) {
+                $_ROIArray = [];
+                foreach ($sharedSave->buildings as $name => $owned) {
+                    $investment  = $sharedSave->building_expense[$name];
+                    $grossProfit = $sharedSave->building_production[$name];
+                    $netProfit   = bcsub($grossProfit, $investment);
+                    if ($investment) {
+                        $_ROIArray[$name] = floatval(bcmul(bcdiv($netProfit, $investment, 2), 100, 2));
+                    }
+                    else {
+                        $_ROIArray[$name] = 0;
+                    }
+                }
+                return $_ROIArray;
+            });
+
+            $totalInvestment = $sharedSave->total_buildings_expense;
+            $totalProfit = $sharedSave->buildings_income;
+            $netProfit       = bcsub($totalProfit, $totalInvestment);
+
+            $totalROI = $totalInvestment ? floatval(bcmul(bcdiv($netProfit, $totalInvestment), 100)) : 0;
+
+
+            return View::make('singlesave')
+                       ->with('save', $sharedSave)
+                       ->with('cookiesBaked', $sharedSave->cookies())
+                       ->with('allTimeCookies', $sharedSave->allTimeCookies())
+                       ->with('buildingCount', $sharedSave->building_count)
+                       ->with('buildings', $sharedSave->buildings)
+                       ->with('clickedCookies', $sharedSave->handmade_cookies)
+                       ->with('buildingIncome', $sharedSave->building_production)
+                       ->with('totalBuildingIncome', $totalProfit)
+                       ->with('buildingExpenses', $sharedSave->building_expense)
+                       ->with('buildingROI', $ROIArray)
+                       ->with('totalROI', $totalROI)
+                       ->with('totalBuildingExpenses', $totalInvestment)
+                       ->with('sharedView', true);
         }
         // Else
         App::abort(404);

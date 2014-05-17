@@ -49,6 +49,9 @@
 
 @section('body')
 @include('partials.navbar')
+@if(isset($sharedView) && $sharedView == true)
+<h2>Data shared by <span class="text-info">{{ $save->user->name }}</span></h2>
+@endif
 <div class="jumbotron">
     <div class="row">
         <div class="col-xs-12">
