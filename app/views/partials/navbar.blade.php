@@ -12,6 +12,10 @@
             <li class="{{ if_page('options*', 'active') }}"><a href="{{ action('OptionsController@getIndex') }}">Options</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
+            @if(Auth::check())
             <li><a href="{{ route('logout') }}">Log Out</a></li>
+            @else
+            <li><a href="{{ route('login') }}">Log In</a></li>
+            @endif
     </div><!-- /.navbar-collapse -->
 </nav>

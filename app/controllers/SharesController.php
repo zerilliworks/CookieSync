@@ -33,7 +33,7 @@ class SharesController extends BaseController {
 
     public function show($id)
     {
-        $sharedSave = SharedSave::whereShareCode($id)->first()->savedGame;
+        @$sharedSave = SharedSave::whereShareCode($id)->first()->savedGame;
         if ($sharedSave) {
 
             $sharedSave->decode();

@@ -211,5 +211,5 @@ View::composer(['about', 'access'], function ($view) {
 
 App::missing(function() {
     Log::error('HTTP 404: No route found to handle '. Request::fullUrl());
-    return Response::make('Not Found', 404);
+    return Response::view('404', [], 404);
 });
