@@ -28,6 +28,6 @@ class ObserversServiceProvider extends ServiceProvider {
 
     public function boot()
     {
-         Save::observe(new SaveModelObserver);
+         // Save::observe(new SaveModelObserver);
     }
 }
