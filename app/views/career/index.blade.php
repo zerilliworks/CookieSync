@@ -2,6 +2,11 @@
 
 @section('css')
 <link rel="stylesheet" href="{{ Config::get('app.url') }}/css/nv.d3.css"/>
+<style type="text/css">
+    #career-chart {
+        padding-left: 30px;
+    }
+</style>
 @stop
 
 @section('body')
@@ -36,6 +41,7 @@
     <div class="col-xs-12">
         <div class="panel">
             <svg id="career-chart" style="width: 100%; height: 400px;"></svg>
+            <p class="text-muted text-center">Click and drag on the smaller graph to zoom in on a region.</p>
         </div>
     </div>
 </div>
@@ -84,6 +90,7 @@
                   .tickFormat(d3.format(',f'));
 
                 chart.yAxis
+                  .scale(d3.scale.log())
                   .tickFormat(d3.format(',f'));
 
                 chart.y2Axis

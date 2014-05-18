@@ -85,4 +85,12 @@ class OptionsController extends BaseController {
         }
     }
 
+    public function postSetListLength()
+    {
+        $this->user->preferred_pagination_length = Input::get('list-length');
+        $this->user->save();
+        Session::set('pagination_length', Input::get('list-length'));
+        return Redirect::back();
+    }
+
 } 

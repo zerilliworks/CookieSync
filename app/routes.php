@@ -91,6 +91,7 @@ Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth
     Route::post('options/nukeme/doit', 'OptionsController@postDeleteUserRequest');
     Route::get('options/password', 'OptionsController@getResetPassword');
     Route::post('options/password', 'OptionsController@postResetPassword');
+    Route::post('options/set/listlength', 'OptionsController@postSetListLength');
 
     Route::get('shared', 'SharesController@index');
 
@@ -205,6 +206,11 @@ View::composer(['about', 'access'], function ($view) {
         return $view->with('cookieCount', \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count', 'A lot of ')));
     }
 });
+
+View::composer('mysaves', function($view) {
+    $view->with('paginationLength', Session::get('pagination_length', 30));
+});
+
 // ---
 // End View Composers
 // ---

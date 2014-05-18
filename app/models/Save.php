@@ -505,7 +505,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                                             'date_started' => $this->gameData['date_started']->toDateTimeString(),
                                             'date_saved' => $this->gameData['date_saved']->toDateTimeString(),
                                        ]
-                           ), 60);
+                           ), \Carbon\Carbon::now()->addWeek());
                 return true;
             }
             else {
