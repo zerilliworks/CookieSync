@@ -59,15 +59,12 @@ class SavesController extends BaseController {
 
         $data['saves'] = $this->user->saves()->paginate(Session::get('pagination_length', 30));
 
-        $uid                   = $this->user->id;
-        $data['careerCookies'] = Cache::remember("users:$uid:cookies", 2, function() {
-            $careerCookies = '0';
-            // Calculate the total cookies earned in all games
-            foreach ($this->user->games as $game) {
-                $careerCookies = bcadd($game->latestSave()->cookies(), $careerCookies);
-            }
-            return $careerCookies;
-        });
+        $careerCookies = '0';
+        // Calculate the total cookies earned in all games
+        foreach ($this->user->games as $game) {
+            $careerCookies = bcadd($game->latestSave()->cookies(), $careerCookies);
+        }
+        $data['careerCookies'] = $careerCookies;
 
 
         return View::make('mysaves', $data);
