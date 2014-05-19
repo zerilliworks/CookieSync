@@ -299,7 +299,7 @@
                     <div class="panel-body panel-sized">
                         <ul>
                             @foreach($save->gameStat('achievements') as $achievement)
-                            <li>{{ $achievement }}</li>
+                            <li>{{ Lang::get("achievements.$achievement") }}</li>
                             @endforeach
                         </ul>
                     </div>
@@ -321,7 +321,7 @@
                     <div class="panel-body panel-sized">
                         <ul>
                             @foreach($save->gameStat('upgrades') as $upgrade)
-                            <li>{{ $upgrade }}</li>
+                            <li>{{ Lang::get("upgrades.$upgrade") }}</li>
                             @endforeach
                         </ul>
                     </div>

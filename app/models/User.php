@@ -5,7 +5,7 @@ use Illuminate\Auth\Reminders\RemindableInterface;
 use Cartalyst\Attributes\Entity;
 use Illuminate\Support\Contracts\JsonableInterface;
 
-class User extends Eloquent implements UserInterface, RemindableInterface, JsonableInterface {
+class User extends Entity implements UserInterface, RemindableInterface, JsonableInterface {
 
 	/**
 	 * The database table used by the model.

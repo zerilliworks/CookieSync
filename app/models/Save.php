@@ -39,6 +39,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     public $decodedData = '';
     public $rawDataChunks = array();
 
+    protected $caching = true;
+
     /**
      *
      */
@@ -301,6 +303,15 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     public function decode()
     {
         try {
+
+            if($this->caching && Cache::has("saves:$this->id:gamedata"))
+            {
+                $this->gameData = Cache::get("saves:$this->id:gamedata");
+                $this->gameData['date_saved'] = \Carbon\Carbon::parse($this->gameData['date_saved']);
+                $this->gameData['date_started'] = \Carbon\Carbon::parse($this->gameData['date_started']);
+                return true;
+            }
+
             $data = explode('|', $decodedData = base64_decode($this->data));
             /**
              *  After exploding, the game data is broken up like this:
@@ -465,21 +476,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                     return (min($bought, 1)) ? true : false;
                 });
 
-            array_walk($upgradesArray, function (&$upgrade, $key) {
-                $upgrade = Lang::get("upgrades.$key");
-            });
-
-
-            // Decode achievements
-            $achievementsArray = array_filter($achievementsArray);
-
-            array_walk($achievementsArray, function (&$achieve, $key) {
-                $achieve = Lang::get("achievements.$key");
-            });
-
-
-            $this->gameData['upgrades']     = $upgradesArray;
-            $this->gameData['achievements'] = $achievementsArray;
+            $this->gameData['upgrades']     = array_keys($upgradesArray);
+            $this->gameData['achievements'] = array_keys(array_filter($achievementsArray));
 
 
             // Calculate prestige (a.k.a., Heavenly Chips)
@@ -490,6 +488,15 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             Event::fire('cookiesync.savedecoded', array($this));
 
             if ($this->gameData['game_version']) {
+                if($this->caching) {
+                    Cache::put("saves:$this->id:gamedata",
+                               array_merge($this->gameData,
+                                           [
+                                                'date_started' => $this->gameData['date_started']->toDateTimeString(),
+                                                'date_saved' => $this->gameData['date_saved']->toDateTimeString(),
+                                           ]
+                               ), \Carbon\Carbon::now()->addWeek());
+                }
                 return true;
             }
             else {
@@ -581,6 +588,12 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         array_pop($binaryArray);
 
         return implode($binaryArray);
+    }
+
+    public function noCache()
+    {
+        $this->caching = false;
+        return $this;
     }
 
 

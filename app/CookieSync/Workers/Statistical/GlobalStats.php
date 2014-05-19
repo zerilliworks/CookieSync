@@ -40,7 +40,7 @@ class GlobalStats {
                        . ' retried '
                        . $job->attempts()
                        . ' times with message: '
-                       . $e->getMessage());
+                       . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
         }
     }
 

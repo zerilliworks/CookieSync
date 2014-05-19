@@ -24,7 +24,6 @@ class SavesController extends BaseController {
         $this->beforeFilter('csrf', ['on' => 'post']);
         $this->beforeFilter('auth', ['except' => 'shared']);
         $this->user = Auth::user();
-        $this->redis = Redis::connection();
     }
 
 
@@ -38,10 +37,9 @@ class SavesController extends BaseController {
     public function index()
     {
         $this->user->load(array(
-                              'saves' => function ($query) {
-                                      $query->take(30);
-                                  },
-                              'games'
+                            'saves' => function ($query) {
+                                  $query->take(30);
+                              },
                           ));
         $data = array(
             'saveCount' => $this->user->saves()->count(),
@@ -59,17 +57,14 @@ class SavesController extends BaseController {
             $data['latestSaveDate'] = 'None';
         }
 
-        $data['saves'] = $this->user->saves()->paginate(30);
+        $data['saves'] = $this->user->saves()->paginate(Session::get('pagination_length', 30));
 
-        $uid                   = $this->user->id;
-        $data['careerCookies'] = Cache::remember("users:$uid:cookies", 5, function() {
-            $careerCookies = '0';
-            // Calculate the total cookies earned in all games
-            foreach ($this->user->games as $game) {
-                $careerCookies = bcadd($game->latestSave()->cookies(), $careerCookies);
-            }
-            return $careerCookies;
-        });
+        $careerCookies = '0';
+        // Calculate the total cookies earned in all games
+        foreach ($this->user->games as $game) {
+            $careerCookies = bcadd($game->latestSave()->cookies(), $careerCookies);
+        }
+        $data['careerCookies'] = $careerCookies;
 
 
         return View::make('mysaves', $data);
