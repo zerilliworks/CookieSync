@@ -168,5 +168,15 @@ return array(
     158 => "Rise and shine",
     159 => "God complex",
     160 => "Third-party",
+    161 => "Dematerialize",
+    162 => "Nil zero zilch",
+    163 => "Transcendence",
+    164 => "Obliterate",
+    165 => "Negative void",
+    166 => "The hunt is on",
+    167 => "Egging on",
+    168 => "Mass Easteria",
+    169 => "Hide & seek champion",
+    170 => "What's in a name",
 
 );
