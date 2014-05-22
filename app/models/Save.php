@@ -33,6 +33,8 @@ use CookieSync\Stat\Income;
  */
 class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInterface {
 
+    use \CookieSync\Traits\BigNumberHandler;
+
     protected $fillable = array('save_data');
     protected $softDelete = true;
     public $gameData = array();
@@ -372,8 +374,10 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                 \Carbon\Carbon::createFromTimestamp(substr($dates[0], 0, -3));
             $this->gameData['date_saved']                   =
                 \Carbon\Carbon::createFromTimestamp(substr($dates[2], 0, -3));
-            $this->gameData['banked_cookies']               = $cookieStats[0];
-            $this->gameData['alltime_cookies']              = $cookieStats[1];
+            $this->gameData['banked_cookies']               = $this->expandScientific($cookieStats[0]);
+            $this->gameData['raw_banked_cookies']           = $cookieStats[0];
+            $this->gameData['alltime_cookies']              = $this->expandScientific($cookieStats[1]);
+            $this->gameData['raw_alltime_cookies']          = $cookieStats[1];
             $this->gameData['cookie_clicks']                = $cookieStats[2];
             $this->gameData['alltime_golden_cookie_clicks'] = $cookieStats[3];
             $this->gameData['handmade_cookies']             = $cookieStats[4];
@@ -482,7 +486,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
             // Calculate prestige (a.k.a., Heavenly Chips)
             // This is pretty much a direct PHP rewrite of the CC code. No Math object, kekekeke!
-            $prestige                   = intval(bcdiv($this->gameData['cookies_reset'], '1000000000000'));
+            $prestige                   = floatval(bcdiv($this->expandScientific($this->gameData['cookies_reset']), '1000000000000'));
             $this->gameData['prestige'] = max(0, floor((-1 + pow(1 + 8 * $prestige, 0.5)) / 2));
 
             Event::fire('cookiesync.savedecoded', array($this));

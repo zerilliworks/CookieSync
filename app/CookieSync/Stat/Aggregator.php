@@ -40,7 +40,7 @@ class Aggregator {
         $history = new Collection;
 
         foreach($user->saves()->take($sample)->get() as $save) {
-            $history->push([$save->created_at, $save->cookies()]);
+            $history->push([$save->created_at, $save->gameStat('raw_banked_cookies')]);
         }
 
         return $history;
