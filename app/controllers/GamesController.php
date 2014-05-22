@@ -17,7 +17,7 @@ class GamesController extends BaseController {
 
     public function index()
     {
-        $games     = $this->user->games()->orderBy('date_saved', 'desc')->paginate(30);
+        $games     = $this->user->games()->orderBy('date_saved', 'desc')->paginate(Session::get('pagination_length', 30));
         $gameCount = $this->user->games()->count();
 
         return View::make('games')->with('gameCount', $gameCount)
@@ -32,7 +32,7 @@ class GamesController extends BaseController {
             return App::abort(404);
         }
 
-        $data = array('saves' => $game->saves()->orderBy('created_at', 'desc')->paginate(30));
+        $data = array('saves' => $game->saves()->orderBy('created_at', 'desc')->paginate(Session::get('pagination_length', 30)));
 
         if ($c = $game->latestSave()) {
 
