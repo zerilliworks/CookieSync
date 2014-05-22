@@ -26,7 +26,7 @@ class AuthController extends BaseController {
                 array(
                     'name' => Input::get('username'),
                     'password' => Input::get('password')
-                )
+                ), true
         )) {
             // Go to dashboard
             Event::fire('cookiesync.logged_in', ['name' => Input::get('username')]);
@@ -82,4 +82,4 @@ class AuthController extends BaseController {
         return Redirect::to('cookiesync');
     }
 
-} 
+}
