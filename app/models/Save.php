@@ -4,6 +4,8 @@
 // Date: 10/26/13
 // Time: 11:11 PM
 // For: CookieSync
+use Carbon\Carbon;
+use CookieSync\Stat\Income;
 
 /**
  * Class Save
@@ -25,12 +27,6 @@
  * the 64-bit floats a hundred billion times before you do that.
  */
 
-use Carbon\Carbon;
-use CookieSync\Stat\Income;
-
-/**
- * @property mixed data
- */
 class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInterface {
 
     use \CookieSync\Traits\BigNumberHandler;
@@ -44,28 +40,27 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     protected $caching = true;
 
     /**
-     *
+     *  Set up model observers and events
      */
     public static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
-            // Decode the raw save data
-            $model->decode();
-
+            $model->noCache();
             // Assign actual Date/Time types to the start and save dates
             $model->started_at = $model->gameStat('date_started');
-            $model->saved_at   = $model->gameStat('date_saved');
+            $model->saved_at = $model->gameStat('date_saved');
 
             // Assign this save to a game if it doesn't already have one
             if (!$model->game_id) {
                 // Find the appropriate game...
-                $game = Auth::user()->games()->whereDateStarted($model->started_at)->first();
+                $user = User::find($model->user_id);
+                $game = $user->games()->whereDateStarted($model->started_at)->first();
 
                 if (!$game) {
                     $game =
-                        Auth::user()
+                        $user
                             ->games()
                             ->save(new Game(
                                        [
@@ -76,6 +71,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                                        ]
                                    )
                             );
+                    Event::fire('cookiesync.newgame', array(&$game));
 
                 }
                 $model->game_id = $game->id;
@@ -83,6 +79,12 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             }
 
             Event::fire('cookiesync.newsave', array(&$model));
+        });
+
+        static::created(function($model)
+        {
+            // Cache the new data
+            $model->pleaseCache()->decode();
         });
 
         static::deleting(function ($model) {
@@ -209,6 +211,11 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     }
 
 
+    /**
+     * Get the building incomes in a convenient array
+     *
+     * @return array
+     */
     public function getBuildingIncomeAttribute()
     {
         return array(
@@ -227,6 +234,11 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     }
 
 
+    /**
+     * Get the building expenses in a convenient array
+     *
+     * @return array
+     */
     public function getBuildingsExpenseAttribute()
     {
         return array(
@@ -300,219 +312,215 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      *
      * See also: $this->gameStat()
      *
-     * @return bool
+     * @throws CookieSync\Errors\DecodingFailedException
+     * @return Save $this
      */
     public function decode()
     {
-        try {
-
-            if($this->caching && Cache::has("saves:$this->id:gamedata"))
-            {
-                $this->gameData = Cache::get("saves:$this->id:gamedata");
-                $this->gameData['date_saved'] = \Carbon\Carbon::parse($this->gameData['date_saved']);
-                $this->gameData['date_started'] = \Carbon\Carbon::parse($this->gameData['date_started']);
-                return true;
-            }
-
-            $data = explode('|', $decodedData = base64_decode($this->data));
-            /**
-             *  After exploding, the game data is broken up like this:
-             *
-             *  array[0] => game version
-             *
-             *  array[1] => null
-             *
-             *  array[2] => game dates : semicolon-delimited list of timestamps
-             *           ---
-             *           => [0 => startDate, 1 => fullDate, 2 => lastDate]
-             *
-             *
-             *  array[3] => prefs : sequence of booleans, 0 or 1
-             *           ---
-             *           => [0 => particles?, 1 => numbers?, 2 => autosave?, 3 => milk?, 4 => fancyGraphics?]
-             *
-             *
-             *  array[4] => game statistics : semicolon-delimited string of numbers
-             *           ---
-             *           => [0 => cookiesBaked, 1 => allTimeCookies, 2 => cookieClicks, 3 => allTimeGoldenClicks,
-             *               4 => handmadeCookies, 5 => missedGoldenCookies, 6 => backgroundType, 7 => milkType,
-             *               8 => cookiesReset, 9 => elderWrath, 10 => pledges, 11 => pledgeTimeLeft, 12 => nextResearch,
-             *               13 => researchTimeLeft, 14 => timesReset, 15 => goldenCookieClicks
-             *              ]
-             *
-             *
-             *  array[5] => game buildings : a semicolon-delimited list of buildings, each section containing
-             *              a comma-separated list of numbers
-             *           ---
-             *           => [0 => cursors[0 => howManyOwned, 1 => howManyBought, 2 => cookiesProduced, 3 => special?],
-             *               1 => grandmas[0 => howManyOwned, 1 => howManyBought, 2 => cookiesProduced, 3 => special?],
-             *               2 => farms[...],
-             *               3 => factories[...],
-             *               4 => mines[...],
-             *               5 => shipments[...],
-             *               6 => labs[...],
-             *               7 => portals[...],
-             *               8 => timemachines[...],
-             *               9 => condensers[...],
-             *              ]
-             *
-             *
-             *  array[6] => game upgrades
-             *  array[7] => game achievements
-             */
-
-            $this->decodedData   = $decodedData;
-            $this->rawDataChunks = $data;
-
-            $dates        = explode(';', $data[2]);
-            $cookieStats  = explode(';', $data[4]);
-            $upgrades     = $this->uncompressLargeBin($data[6]);
-            $achievements = $this->uncompressLargeBin($data[7]);
-
-            $this->gameData['game_version']                 = $data[0];
-            $this->gameData['date_started']                 =
-                \Carbon\Carbon::createFromTimestamp(substr($dates[0], 0, -3));
-            $this->gameData['date_saved']                   =
-                \Carbon\Carbon::createFromTimestamp(substr($dates[2], 0, -3));
-            $this->gameData['banked_cookies']               = $this->expandScientific($cookieStats[0]);
-            $this->gameData['raw_banked_cookies']           = $cookieStats[0];
-            $this->gameData['alltime_cookies']              = $this->expandScientific($cookieStats[1]);
-            $this->gameData['raw_alltime_cookies']          = $cookieStats[1];
-            $this->gameData['cookie_clicks']                = $cookieStats[2];
-            $this->gameData['alltime_golden_cookie_clicks'] = $cookieStats[3];
-            $this->gameData['handmade_cookies']             = $cookieStats[4];
-            $this->gameData['missed_golden_cookies']        = $cookieStats[5];
-            $this->gameData['background_type']              = $cookieStats[6];
-            $this->gameData['milk_type']                    = $cookieStats[7];
-            $this->gameData['cookies_reset']                = $cookieStats[8];
-            $this->gameData['elder_wrath']                  = $cookieStats[9];
-            $this->gameData['pledge_count']                 = $cookieStats[10];
-            $this->gameData['pledge_time_left']             = $cookieStats[11];
-            $this->gameData['next_research']                = $cookieStats[12];
-            $this->gameData['research_time_left']           = $cookieStats[13];
-            $this->gameData['times_reset']                  = $cookieStats[14];
-            $this->gameData['golden_cookie_clicks']         = $cookieStats[15];
-
-            $buildings    = explode(';', $data[5]);
-            $cursors      = explode(',', $buildings[0]);
-            $grandmas     = explode(',', $buildings[1]);
-            $farms        = explode(',', $buildings[2]);
-            $factories    = explode(',', $buildings[3]);
-            $mines        = explode(',', $buildings[4]);
-            $shipments    = explode(',', $buildings[5]);
-            $alchemyLabs  = explode(',', $buildings[6]);
-            $portals      = explode(',', $buildings[7]);
-            $timeMachines = explode(',', $buildings[8]);
-            $condensers   = explode(',', $buildings[9]);
-            $prisms       = explode(',', $buildings[10]);
-
-            $this->gameData['buildings']['cursors']       = $cursors[0];
-            $this->gameData['buildings']['grandmas']      = $grandmas[0];
-            $this->gameData['buildings']['farms']         = $farms[0];
-            $this->gameData['buildings']['factories']     = $factories[0];
-            $this->gameData['buildings']['mines']         = $mines[0];
-            $this->gameData['buildings']['shipments']     = $shipments[0];
-            $this->gameData['buildings']['labs']          = $alchemyLabs[0];
-            $this->gameData['buildings']['portals']       = $portals[0];
-            $this->gameData['buildings']['time_machines'] = $timeMachines[0];
-            $this->gameData['buildings']['condensers']    = $condensers[0];
-            $this->gameData['buildings']['prisms']        = $prisms[0] ? $prisms[0] : 0;
-
-            $this->gameData['building_production']['cursors']       = $cursors[2];
-            $this->gameData['building_production']['grandmas']      = $grandmas[2];
-            $this->gameData['building_production']['farms']         = $farms[2];
-            $this->gameData['building_production']['factories']     = $factories[2];
-            $this->gameData['building_production']['mines']         = $mines[2];
-            $this->gameData['building_production']['shipments']     = $shipments[2];
-            $this->gameData['building_production']['labs']          = $alchemyLabs[2];
-            $this->gameData['building_production']['portals']       = $portals[2];
-            $this->gameData['building_production']['time_machines'] = $timeMachines[2];
-            $this->gameData['building_production']['condensers']    = $condensers[2];
-            $this->gameData['building_production']['prisms']        = isset($prisms[2]) ? $prisms[2] : 0;
-
-            $this->gameData['buildings_income'] = array_reduce($this->gameData['building_production'], function($total, $building){
-                return bcadd($total, $building);
-            }, 0);
-
-
-            $this->gameData['building_expense']['cursors']       = Income::spentOnBuilding('cursor', $this->gameData['buildings']['cursors']);
-            $this->gameData['building_expense']['grandmas']      = Income::spentOnBuilding('grandma', $this->gameData['buildings']['grandmas']);
-            $this->gameData['building_expense']['farms']         = Income::spentOnBuilding('farm', $this->gameData['buildings']['farms']);
-            $this->gameData['building_expense']['factories']     = Income::spentOnBuilding('factory', $this->gameData['buildings']['factories']);
-            $this->gameData['building_expense']['mines']         = Income::spentOnBuilding('mine', $this->gameData['buildings']['mines']);
-            $this->gameData['building_expense']['shipments']     = Income::spentOnBuilding('shipment', $this->gameData['buildings']['shipments']);
-            $this->gameData['building_expense']['labs']          = Income::spentOnBuilding('lab', $this->gameData['buildings']['labs']);
-            $this->gameData['building_expense']['portals']       = Income::spentOnBuilding('portal', $this->gameData['buildings']['portals']);
-            $this->gameData['building_expense']['time_machines'] = Income::spentOnBuilding('time_machine', $this->gameData['buildings']['time_machines']);
-            $this->gameData['building_expense']['condensers']    = Income::spentOnBuilding('condenser', $this->gameData['buildings']['condensers']);
-            $this->gameData['building_expense']['prisms']        = Income::spentOnBuilding('prism', $this->gameData['buildings']['prisms']);
-
-            $buildingExpense = '0';
-
-            foreach($this->gameData['building_expense'] as $expense)
-            {
-                $buildingExpense = bcadd($expense, $buildingExpense);
-            }
-
-            $this->gameData['total_buildings_expense'] = $buildingExpense;
-
-
-            $this->gameData['building_count'] = array_reduce($this->buildings, function($count, $item)
-            {
-                return $count + intval($item);
-            }, 0);
-
-            $this->gameData['upgrades.binary']     = $upgrades;
-            $this->gameData['achievements.binary'] = $achievements;
-
-
-            // Split upgrades into pairs of bits, split achievements into single bits
-            // Upgrades are [bool, bool] which is [unlocked?, bought?]
-            $upgradesArray     = str_split($upgrades, 2);
-            $achievementsArray = str_split($achievements);
-
-
-            // Decode upgrades
-            $upgradesArray =
-                array_filter($upgradesArray, function ($upgrade) {
-                    list($unlocked, $bought) = str_split($upgrade);
-
-                    return (min($bought, 1)) ? true : false;
-                });
-
-            $this->gameData['upgrades']     = array_keys($upgradesArray);
-            $this->gameData['achievements'] = array_keys(array_filter($achievementsArray));
-
-
-            // Calculate prestige (a.k.a., Heavenly Chips)
-            // This is pretty much a direct PHP rewrite of the CC code. No Math object, kekekeke!
-            $prestige                   = floatval(bcdiv($this->expandScientific($this->gameData['cookies_reset']), '1000000000000'));
-            $this->gameData['prestige'] = max(0, floor((-1 + pow(1 + 8 * $prestige, 0.5)) / 2));
-
-            Event::fire('cookiesync.savedecoded', array($this));
-
-            if ($this->gameData['game_version']) {
-                if($this->caching) {
-                    Cache::put("saves:$this->id:gamedata",
-                               array_merge($this->gameData,
-                                           [
-                                                'date_started' => $this->gameData['date_started']->toDateTimeString(),
-                                                'date_saved' => $this->gameData['date_saved']->toDateTimeString(),
-                                           ]
-                               ), \Carbon\Carbon::now()->addWeek());
-                }
-                return true;
-            }
-            else {
-                return false;
-            }
+        if(array_key_exists('game_version',$this->gameData)) {
+            // It's already decoded, don't do it again.
+            return $this;
         }
-        catch (ErrorException $e) {
-            Log::error('Failed to parse save with id ' . $this->id);
-            Log::error($e->getMessage());
-            Log::error($e->getTraceAsString());
 
-            return false;
+        if($this->caching && Cache::has("saves:$this->id:gamedata"))
+        {
+            $this->gameData = Cache::get("saves:$this->id:gamedata");
+            $this->gameData['date_saved'] = \Carbon\Carbon::parse($this->gameData['date_saved']);
+            $this->gameData['date_started'] = \Carbon\Carbon::parse($this->gameData['date_started']);
+            return $this;
+        }
+
+        $data = explode('|', $decodedData = base64_decode($this->data));
+        /**
+         *  After exploding, the game data is broken up like this:
+         *
+         *  array[0] => game version
+         *
+         *  array[1] => null
+         *
+         *  array[2] => game dates : semicolon-delimited list of timestamps
+         *           ---
+         *           => [0 => startDate, 1 => fullDate, 2 => lastDate]
+         *
+         *
+         *  array[3] => prefs : sequence of booleans, 0 or 1
+         *           ---
+         *           => [0 => particles?, 1 => numbers?, 2 => autosave?, 3 => milk?, 4 => fancyGraphics?]
+         *
+         *
+         *  array[4] => game statistics : semicolon-delimited string of numbers
+         *           ---
+         *           => [0 => cookiesBaked, 1 => allTimeCookies, 2 => cookieClicks, 3 => allTimeGoldenClicks,
+         *               4 => handmadeCookies, 5 => missedGoldenCookies, 6 => backgroundType, 7 => milkType,
+         *               8 => cookiesReset, 9 => elderWrath, 10 => pledges, 11 => pledgeTimeLeft, 12 => nextResearch,
+         *               13 => researchTimeLeft, 14 => timesReset, 15 => goldenCookieClicks
+         *              ]
+         *
+         *
+         *  array[5] => game buildings : a semicolon-delimited list of buildings, each section containing
+         *              a comma-separated list of numbers
+         *           ---
+         *           => [0 => cursors[0 => howManyOwned, 1 => howManyBought, 2 => cookiesProduced, 3 => special?],
+         *               1 => grandmas[0 => howManyOwned, 1 => howManyBought, 2 => cookiesProduced, 3 => special?],
+         *               2 => farms[...],
+         *               3 => factories[...],
+         *               4 => mines[...],
+         *               5 => shipments[...],
+         *               6 => labs[...],
+         *               7 => portals[...],
+         *               8 => timemachines[...],
+         *               9 => condensers[...],
+         *              ]
+         *
+         *
+         *  array[6] => game upgrades
+         *  array[7] => game achievements
+         */
+
+        $this->decodedData   = $decodedData;
+        $this->rawDataChunks = $data;
+
+        $dates        = explode(';', $data[2]);
+        $cookieStats  = explode(';', $data[4]);
+        $upgrades     = $this->uncompressLargeBin($data[6]);
+        $achievements = $this->uncompressLargeBin($data[7]);
+
+        $this->gameData['game_version']                 = $data[0];
+        $this->gameData['date_started']                 =
+            \Carbon\Carbon::createFromTimestamp(substr($dates[0], 0, -3));
+        $this->gameData['date_saved']                   =
+            \Carbon\Carbon::createFromTimestamp(substr($dates[2], 0, -3));
+        $this->gameData['banked_cookies']               = $this->expandScientific($cookieStats[0]);
+        $this->gameData['raw_banked_cookies']           = $cookieStats[0];
+        $this->gameData['alltime_cookies']              = $this->expandScientific($cookieStats[1]);
+        $this->gameData['raw_alltime_cookies']          = $cookieStats[1];
+        $this->gameData['cookie_clicks']                = $cookieStats[2];
+        $this->gameData['alltime_golden_cookie_clicks'] = $cookieStats[3];
+        $this->gameData['handmade_cookies']             = $cookieStats[4];
+        $this->gameData['missed_golden_cookies']        = $cookieStats[5];
+        $this->gameData['background_type']              = $cookieStats[6];
+        $this->gameData['milk_type']                    = $cookieStats[7];
+        $this->gameData['cookies_reset']                = $cookieStats[8];
+        $this->gameData['elder_wrath']                  = $cookieStats[9];
+        $this->gameData['pledge_count']                 = $cookieStats[10];
+        $this->gameData['pledge_time_left']             = $cookieStats[11];
+        $this->gameData['next_research']                = $cookieStats[12];
+        $this->gameData['research_time_left']           = $cookieStats[13];
+        $this->gameData['times_reset']                  = $cookieStats[14];
+        $this->gameData['golden_cookie_clicks']         = $cookieStats[15];
+
+        $buildings    = explode(';', $data[5]);
+        $cursors      = explode(',', $buildings[0]);
+        $grandmas     = explode(',', $buildings[1]);
+        $farms        = explode(',', $buildings[2]);
+        $factories    = explode(',', $buildings[3]);
+        $mines        = explode(',', $buildings[4]);
+        $shipments    = explode(',', $buildings[5]);
+        $alchemyLabs  = explode(',', $buildings[6]);
+        $portals      = explode(',', $buildings[7]);
+        $timeMachines = explode(',', $buildings[8]);
+        $condensers   = explode(',', $buildings[9]);
+        $prisms       = explode(',', $buildings[10]);
+
+        $this->gameData['buildings']['cursors']       = $cursors[0];
+        $this->gameData['buildings']['grandmas']      = $grandmas[0];
+        $this->gameData['buildings']['farms']         = $farms[0];
+        $this->gameData['buildings']['factories']     = $factories[0];
+        $this->gameData['buildings']['mines']         = $mines[0];
+        $this->gameData['buildings']['shipments']     = $shipments[0];
+        $this->gameData['buildings']['labs']          = $alchemyLabs[0];
+        $this->gameData['buildings']['portals']       = $portals[0];
+        $this->gameData['buildings']['time_machines'] = $timeMachines[0];
+        $this->gameData['buildings']['condensers']    = $condensers[0];
+        $this->gameData['buildings']['prisms']        = $prisms[0] ? $prisms[0] : 0;
+
+        $this->gameData['building_production']['cursors']       = $cursors[2];
+        $this->gameData['building_production']['grandmas']      = $grandmas[2];
+        $this->gameData['building_production']['farms']         = $farms[2];
+        $this->gameData['building_production']['factories']     = $factories[2];
+        $this->gameData['building_production']['mines']         = $mines[2];
+        $this->gameData['building_production']['shipments']     = $shipments[2];
+        $this->gameData['building_production']['labs']          = $alchemyLabs[2];
+        $this->gameData['building_production']['portals']       = $portals[2];
+        $this->gameData['building_production']['time_machines'] = $timeMachines[2];
+        $this->gameData['building_production']['condensers']    = $condensers[2];
+        $this->gameData['building_production']['prisms']        = isset($prisms[2]) ? $prisms[2] : 0;
+
+        $this->gameData['buildings_income'] = array_reduce($this->gameData['building_production'], function($total, $building){
+            return bcadd($total, $building);
+        }, 0);
+
+
+        $this->gameData['building_expense']['cursors']       = Income::spentOnBuilding('cursor', $this->gameData['buildings']['cursors']);
+        $this->gameData['building_expense']['grandmas']      = Income::spentOnBuilding('grandma', $this->gameData['buildings']['grandmas']);
+        $this->gameData['building_expense']['farms']         = Income::spentOnBuilding('farm', $this->gameData['buildings']['farms']);
+        $this->gameData['building_expense']['factories']     = Income::spentOnBuilding('factory', $this->gameData['buildings']['factories']);
+        $this->gameData['building_expense']['mines']         = Income::spentOnBuilding('mine', $this->gameData['buildings']['mines']);
+        $this->gameData['building_expense']['shipments']     = Income::spentOnBuilding('shipment', $this->gameData['buildings']['shipments']);
+        $this->gameData['building_expense']['labs']          = Income::spentOnBuilding('lab', $this->gameData['buildings']['labs']);
+        $this->gameData['building_expense']['portals']       = Income::spentOnBuilding('portal', $this->gameData['buildings']['portals']);
+        $this->gameData['building_expense']['time_machines'] = Income::spentOnBuilding('time_machine', $this->gameData['buildings']['time_machines']);
+        $this->gameData['building_expense']['condensers']    = Income::spentOnBuilding('condenser', $this->gameData['buildings']['condensers']);
+        $this->gameData['building_expense']['prisms']        = Income::spentOnBuilding('prism', $this->gameData['buildings']['prisms']);
+
+        $buildingExpense = '0';
+
+        foreach($this->gameData['building_expense'] as $expense)
+        {
+            $buildingExpense = bcadd($expense, $buildingExpense);
+        }
+
+        $this->gameData['total_buildings_expense'] = $buildingExpense;
+
+
+        $this->gameData['building_count'] = array_reduce($this->buildings, function($count, $item)
+        {
+            return $count + intval($item);
+        }, 0);
+
+        $this->gameData['upgrades.binary']     = $upgrades;
+        $this->gameData['achievements.binary'] = $achievements;
+
+
+        // Split upgrades into pairs of bits, split achievements into single bits
+        // Upgrades are [bool, bool] which is [unlocked?, bought?]
+        $upgradesArray     = str_split($upgrades, 2);
+        $achievementsArray = str_split($achievements);
+
+
+        // Decode upgrades
+        $upgradesArray =
+            array_filter($upgradesArray, function ($upgrade) {
+                list($unlocked, $bought) = str_split($upgrade);
+
+                return (min($bought, 1)) ? true : false;
+            });
+
+        $this->gameData['upgrades']     = array_keys($upgradesArray);
+        $this->gameData['achievements'] = array_keys(array_filter($achievementsArray));
+
+
+        // Calculate prestige (a.k.a., Heavenly Chips)
+        // This is pretty much a direct PHP rewrite of the CC code. No Math object, kekekeke!
+        $prestige                   = floatval(bcdiv($this->expandScientific($this->gameData['cookies_reset']), '1000000000000'));
+        $this->gameData['prestige'] = max(0, floor((-1 + pow(1 + 8 * $prestige, 0.5)) / 2));
+
+        Event::fire('cookiesync.savedecoded', array($this));
+
+        if (array_key_exists('game_version',$this->gameData)) {
+            if($this->caching) {
+                Cache::put("saves:$this->id:gamedata",
+                           array_merge($this->gameData,
+                                       [
+                                            'date_started' => $this->gameData['date_started']->toDateTimeString(),
+                                            'date_saved' => $this->gameData['date_saved']->toDateTimeString(),
+                                       ]
+                           ), \Carbon\Carbon::now()->addWeek());
+            }
+            return $this;
+        }
+        else {
+            throw new \CookieSync\Errors\DecodingFailedException();
         }
 
     }
@@ -549,9 +557,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
      */
     public function gameStat($name)
     {
-        if (!array_key_exists('game_version', $this->gameData)) {
-            $this->decode();
-        }
+        $this->decode();
 
         if (array_key_exists($name, $this->gameData)) {
             return $this->gameData[$name];
@@ -594,6 +600,11 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         return implode($binaryArray);
     }
 
+    /**
+     * Don't try to hit the cache for this instance. Sets a flag that disables Cache calls.
+     *
+     * @return $this
+     */
     public function noCache()
     {
         $this->caching = false;
@@ -601,6 +612,24 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
     }
 
 
+    /**
+     * Nevermind, do try to hit the cache. Sets a flag that encourages Cache calls.
+     *
+     * @return $this
+     */
+    public function pleaseCache()
+    {
+        $this->caching = true;
+        return $this;
+    }
+
+
+    /**
+     * Dynamically retrieve attributes on the model.
+     *
+     * @param string $var
+     * @return mixed
+     */
     public function __get($var)
     {
         if (array_key_exists($var, $this->gameData)) {
