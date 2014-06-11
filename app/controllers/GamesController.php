@@ -6,9 +6,14 @@
 // For: CookieSync
 
 
+use CookieSync\Stat\Aggregator;
+use Illuminate\Support\Collection;
+
 class GamesController extends BaseController {
 
     protected $user;
+
+    use \CookieSync\Traits\ModelBatchTrait;
 
     public function __construct()
     {
@@ -43,9 +48,53 @@ class GamesController extends BaseController {
         }
 
         $data['careerCookies'] = $c->cookies();
+        $data['game'] = $game;
+        $data['latestSave'] = $game->latestSave()->decode();
         $data['saveCount'] = $game->saves()->count();
 
-        return View::make('mysaves', $data);
+        return View::make('gamedetail', $data);
+    }
+
+    public function getBuildingHistory($gameId)
+    {
+        $sample = Input::get('sample', 30);
+        $output = [
+            'cursors'       => [],
+            'grandmas'      => [],
+            'farms'         => [],
+            'factories'     => [],
+            'mines'         => [],
+            'shipments'     => [],
+            'labs'          => [],
+            'portals'       => [],
+            'time_machines' => [],
+            'condensers'    => [],
+            'prisms'        => [],
+        ];
+
+        $current = 0;
+        foreach($this->user->saves()->whereGameId($gameId)->paginate(Session::get('pagination_length', 30)) as $save) {
+            $current++;
+            $save->decode();
+
+            foreach($save->buildings as $building => $count) {
+                $output[$building][] = $count;
+            }
+        }
+
+        return Response::json($output);
+
+    }
+
+    public function getCookieHistory($gameId)
+    {
+        $history = new Collection;
+
+        foreach($this->user->saves()->whereGameId($gameId)->paginate(Session::get('pagination_length', 30)) as $save) {
+            $history->push([$save->created_at, $save->gameStat('raw_banked_cookies')]);
+        }
+
+        return Response::json($history);
     }
 
 } 

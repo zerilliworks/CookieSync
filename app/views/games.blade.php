@@ -51,3 +51,13 @@
 
 {{ $games->links() }}
 @stop
+
+@section('footer-js')
+<script src="//d3js.org/d3.v3.min.js" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js"></script>
+
+<script type="text/javascript">
+
+</script>
+
+@stop

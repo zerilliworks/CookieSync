@@ -35,12 +35,18 @@ class Aggregator {
         return $user->games()->count();
     }
 
-    public static function cookieHistory(User $user, $sample = 30)
+    public static function cookieHistory(User $user, $sample = 30, $inGameId = null)
     {
         $history = new Collection;
 
-        foreach($user->saves()->take($sample)->get() as $save) {
-            $history->push([$save->created_at, $save->gameStat('raw_banked_cookies')]);
+        if($inGameId) {
+            foreach($user->saves()->whereGameId($inGameId)->take($sample)->get() as $save) {
+                $history->push([$save->created_at, $save->gameStat('raw_banked_cookies')]);
+            }
+        } else {
+            foreach($user->saves()->take($sample)->get() as $save) {
+                $history->push([$save->created_at, $save->gameStat('raw_banked_cookies')]);
+            }
         }
 
         return $history;

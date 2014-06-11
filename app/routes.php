@@ -84,6 +84,8 @@ Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth
 
 
     Route::resource('games', 'GamesController');
+    Route::get('games/buildinghistory/{id}', 'GamesController@getBuildingHistory');
+    Route::get('games/cookiehistory/{id}', 'GamesController@getCookieHistory');
 
     Route::get('options', 'OptionsController@getIndex');
     Route::get('options/bookmarklet', 'OptionsController@getBookmarklet');
@@ -207,7 +209,7 @@ View::composer(['about', 'access'], function ($view) {
     }
 });
 
-View::composer('mysaves', function($view) {
+View::composer('*', function($view) {
     $view->with('paginationLength', Session::get('pagination_length', 30));
 });
 
