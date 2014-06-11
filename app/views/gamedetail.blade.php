@@ -18,16 +18,16 @@
                 <h1 class="stat-text">{{ NumericHelper::makeRoundedHumanReadable($careerCookies) }}</h1>
             </div>
             <div class="stat stat-medium">
+                <h4 class="stat-title">Prestige:</h4>
+                <h1 class="stat-text">{{ prettyNumbers($latestSave->prestige) }}</h1>
+            </div>
+            <div class="stat stat-medium">
                 <h4 class="stat-title">Saves:</h4>
                 <h1 class="stat-text">{{ $saveCount }}</h1>
             </div>
             <div class="stat stat-medium">
                 <h4 class="stat-title">Buildings:</h4>
                 <h1 class="stat-text">{{ $latestSave->building_count }}</h1>
-            </div>
-            <div class="stat stat-medium">
-                <h4 class="stat-title">Prestige:</h4>
-                <h1 class="stat-text">{{ prettyNumbers($latestSave->prestige) }}</h1>
             </div>
         </div>
     </div>

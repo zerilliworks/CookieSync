@@ -112,12 +112,12 @@ return array(
         'Zerilliworks\Asirra\AsirraServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 
-        'Cartalyst\DataGrid\DataGridServiceProvider',
         'Cartalyst\Sentry\SentryServiceProvider',
         'Cartalyst\Api\Laravel\ApiServiceProvider',
 
         'CookieSync\Tools\Observers\ObserversServiceProvider',
         'CookieSync\Cache\CacheServiceProvider',
+        'CookieSync\Events\EventSubServiceProvider',
 
 	),
 

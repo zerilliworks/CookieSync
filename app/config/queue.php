@@ -15,7 +15,7 @@ return array(
 	|
 	*/
 
-	'default' => 'sync',
+	'default' => 'redis',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -57,7 +57,7 @@ return array(
 
 		'redis' => array(
 			'driver' => 'redis',
-			'queue'  => 'default',
+			'queue'  => 'cookiesync',
 		),		
 
 	),

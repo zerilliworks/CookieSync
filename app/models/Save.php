@@ -47,7 +47,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         parent::boot();
 
         static::creating(function ($model) {
-            $model->noCache();
+//            $model->noCache();
             // Assign actual Date/Time types to the start and save dates
             $model->started_at = $model->gameStat('date_started');
             $model->saved_at = $model->gameStat('date_saved');

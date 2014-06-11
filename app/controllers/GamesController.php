@@ -97,4 +97,4 @@ class GamesController extends BaseController {
         return Response::json($history);
     }
 
-} 
+}

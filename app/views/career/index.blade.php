@@ -73,11 +73,11 @@
             $("#sample-button").button('reset');
 
             var cookieData = data.map(function (c, idx) {
-                console.log(c[1]);
-                return { x: idx + 1, y: parseFloat(c[1])};
+//                console.log(c[1]);
+                return { x: idx + 1, y: Math.max(0.1, parseFloat(c[1])) };
             });
 
-            console.debug(cookieData);
+//            console.debug(cookieData);
 
             var timeData = data.map(function (c) {
 //            return c[0].date;
@@ -85,16 +85,15 @@
             });
 
             nv.addGraph(function () {
-                var chart = nv.models.lineWithFocusChart();
+                var chart = nv.models.lineChart();
                 chart.xAxis
                   .tickFormat(d3.format(',f'));
 
                 chart.yAxis
-                  .scale(d3.scale.log())
-                  .tickFormat(d3.format(',f'));
+                  .tickFormat(d3.format(',e'));
 
-                chart.y2Axis
-                  .tickFormat(d3.format(',f'));
+                chart.yScale(d3.scale.log());
+                chart.xScale(d3.scale.linear());
 
                 d3.select('svg#career-chart')
                   .datum([
