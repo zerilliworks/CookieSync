@@ -33,7 +33,7 @@ class GlobalCookieCounter {
 
     public function calculateGameCookies()
     {
-        $total = '1';
+        $total = '0';
         foreach ($this->gameBatch() as $game) {
             $total = bcadd($total, $game->latestSave()->noCache()->cookies());
         }
@@ -44,7 +44,7 @@ class GlobalCookieCounter {
 
     public function calculateEverySave()
     {
-        $total = '1';
+        $total = '0';
         foreach ($this->saveBatch() as $save) {
             $total = bcadd($total, $save->noCache()->cookies());
         }

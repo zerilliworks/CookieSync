@@ -22,6 +22,12 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
         Artisan::call('migrate');
         Artisan::call('migrate', ['--package' => 'cartalyst/attributes']);
         $this->seed();
+        User::create(['name' => 'jqtest', 'password' => Hash::make('password')]);
+    }
+
+    public function tearDown()
+    {
+        Mockery::close();
     }
 
 }

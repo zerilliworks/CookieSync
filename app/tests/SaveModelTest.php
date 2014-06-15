@@ -22,6 +22,7 @@ class SaveModelTest extends TestCase {
     {
         parent::setUp();
         $this->save = new Save();
+        $this->save->noCache();
         $this->be(User::whereName('jqtest')->first());
     }
 
@@ -40,7 +41,7 @@ class SaveModelTest extends TestCase {
         $this->save->save_data = $this->exampleData;
         $this->save->save();
 
-        $this->assertTrue($this->save->decode());
+        $this->assertInstanceOf('Save', $this->save->decode());
 
         // Test properties
         $this->assertNotEmpty($this->save->gameData);
@@ -85,13 +86,23 @@ class SaveModelTest extends TestCase {
 
     }
 
+
+    /**
+     * @covers Save::decode
+     * @expectedException CookieSync\Errors\DecodingFailedException
+     * @expectedException ErrorException
+     */
     public function testRejectsInvalidSave()
     {
         $this->save->save_data = "not a cookie clicker save";
-
-        $this->assertFalse($this->save->decode());
+        $this->save->decode();
     }
 
+    /**
+     * @covers Save::decode
+     * @expectedException CookieSync\Errors\DecodingFailedException
+     * @expectedException ErrorException
+     */
     public function testRejectsCorruptedSave()
     {
         // Remove a few characters from the exampleData
@@ -100,14 +111,19 @@ class SaveModelTest extends TestCase {
 
         $this->save->save_data = $corruptData;
 
-        $this->assertFalse($this->save->decode());
+        $this->save->decode();
     }
 
+    /**
+     * @covers Save::decode
+     * @expectedException CookieSync\Errors\DecodingFailedException
+     * @expectedException ErrorException
+     */
     public function testRejectsEmptySave()
     {
         $this->save->save_data = "";
 
-        $this->assertFalse($this->save->decode());
+        $this->save->decode();
     }
 
     public function testCanReadUpgrades()

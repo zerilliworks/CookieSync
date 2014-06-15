@@ -22,7 +22,7 @@ class AppLogicTest extends TestCase {
     public function testLogin()
     {
         $response = $this->call('POST', 'cookiesync/access/login', array('username' => 'jqtest',
-                                           'password' => 'sensiblepassword',
+                                           'password' => 'password',
                                            '_token' => csrf_token()));
 
         $this->assertResponseStatus(302);
