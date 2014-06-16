@@ -47,7 +47,7 @@ $env = $app->detectEnvironment(function () use ($app) {
 
                                        'local'      => array('localhost'),
                                        'gridserver' => array('n*'),
-                                       'digocean'   => array('cookiesync*'),
+                                       'forge'   => array('cookiesync*'),
 
                                    ));
 
