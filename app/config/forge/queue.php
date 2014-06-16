@@ -15,7 +15,7 @@ return array(
 	|
 	*/
 
-	'default' => 'redis',
+	'default' => 'beanstalkd',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -37,7 +37,7 @@ return array(
 		'beanstalkd' => array(
 			'driver' => 'beanstalkd',
 			'host'   => 'localhost',
-			'queue'  => 'default',
+			'queue'  => 'statworker',
 		),
 
 		'sqs' => array(
@@ -58,7 +58,7 @@ return array(
 		'redis' => array(
 			'driver' => 'redis',
 			'queue'  => 'cookiesync',
-		),		
+		),
 
 	),
 
