@@ -53,14 +53,14 @@ return array(
 		),
 
 		'mysql' => array(
-			'driver'    => 'mysql',
-			'host'      => '127.0.0.1:3306',
-			'database'  => 'cookiesync',
-			'username'  => 'root',
-			'password'  => 'root',
-			'charset'   => 'utf8',
-			'collation' => 'utf8_unicode_ci',
-			'prefix'    => '',
+            'driver'    => 'mysql',
+            'host'      => getenv('DATABASE_HOST'),
+            'database'  => 'cookiesync',
+            'username'  => getenv('DATABASE_USER'),
+            'password'  => getenv('DATABASE_PASSWORD'),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
 		),
 
 		'pgsql' => array(
