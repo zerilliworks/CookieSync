@@ -15,7 +15,7 @@ return array(
 	|
 	*/
 
-	'default' => 'redis',
+	'default' => 'beanstalkd',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -36,7 +36,7 @@ return array(
 
 		'beanstalkd' => array(
 			'driver' => 'beanstalkd',
-			'host'   => 'localhost',
+			'host'   => '10.128.148.124',
 			'queue'  => 'default',
 		),
 
