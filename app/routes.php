@@ -194,15 +194,15 @@ View::composer(['about', 'access'], function ($view) {
         return Save::count();
     }));
 
-    $compute = function () {
-        if (!Cache::has('soft_global_cookie_count')) {
-            Queue::push('CookieSync\Workers\Statistical\GlobalStats', []);
-            return \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count'));
-        }
-        return \NumericHelper::makeRoundedHumanReadable(Cache::get('soft_global_cookie_count'));
-    };
+    if (!Cache::has('soft_global_cookie_count')) {
+        Queue::push('CookieSync\Workers\Statistical\GlobalStats', []);
+        $cookieCount = \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count'));
+    } else {
+        $cookieCount = \NumericHelper::makeRoundedHumanReadable(Cache::get('soft_global_cookie_count'));
+    }
+
     try {
-        $view->with('cookieCount', $compute());
+        $view->with('cookieCount', $cookieCount);
     } catch (Exception $e) {
         Log::error('Worker queue push failed');
         return $view->with('cookieCount', \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count', 'A lot of ')));
