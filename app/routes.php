@@ -12,28 +12,30 @@
 */
 
 Route::get('cookiesync', [
-  'as' => 'root',
-  function () {
-      // Send them to the login page
-      if (Auth::guest()) {
-          return Redirect::route('login');
-      }
-      else {
-          return Redirect::action('SavesController@index');
-      }
-  }
+    'https',
+    'as' => 'root',
+    function () {
+        // Send them to the login page
+        if (Auth::guest()) {
+            return Redirect::route('login');
+        }
+        else {
+            return Redirect::action('SavesController@index');
+        }
+    }
 ]);
 
-Route::group(['prefix' => 'cookiesync'], function () {
+Route::group(['prefix' => 'cookiesync', 'https'], function () {
     Route::get('access', ['as' => 'login', 'uses' => 'AuthController@getLoginView']);
     Route::post('access/login', 'AuthController@postLoginCredentials');
     Route::post('access/register', 'AuthController@postRegistrationInfo');
     Route::get('logout', [
-      'as' => 'logout',
-      function () {
-          Auth::logout();
-          return Redirect::route('root');
-      }
+        'as' => 'logout',
+        function () {
+            Auth::logout();
+
+            return Redirect::route('root');
+        }
     ]);
 });
 
@@ -47,28 +49,28 @@ Route::group(['prefix' => 'cookiesync'], function () {
 |
 */
 
-Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth route group
+Route::group(['before' => 'auth', 'prefix' => 'cookiesync', 'https'], function () // Auth route group
 {
 
     Route::get('welcome', [
-      'as' => 'welcome_page',
-      function () {
-          return View::make('welcome');
-      }
+        'as' => 'welcome_page',
+        function () {
+            return View::make('welcome');
+        }
     ]);
 
     Route::get('welcome/example', [
-      'as' => 'welcome_example',
-      function () {
-          $thisSave            = new Save();
-          $thisSave->save_data = Config::get('cookiesync.example_data');
-          $thisSave->decode();
+        'as' => 'welcome_example',
+        function () {
+            $thisSave            = new Save();
+            $thisSave->save_data = Config::get('cookiesync.example_data');
+            $thisSave->decode();
 
-          return View::make('example')
-                     ->with('save', $thisSave)
-                     ->with('cookiesBaked', $thisSave->cookies())
-                     ->with('allTimeCookies', $thisSave->allTimeCookies());
-      }
+            return View::make('example')
+                       ->with('save', $thisSave)
+                       ->with('cookiesBaked', $thisSave->cookies())
+                       ->with('allTimeCookies', $thisSave->allTimeCookies());
+        }
     ]);
 
 
@@ -109,8 +111,7 @@ Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth
 
 });
 
-Route::group(['prefix' => 'cookiesync'], function ()
-{
+Route::group(['prefix' => 'cookiesync', 'https'], function () {
     /*
     |--------------------------------------------------------------------------
     | Ancillary Public Routes
@@ -120,10 +121,10 @@ Route::group(['prefix' => 'cookiesync'], function ()
     Route::get('shared/{id}', 'SharesController@show');
 
     Route::get('about', [
-      'as' => 'about_page',
-      function () {
-          return View::make('about');
-      }
+        'as' => 'about_page',
+        function () {
+            return View::make('about');
+        }
     ]);
 
     Route::get('changelog', function () {
@@ -133,15 +134,15 @@ Route::group(['prefix' => 'cookiesync'], function ()
     });
 
     Route::get('goodbye', [
-      'as' => 'goodbye',
-      function () {
-          if (Session::get('goodbye') == 'yes' || true) {
-              return View::make('goodbye');
-          }
-          else {
-              return Redirect::to('access');
-          }
-      }
+        'as' => 'goodbye',
+        function () {
+            if (Session::get('goodbye') == 'yes' || true) {
+                return View::make('goodbye');
+            }
+            else {
+                return Redirect::to('access');
+            }
+        }
     ]);
 
     /*
@@ -163,7 +164,7 @@ Route::post('cookiesync/queue/grind', function () {
 */
 
 
-Route::group(['prefix' => '{api}/v1'], function () {
+Route::group(['prefix' => '{api}/v1', 'https'], function () {
     Route::get("users/{id}", "ApiController@getUser");
     Route::get("users/{id}/{attribute}", "ApiController@getUserAttribute");
     Route::get("users/findby/email/{email}", "ApiController@getFindUserByEmail");
@@ -197,19 +198,24 @@ View::composer(['about', 'access'], function ($view) {
     if (!Cache::has('soft_global_cookie_count')) {
         Queue::push('CookieSync\Workers\Statistical\GlobalStats', []);
         $cookieCount = \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count'));
-    } else {
+    }
+    else {
         $cookieCount = \NumericHelper::makeRoundedHumanReadable(Cache::get('soft_global_cookie_count'));
     }
 
     try {
         $view->with('cookieCount', $cookieCount);
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
         Log::error('Worker queue push failed');
-        return $view->with('cookieCount', \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count', 'A lot of ')));
+
+        return $view->with('cookieCount',
+                           \NumericHelper::makeRoundedHumanReadable(Cache::get('sticky_global_cookie_count',
+                                                                               'A lot of ')));
     }
 });
 
-View::composer('*', function($view) {
+View::composer('*', function ($view) {
     $view->with('paginationLength', Session::get('pagination_length', 30));
 });
 
@@ -217,7 +223,8 @@ View::composer('*', function($view) {
 // End View Composers
 // ---
 
-App::missing(function() {
-    Log::error('HTTP 404: No route found to handle '. Request::fullUrl());
+App::missing(function () {
+    Log::error('HTTP 404: No route found to handle ' . Request::fullUrl());
+
     return Response::view('404', [], 404);
 });
