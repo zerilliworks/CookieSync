@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('css')
-<link rel="stylesheet" href="http://cookiesync.zerilliworks.net/css/nv.d3.css"/>
+<link rel="stylesheet" href="https://zeril.li/assets/cookiesync/css/nv.d3.css"/>
 <style type="text/css">
     #career-chart {
         padding-left: 30px;

@@ -20,7 +20,7 @@
 <p class="lead">In a couple of minutes, you'll be ready to Cookie Click all over the place!</p>
 <p class="">First, drag this bookmarklet into your browser's bookmarks bar:
 <span class="label label-primary"><span class="glyphicon glyphicon-bookmark"></span> <a class="bookmarklet"
-                                                                                        href="javascript:window.open('http://cookiesync.zerilliworks.net/external?d=' + Game.WriteSave(1), 'CookieSync_Save', 'toolbar=no,scrollbars=yes,width=600,height=700');">Save
+                                                                                        href="javascript:window.open('https://zeril.li/assets/cookiesync/external?d=' + Game.WriteSave(1), 'CookieSync_Save', 'toolbar=no,scrollbars=yes,width=600,height=700');">Save
         to CookieSync</a></span>
 </p>
 <p>While playing Cookie Clicker, just click that bookmark to save your game. It'll be uploaded and stored with

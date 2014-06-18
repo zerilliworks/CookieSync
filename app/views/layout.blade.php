@@ -11,7 +11,7 @@
     @endif
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="http://cookiesync.zerilliworks.net/css/cookiesync.css"/>
+    <link rel="stylesheet" href="https://zeril.li/assets/cookiesync/css/cookiesync.css"/>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Kavoon' rel='stylesheet' type='text/css'>
     @yield('css')
@@ -32,7 +32,7 @@
 @include('partials.footer')
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="http://cookiesync.zerilliworks.net//js/bootstrap.min.js"></script>
+<script src="https://zeril.li/assets/cookiesync//js/bootstrap.min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/slabText/2.3/jquery.slabtext.min.js"></script>
 
 <script type="text/javascript">
