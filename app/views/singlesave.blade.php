@@ -2,7 +2,7 @@
 
 @section('css')
 <link href='http://fonts.googleapis.com/css?family=Underdog' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="{{ Config::get('app.url') }}/css/nv.d3.css"/>
+<link rel="stylesheet" href="http://cookiesync.zerilliworks.net/css/nv.d3.css"/>
 
 <style type="text/css">
     .wrath {
@@ -10,7 +10,7 @@
         color: white;
         background-color: darkred;
         box-shadow: inset 0 0 10px black;
-        background-image: url('{{ Config::get('app.url') }}/images/WrathGlasses.png');
+        background-image: url('http://cookiesync.zerilliworks.net/images/WrathGlasses.png');
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;

@@ -127,7 +127,6 @@ Event::listen('cookiesync.newuser', function($newbie) {
 });
 
 Event::listen('cookiesync.newsave', function($save) {
-    Log::info('Event cookiesync.newsave fired.');
     stathat_ez_count(Config::get('stathat.ezkey'), 'CS New Saves', 1);
     stathat_ez_value(Config::get('stathat.ezkey'), 'CS Total Saves', intval(Save::count()));
 });

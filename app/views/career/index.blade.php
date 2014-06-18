@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('css')
-<link rel="stylesheet" href="{{ Config::get('app.url') }}/css/nv.d3.css"/>
+<link rel="stylesheet" href="http://cookiesync.zerilliworks.net/css/nv.d3.css"/>
 <style type="text/css">
     #career-chart {
         padding-left: 30px;

@@ -5,9 +5,9 @@
 // Time: 2:02 AM
 // For: CookieSync
 
-Event::listen('cookiesync.newsave', function($data)
+Event::listen('cookiesync.*', function($data)
 {
-
+    Log::debug('Event '. Event::firing() .' fired.');
 });
 
 

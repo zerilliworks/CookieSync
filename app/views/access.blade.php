@@ -124,7 +124,7 @@
     }
 
     .headline {
-        background-image: url('{{ Config::get('app.url') }}/images/CookieSync-web.svg'), url('{{ Config::get('app.url') }}/images/gold_scale.png');
+        background-image: url('http://cookiesync.zerilliworks.net/images/CookieSync-web.svg'), url('http://cookiesync.zerilliworks.net/images/gold_scale.png');
         background-size: contain, auto;
         background-position: center, top;
         background-repeat: no-repeat, repeat;
