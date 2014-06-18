@@ -67,6 +67,8 @@ App::down(function()
 	return Response::make(View::make('sysdown'), 503);
 });
 
+\Symfony\Component\HttpFoundation\Request::setTrustedProxies(['10.128.148.128']);
+
 /*
 |--------------------------------------------------------------------------
 | Require The Filters File

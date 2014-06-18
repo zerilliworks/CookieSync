@@ -13,3 +13,5 @@
 
 Artisan::add(new \CookieSync\Commands\FixGamesCommand);
 Artisan::add(new \CookieSync\Commands\SetupCommand);
+Artisan::add(new \CookieSync\Commands\DumpRawSavesCommand);
+Artisan::add(new \CookieSync\Commands\LoadRawSavesCommand);
