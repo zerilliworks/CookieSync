@@ -120,7 +120,7 @@ class SavesController extends BaseController {
     {
         $didSave = $this->user->saves()->save(new Save(array('save_data' => Input::get('d'))));
 
-        return View::make('bookmark.save')->with('didSave', $didSave);
+        return Response::view('bookmark.save', ['didSave' => $didSave], 200, ['Access-Control-Allow-Origin' => 'http://orteil.dashnet.org']);
     }
 
 
