@@ -1,8 +1,8 @@
 @extends('layout')
 
 @section('css')
-<link href='http://fonts.googleapis.com/css?family=Underdog' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="https://zeril.li/assets/cookiesync/css/nv.d3.css"/>
+<link href='//fonts.googleapis.com/css?family=Underdog' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="//zeril.li/assets/cookiesync/css/nv.d3.css"/>
 
 <style type="text/css">
     .wrath {
