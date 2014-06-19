@@ -53,6 +53,9 @@ $env = $app->detectEnvironment(function () use ($app) {
 
 });
 
+// Disable FrameGuard so we can load iframes inside of Cookie Clicker itself
+$app->forgetMiddleware('Illuminate\Http\FrameGuard');
+
 /*
 |--------------------------------------------------------------------------
 | Bind Paths
