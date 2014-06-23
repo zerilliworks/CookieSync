@@ -1,2 +1,2 @@
-<script type="text/javascript" src="http://challenge.asirra.com/js/AsirraClientSide.js"></script>
+<script type="text/javascript" src="//challenge.asirra.com/js/AsirraClientSide.js"></script>
 
