@@ -44,6 +44,11 @@ Route::filter('auth.basic', function()
 	return Auth::basic();
 });
 
+Route::filter('auth.token', function()
+{
+
+});
+
 /*
 |--------------------------------------------------------------------------
 | Guest Filter

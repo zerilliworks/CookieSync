@@ -1,5 +1,7 @@
 @extends('layout')
 
+<?php View::share('_ngBodyDirectives', 'ng-controller="SavesListController"') ?>
+
 @section('body')
 @include('partials.navbar')
 <div class="jumbotron">
@@ -42,21 +44,7 @@
         {{ $saves->links() }}
     </div>
     <div class="col-xs-12 col-md-4">
-        {{ Form::open(['action' => 'OptionsController@postSetListLength', 'method' => 'post', 'style' => 'float: right; padding: 20px 0;']); }}
-        <div class="input-group">
-            <span class="input-group-addon">Show</span>
-            <select class="form-control" id="list-length-selector" name="list-length" >
-                <option {{ $paginationLength == 10 ? 'selected="selected"' : null }}value="10"> 10 Saves</option>
-                <option {{ $paginationLength == 20 ? 'selected="selected"' : null }}value="20"> 20 Saves</option>
-                <option {{ $paginationLength == 30 ? 'selected="selected"' : null }}value="30"> 30 Saves</option>
-                <option {{ $paginationLength == 50 ? 'selected="selected"' : null }}value="50"> 50 Saves</option>
-                <option {{ $paginationLength == 100 ? 'selected="selected"' : null }}value="100"> 100 Saves</option>
-            </select>
-            <span class="input-group-btn">
-                <button id="sample-button" class="btn btn-success" type="submit" data-loading-text="Loading...">Go!</button>
-            </span>
-        </div>
-        {{ Form::close() }}
+        @include('partials.paginationchooser')
     </div>
 </div>
 
@@ -71,19 +59,14 @@
             <th></th>
         </tr>
         </thead>
-        <tbody>
+        <tbody ng-repeat="save in saves">
 
-        @foreach($saves as $save)
-        <?php
-        $allStatsHtml = implode('<br>', explode("\n", $save->allStats()));
-        $allStatsHtml .= "<hr>" . $save->heavenlyChips() . " Heavenly Chips";
-        ?>
         <tr class="{{ ($save->isGrandmapocalypse()) ? 'danger' : '' }}">
             <td>
-                {{ $save->created_at->diffForHumans() }}
+                @{{ save.created_at_human }}
             </td>
             <td>
-                <b>{{ prettyNumbers($save->cookies()) }}</b> / <i class="text-muted">{{ prettyNumbers($save->allTimeCookies()) }}</i>
+                <b>@{{ save.cookies | numeric_separators }}</b> / <i class="text-muted">@{{ save.all_time_cookies | numeric_separators }}</i>
             </td>
             <td>
                 {{ Form::open(['action' => ['SavesController@destroy', $save->id], 'method' => 'DELETE', 'class' => 'form-inline']) }}
@@ -92,7 +75,7 @@
                     <button type="submit" class="btn btn-xs btn-danger">Delete</button>
                     <a class="btn btn-success btn-xs" href="{{ action('SavesController@show', $save->id) }}">View</a>
                     <a class="btn btn-info btn-xs stat-popover" data-placement="right" data-toggle="popover"
-                       data-content="{{ $allStatsHtml }}">Stats</a>
+                       data-content="">Stats</a>
                 </form>
             </td>
             <td>
@@ -104,7 +87,6 @@
                 </form>
             </td>
         </tr>
-        @endforeach
         </tbody>
     </table>
 </div>

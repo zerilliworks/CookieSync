@@ -6,6 +6,13 @@
 // For: CookieSync
 
 
+use Illuminate\Auth\UserInterface;
+
 class ApiController extends BaseController {
+
+    public function getUser()
+    {
+
+    }
 
 }
