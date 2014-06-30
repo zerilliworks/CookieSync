@@ -111,6 +111,8 @@ return array(
         'Profiler\ProfilerServiceProvider',
         'Zerilliworks\Asirra\AsirraServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
+        'Tappleby\AuthToken\AuthTokenServiceProvider',
+        'Barryvdh\Cors\CorsServiceProvider',
 
         'Cartalyst\Sentry\SentryServiceProvider',
         'Cartalyst\Api\Laravel\ApiServiceProvider',

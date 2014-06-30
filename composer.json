@@ -19,13 +19,14 @@
         "cartalyst/sentry": "2.0.*",
 		"barryvdh/laravel-ide-helper": "1.*",
         "iron-io/iron_mq" : "1.4.8",
-        "pda/pheanstalk": "2.1.*"
+        "tappleby/laravel-auth-token": "0.3.*",
+		"barryvdh/laravel-cors": "0.2.x"
 	},
 	"autoload": {
 		"classmap": [
 			"app/commands",
 			"app/controllers",
-            "app/controllers/api",
+            "app/controllers/API",
 			"app/models",
 			"app/database/migrations",
 			"app/database/seeds",
