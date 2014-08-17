@@ -5,10 +5,10 @@
 // Time: 2:02 AM
 // For: CookieSync
 
-Event::listen('cookiesync.*', function($data)
-{
-    Log::debug('Event '. Event::firing() .' fired.');
-});
+//Event::listen('cookiesync.*', function($data)
+//{
+//    Log::debug('Event '. Event::firing() .' fired.');
+//});
 
 
 Event::listen('cookiesync.logged_in', function($data)
