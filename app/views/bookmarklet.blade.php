@@ -21,8 +21,9 @@
     <div class="panel-body">
         <p class="lead">Drag this into your browser's bookmarks bar:
             <span class="label label-primary"><i class="fa fa-bookmark"></i> <a class="bookmarklet"
-                                                                                                    href="javascript:Game.WriteSave();window.open('http://zeril.li/cookiesync/external?d=' + Game.WriteSave(1), 'CookieSync_Save', 'toolbar=no,scrollbars=yes,width=700,height=500');">Save
-                    to CookieSync</a></span>
+                                                                                href="@include('bookmark.script')">
+                    Enable CookieSync
+                </a></span>
         </p>
 
         <p>After that, just click that bookmark to store your game with CookieSync. When you use it, your game is saved
