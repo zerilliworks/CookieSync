@@ -10,7 +10,7 @@ namespace CookieSync\Traits;
 
 trait ModelBatchTrait {
 
-    private function gameBatch($batchSize = 10)
+    protected function gameBatch($batchSize = 10)
     {
         $globalGameCount = \Game::count();
 
@@ -23,7 +23,7 @@ trait ModelBatchTrait {
         }
     }
 
-    private function saveBatch($batchSize = 10)
+    protected function saveBatch($batchSize = 10)
     {
         $globalSaveCount = \Save::count();
 
@@ -36,15 +36,15 @@ trait ModelBatchTrait {
         }
     }
 
-    private function queryBatch($query, $batchSize = 10)
+    protected function queryBatch($query, $batchSize = 10)
     {
-        $globalSaveCount = $query->count();
+        $globalCount = $query->count();
 
-        for ($i = 0; $i < $globalSaveCount; $i += $batchSize)
+        for ($i = 0; $i < $globalCount; $i += $batchSize)
         {
-            foreach($query->skip($i)->take($batchSize)->get() as $save)
+            foreach($query->skip($i)->take($batchSize)->get() as $item)
             {
-                yield $save;
+                yield $item;
             }
         }
     }
