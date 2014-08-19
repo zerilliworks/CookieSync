@@ -78,7 +78,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
             }
 
-            Event::fire('cookiesync.newsave', array(&$model));
+            Event::fire('cookiesync.newsave', array($model));
         });
 
         static::created(function($model)
@@ -89,7 +89,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
         static::deleting(function ($model) {
 
-            Event::fire('cookiesync.savedeleted', array(&$model));
+            Event::fire('cookiesync.savedeleted', array($model));
 
             // Find out if this is the last save remaining in a game and
             // delete that game if it is.
@@ -480,6 +480,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
 
         $this->gameData['upgrades.binary']     = $upgrades;
         $this->gameData['achievements.binary'] = $achievements;
+        $this->gameData['upgrades.raw']        = $data[6];
+        $this->gameData['achievements.raw']    = $data[7];
 
 
         // Split upgrades into pairs of bits, split achievements into single bits
