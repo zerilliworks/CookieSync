@@ -24,12 +24,12 @@ class OptionsController extends BaseController {
 
     public function getBookmarklet()
     {
-        return View::make('bookmarklet');
+        return View::make('options.bookmarklet');
     }
 
     public function getDeleteUserView()
     {
-        return View::make('nukeme')->with('username', $this->user->name);
+        return View::make('options.nukeme')->with('username', $this->user->name);
     }
 
     public function postDeleteUserRequest()
@@ -56,7 +56,7 @@ class OptionsController extends BaseController {
 
     public function getResetPassword()
     {
-        return View::make('password');
+        return View::make('options.password');
     }
 
     public function postResetPassword()
