@@ -1,5 +1,6 @@
 <?php namespace CookieSync\Commands;
 
+use CookieSync\Traits\ModelBatchTrait;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +11,8 @@ use \Save;
 use \Game;
 
 class FixGamesCommand extends Command {
+
+    use ModelBatchTrait;
 
     /**
      * The console command name.
@@ -77,10 +80,37 @@ class FixGamesCommand extends Command {
         $gamelessSaves = Save::whereGameId(null)->count();
         $this->info("Found $gamelessSaves saves with no associated Game group.");
 
-        $brokenSaveCount = $orphanedSaves + $orphanedGames + $emptySaves + $gamelessSaves;
+        $epochlessSaves = Save::whereBakeryEpoch(null)->count();
+        $this->info("Found $epochlessSaves saves with no epoch date.");
+
+        $namelessSaves = Save::whereBakeryName(null)->count();
+        $this->info("Found $namelessSaves saves with no name.");
+
+        $this->info("Fsck-ing game data...");
+        $mislabeledGames = 0;
+        foreach($this->gameBatch() as $game) {
+            $gameName = $game->latestSave()->gameStat('bakery_name');
+            if($game->name !== $gameName && !empty($gameName))
+            {
+                $mislabeledGames++;
+            }
+        }
+        $this->info("Found $mislabeledGames games with an incorrect name.");
+
+        $brokenSaveCount = Save::whereNull('game_id')
+                               ->orWhereNull('saved_at')
+                               ->orWhereNull('save_data')
+                               ->orWhereNull('user_id')
+                               ->orWhereNull('bakery_epoch')
+                               ->orWhereNull('bakery_name')
+                               ->count();
 
         $this->info("There are $saveCount saves, $brokenSaveCount of which need fixing.");
 
+        if($brokenSaveCount == 0) {
+            $this->error('Nothing to fix.');
+            return;
+        }
 
         $this->error("MAKE A BACKUP BEFORE PROCEEDING.");
         if ($this->confirm("Shall we continue? [y|N]", false)) {
@@ -142,7 +172,7 @@ class FixGamesCommand extends Command {
             //
 
 
-            foreach (Save::all() as $save) {
+            foreach ($this->saveBatch() as $save) {
 
                 $errorCount = 0;
 
@@ -248,6 +278,19 @@ class FixGamesCommand extends Command {
                     Log::info("Save (id: $save->id) was repaired.");
                 }
 
+            }
+
+            foreach($this->gameBatch() as $game)
+            {
+                /*
+                 * Confirm that the game name matches the latest bakery name
+                */
+
+                $gameName = $game->latestSave()->gameStat('bakery_name');
+                if($game->name !== $gameName && !empty($gameName))
+                {
+                    $game->name = $gameName;
+                }
             }
 
             echo PHP_EOL;
