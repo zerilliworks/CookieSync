@@ -4,6 +4,7 @@
 // Date: 10/26/13
 // Time: 11:11 PM
 // For: CookieSync
+
 use Carbon\Carbon;
 use CookieSync\Stat\Income;
 
@@ -325,8 +326,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         if($this->caching && Cache::has("saves:$this->id:gamedata"))
         {
             $this->gameData = Cache::get("saves:$this->id:gamedata");
-            $this->gameData['date_saved'] = \Carbon\Carbon::parse($this->gameData['date_saved']);
-            $this->gameData['date_started'] = \Carbon\Carbon::parse($this->gameData['date_started']);
+            $this->gameData['date_saved'] = Carbon::parse($this->gameData['date_saved']);
+            $this->gameData['date_started'] = Carbon::parse($this->gameData['date_started']);
             return $this;
         }
 
@@ -340,7 +341,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
          *
          *  array[2] => game dates : semicolon-delimited list of timestamps
          *           ---
-         *           => [0 => startDate, 1 => fullDate, 2 => lastDate]
+         *           => [0 => startDate, 1 => fullDate, 2 => lastDate, 3 => bakeryName]
          *
          *
          *  array[3] => prefs : sequence of booleans, 0 or 1
@@ -380,16 +381,23 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         $this->decodedData   = $decodedData;
         $this->rawDataChunks = $data;
 
-        $dates        = explode(';', $data[2]);
+        $saveStats        = explode(';', $data[2]);
         $cookieStats  = explode(';', $data[4]);
         $upgrades     = $this->uncompressLargeBin($data[6]);
         $achievements = $this->uncompressLargeBin($data[7]);
 
         $this->gameData['game_version']                 = $data[0];
-        $this->gameData['date_started']                 =
-            \Carbon\Carbon::createFromTimestamp(substr($dates[0], 0, -3));
-        $this->gameData['date_saved']                   =
-            \Carbon\Carbon::createFromTimestamp(substr($dates[2], 0, -3));
+
+        $this->gameData['date_started']                 = Carbon::createFromTimestamp(substr($saveStats[0], 0, -3));    // Substr required to trim milliseconds that appear in JS timestamps
+        $this->gameData['date_saved']                   = Carbon::createFromTimestamp(substr($saveStats[2], 0, -3));
+
+        if(is_numeric($saveStats[1])) {
+            $this->gameData['bakery_epoch']             = Carbon::createFromTimestamp(substr($saveStats[1], 0, -3));
+        } else {
+            $this->gameData['bakery_epoch']             = $this->gameData['date_started'];
+        }
+
+        $this->gameData['bakery_name']                  = isset($saveStats[3]) ? $saveStats[3] : null;
         $this->gameData['banked_cookies']               = $this->expandScientific($cookieStats[0]);
         $this->gameData['raw_banked_cookies']           = $cookieStats[0];
         $this->gameData['alltime_cookies']              = $this->expandScientific($cookieStats[1]);
@@ -517,7 +525,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                                             'date_started' => $this->gameData['date_started']->toDateTimeString(),
                                             'date_saved' => $this->gameData['date_saved']->toDateTimeString(),
                                        ]
-                           ), \Carbon\Carbon::now()->addWeek());
+                           ), Carbon::now()->addWeek());
             }
             return $this;
         }
