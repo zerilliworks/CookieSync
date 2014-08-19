@@ -16,7 +16,6 @@ class AddBakeryNameToSavesTable extends Migration {
             $table->string('bakery_name')->nullable();
         });
 
-        Artisan::call('migratedata:bakery');
     }
 
     /**
