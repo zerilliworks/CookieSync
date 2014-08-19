@@ -48,7 +48,7 @@ class MigrateBakeryEpochCommand extends Command {
         $this->info("$noNameCount entries are missing a name.");
         $this->info("$saveCount entries need repair.");
         $i = 0;
-        foreach($this->queryBatch(\Save::whereNull('bakery_name')->orWhereNull('bakery_epoch')) as $save) {
+        foreach($this->saveBatch() as $save) {
             $save->noCache()->decode();
             if(empty($save->bakery_epoch)) {
                 $save->bakery_epoch = $save->gameStat('bakery_epoch');
@@ -57,8 +57,12 @@ class MigrateBakeryEpochCommand extends Command {
             if(empty($save->bakery_name)) {
                 $save->bakery_name = $save->gameStat('bakery_name');
             }
+
             $save->save();
-            $i++;
+
+            if (empty($save->bakery_name) || empty($save->bakery_epoch)) {
+                $i++;
+            }
             echo "\rMigrated $i out of $saveCount saves...";
         }
         echo PHP_EOL;
