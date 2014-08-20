@@ -32,7 +32,7 @@
             <p>Someone (hopefully you) has requested to change the email address on your CookieSync account. If this is what
                 you want, then click the link below or paste the URL into your browser to verify this email address. </p>
             <a href="{{ action('AuthController@getVerifyEmail', [$hash]) }}">{{ action('AuthController@getVerifyEmail', [$hash]) }}</a>
-            <p>If you did not request this, then you should change your password immediately.</p>
+            <p>This link will remain valid for the next 24 hours. If you don't wish to change your email address, simply ignore this message.</p>
             <small>This message was sent from an automated mail system and any replies will go unanswered.</small>
         </div>
     </body>
