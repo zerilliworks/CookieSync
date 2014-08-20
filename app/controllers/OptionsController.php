@@ -5,6 +5,8 @@
 // Time: 12:17 PM
 // For: CookieSync
 
+use CookieSync\Tools\Facades\EmailManager;
+
 
 class OptionsController extends BaseController {
 
