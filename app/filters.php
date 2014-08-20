@@ -35,7 +35,10 @@ App::after(function($request, $response)
 
 Route::filter('auth', function()
 {
-	if (Auth::guest()) return Redirect::route('login');
+	if (Auth::guest()) {
+        Session::reflash();
+        return Redirect::route('login');
+    }
 });
 
 
@@ -57,7 +60,10 @@ Route::filter('auth.basic', function()
 
 Route::filter('guest', function()
 {
-	if (Auth::check()) return Redirect::route('root');
+    if (Auth::check()) {
+        Session::reflash();
+        return Redirect::route('root');
+    }
 });
 
 /*

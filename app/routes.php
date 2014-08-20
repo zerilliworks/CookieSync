@@ -24,6 +24,8 @@ Route::get('cookiesync', [
     }
 ]);
 
+Route::get('cookiesync/verify/{hash}', 'AuthController@getVerifyEmail');
+
 Route::group(['prefix' => 'cookiesync'], function () {
     Route::get('access', ['as' => 'login', 'uses' => 'AuthController@getLoginView']);
     Route::post('access/login', 'AuthController@postLoginCredentials');
@@ -36,6 +38,7 @@ Route::group(['prefix' => 'cookiesync'], function () {
             return Redirect::route('root');
         }
     ]);
+    Route::controller('forgotpassword', 'RemindersController');
 });
 
 
@@ -94,6 +97,8 @@ Route::group(['before' => 'auth', 'prefix' => 'cookiesync'], function () // Auth
     Route::post('options/nukeme/doit', 'OptionsController@postDeleteUserRequest');
     Route::get('options/password', 'OptionsController@getResetPassword');
     Route::post('options/password', 'OptionsController@postResetPassword');
+    Route::get('options/email', 'OptionsController@getEmailOptions');
+    Route::post('options/email', 'OptionsController@postEmailOptions');
     Route::post('options/set/listlength', 'OptionsController@postSetListLength');
 
     Route::get('shared', 'SharesController@index');

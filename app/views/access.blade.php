@@ -169,6 +169,8 @@
         </div>
     </div>
 </div>
+@else
+@include('partials.alerts')
 @endif
 <div class="forms-wrapper animated">
 
@@ -181,8 +183,9 @@
             <div id="username-field" class="form-group">
                 {{ Form::text('username', null, ['class' => 'form-control', 'placeholder' => 'User name', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'spellcheck' => 'false', 'autofocus' => 'true']); }}
             </div>
-            {{ Form::password('password', ['class' => 'form-control', 'placeholder' => 'Passkey']) }}
+            {{ Form::password('password', ['class' => 'form-control', 'placeholder' => 'Password']) }}
             <button class="btn btn-lg btn-primary btn-block" type="submit">Let Me In!</button>
+            <a href="{{ action('RemindersController@getRemind') }}" class="btn btn-link btn-block btn-small text-center">Forgot your Password?</a>
 
         </div>
 

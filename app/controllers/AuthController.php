@@ -6,12 +6,15 @@
 // For: CookieSync
 
 
+use Carbon\Carbon;
+use Hashids\Hashids;
+
 class AuthController extends BaseController {
 
     public function __construct()
     {
         $this->beforeFilter('csrf', ['on' => 'post']);
-        $this->beforeFilter('guest');
+        $this->beforeFilter('guest', ['except' => 'getVerifyEmail']);
     }
 
     public function getLoginView()
@@ -80,6 +83,52 @@ class AuthController extends BaseController {
     {
         Auth::logout();
         return Redirect::to('cookiesync');
+    }
+
+
+    public function getVerifyEmail($hash)
+    {
+        Log::info("Verifying email with hash $hash");
+        $hashids     = new Hashids(Config::get('app.key'));
+        Log::info('Decrypting hash...');
+        $data        = $hashids->decrypt($hash);
+        $userId      = intval($data[0]);
+        $requestedAt = Carbon::createFromTimestamp($data[1]);
+
+        Log::info("User id:$userId requested reset " . $requestedAt->diffForHumans());
+
+        $user = User::find($userId);
+
+        if ($user->email_verified) {
+            // Abort, link is expired or already used
+            Log::info('Email already verified.');
+            return Redirect::route('cookiesync.mysaves.index')->with('status', "Email already verified.");
+        }
+
+        if ($hash !== $user->verify_hash) {
+            // Abort, link does not match user
+            Log::info('Verification hash isn\'t present on user.');
+            return Redirect::route('cookiesync.mysaves.index')->with('status', "Email verification link was bad.");
+        }
+
+        // Make sure the link is less than 24 hours old
+        // If older, void it and delete it.
+        if ($requestedAt->lt(Carbon::now()->subHours(24))) {
+            // Abort, link is expired or already used
+            Log::info('Link has expired');
+            return Redirect::route('cookiesync.mysaves.index')->with('status', "This link has expired.");
+        }
+
+        Log::info("Link looks good. Setting fields on user...");
+
+        $user->email_verified = 1;
+        $user->verify_hash = null;
+        $user->email = $user->pending_email;
+        $user->pending_email = null;
+        $user->save();
+
+        return Redirect::route('cookiesync.mysaves.index')->with('success', 'Your email address has been verified.');
+
     }
 
 }

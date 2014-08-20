@@ -68,19 +68,19 @@ class OptionsController extends BaseController {
         ];
 
         $messages = [
-          'confirmed' => 'Those passwords didn\'t match. Try again.',
-          'min'       => 'Passwords must be at least 6 characters long'
+            'confirmed' => 'Those passwords didn\'t match. Try again.',
+            'min'       => 'Passwords must be at least 6 characters long'
         ];
 
         $v = Validator::make($data, $rules, $messages);
 
-        if ($v->passes())
-        {
+        if ($v->passes()) {
             $this->user->password = Hash::make($data['password']);
             $this->user->save();
 
             return Redirect::action('OptionsController@getIndex')->withSuccess('Password has been reset!');
-        } else {
+        }
+        else {
             return Redirect::back()->withErrors($v);
         }
     }
@@ -90,7 +90,46 @@ class OptionsController extends BaseController {
         $this->user->preferred_pagination_length = Input::get('list-length');
         $this->user->save();
         Session::set('pagination_length', Input::get('list-length'));
+
         return Redirect::back();
+    }
+
+
+    public function getEmailOptions()
+    {
+        return View::make('options.email')->with('emailAddress', $this->user->email);
+    }
+
+    public function postEmailOptions()
+    {
+        $v = Validator::make(
+                      ['email' => Input::get('email')],
+                      ['email' => 'required|email|unique:users']
+        );
+
+        if ($v->passes()) {
+            $hashids             = new \Hashids\Hashids(Config::get('app.key'));
+            $user                = $this->user;
+            $newEmail            = Input::get('email');
+            $userId              = $user->getAuthIdentifier();
+            $verifyHash = $hashids->encrypt($userId, time());
+            $userName            = $user->name;
+
+            $user->email_verified = 0;
+            $user->pending_email = $newEmail;
+            $user->verify_hash   = $verifyHash;
+            $user->save();
+
+            Mail::send('emails.verify', ['hash' => $verifyHash, 'username' => $userName], function ($message) use ($userId, $newEmail, $userName) {
+                $message->to($newEmail, $userName)
+                        ->subject('Verify your Email Address');
+            });
+
+            return Redirect::action('OptionsController@getIndex')->withSuccess('Your Email Address has been updated! Look for a verification link in your inbox.');
+        }
+        else {
+            return Redirect::back()->withErrors($v);
+        }
     }
 
 } 

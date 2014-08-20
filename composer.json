@@ -19,7 +19,8 @@
         "cartalyst/sentry": "2.0.*",
 		"barryvdh/laravel-ide-helper": "1.*",
         "iron-io/iron_mq" : "1.4.8",
-        "pda/pheanstalk": "2.1.*"
+        "pda/pheanstalk": "2.1.*",
+		"hashids/hashids": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
