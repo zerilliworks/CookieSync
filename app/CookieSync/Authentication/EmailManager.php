@@ -19,6 +19,7 @@ use Illuminate\Auth\UserInterface;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Class EmailManager
@@ -54,7 +55,7 @@ class EmailManager {
         $userName = $recipient->name;
         $newEmail = $recipient->pending_email;
         $hash     = $recipient->verify_hash;
-        $this->mailer->send('emails.verify', ['hash' => $hash, 'username' => $userName],
+        Mail::send('emails.verify', ['hash' => $hash, 'username' => $userName],
             function ($message) use ($userId, $newEmail, $userName) {
                 $message->to($newEmail, $userName)
                         ->subject('Verify your Email Address');
