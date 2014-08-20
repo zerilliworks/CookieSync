@@ -43,8 +43,11 @@ class EmailManager {
     public function sendVerificationEmail(UserInterface $recipient)
     {
         if($recipient->email_verified) {
-            throw new AlreadyVerifiedException;
+            Log::info("Email address for $recipient->name is already verified.");
+            return $this;
         }
+
+        Log::info("Sending verification email to $recipient->pending_email");
 
         $userId = $recipient->getAuthIdentifier();
         $userName = $recipient->name;
@@ -56,6 +59,8 @@ class EmailManager {
                         ->subject('Verify your Email Address');
             });
 
+        Log::info("Mail sent.");
+
         return $this;
     }
 
@@ -63,11 +68,11 @@ class EmailManager {
      * Generate the hash and send the email for a user that has a pending address already set.
      *
      * @param UserInterface $user
-     * @param               $newEmail
-     * @return $this
      * @throws Exceptions\NoPendingEmailException
+     * @internal param $newEmail
+     * @return $this
      */
-    public function verifyPendingEmail(UserInterface $user, $newEmail)
+    public function verifyPendingEmail(UserInterface $user)
     {
         if(empty($user->pending_email)) {
             throw new NoPendingEmailException;
@@ -88,15 +93,20 @@ class EmailManager {
      */
     public function requestNewEmail(UserInterface $user, $newEmail)
     {
+        Log::info("User $user->name has requested a new email at $newEmail");
+        Log::info("Generating token hash...");
         $verifyHash = $this->generateHash($user->getAuthIdentifier());
 
+        Log::info("Updating user...");
         $user->email_verified = 0;
         $user->pending_email  = $newEmail;
         $user->verify_hash    = $verifyHash;
         $user->save();
 
+        Log::info("Sending verification email...");
         $this->sendVerificationEmail($user);
 
+        Log::info("Done.");
         return $this;
     }
 
@@ -143,11 +153,6 @@ class EmailManager {
 
         return true;
 
-    }
-
-    public function info()
-    {
-        return "Email token manager";
     }
 
     protected function generateHash($userId)

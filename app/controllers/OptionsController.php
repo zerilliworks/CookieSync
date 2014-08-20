@@ -104,15 +104,17 @@ class OptionsController extends BaseController {
 
     public function postEmailOptions()
     {
+        Log::info('Updating email settings for ' . $this->user->name);
         $v = Validator::make(
                       ['email' => Input::get('email')],
                       ['email' => 'required|email|unique:users']
         );
 
         if ($v->passes()) {
+            Log::info('New email is good, sending verification...');
             EmailManager::requestNewEmail($this->user, Input::get('email'));
 
-            return Redirect::action('OptionsController@getIndex')->withSuccess('Your Email Address has been updated! Look for a verification link in your inbox.');
+            return Redirect::action('OptionsController@getIndex')->with('success', 'Your Email Address has been updated! Look for a verification link in your inbox.');
         }
         else {
             return Redirect::back()->withErrors($v);
