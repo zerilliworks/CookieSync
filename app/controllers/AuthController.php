@@ -7,6 +7,7 @@
 
 
 use Carbon\Carbon;
+use CookieSync\Tools\Facades\EmailManager;
 use Hashids\Hashids;
 
 class AuthController extends BaseController {

@@ -112,7 +112,7 @@ class OptionsController extends BaseController {
         if ($v->passes()) {
             EmailManager::requestNewEmail($this->user, Input::get('email'));
 
-            return Redirect::action('OptionsController@getIndex')->withSuccess('Your Email Address has been updated! Look for a verification link in your inbox.');
+            return Redirect::action('OptionsController@getIndex')->with('success', 'Your Email Address has been updated! Look for a verification link in your inbox.');
         }
         else {
             return Redirect::back()->withErrors($v);
