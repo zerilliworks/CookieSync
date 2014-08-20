@@ -12,6 +12,7 @@ use CookieSync\Stat\GlobalCookieCounter;
 use Game;
 use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 use Log;
 use Save;
 
@@ -20,6 +21,19 @@ class GlobalStats {
     public function fire(Job $job, $data)
     {
         try {
+            if(Redis::exists('global_count_busy')) {
+                // Abort this, someone's already workin on it.
+                Log::info("Skipping computation in " . get_class($this));
+                $job->delete();
+                return;
+            }
+
+            // Otherwise, call dibs on the computation
+            Redis::pipeline(function($pipe) {
+                $pipe->set('global_count_busy', 1);
+                $pipe->expire('global_count_busy', 15 * 60);
+            });
+
             Log::info('Computing cookie total...');
             $counter = new GlobalCookieCounter(new Game, new Save);
 
@@ -30,8 +44,7 @@ class GlobalStats {
                 Cache::forever('sticky_global_cookie_count', $cookieTotal);
             }
 
-
-
+            Redis::del('global_count_busy');
             Log::info('Computing done in worker ' . get_class($this));
         }
         catch (\Exception $e) {
