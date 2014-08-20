@@ -181,7 +181,7 @@
             <a id="switch-to-register" class="btn btn-small btn-link btn-block" href="#">Or Create an Account</a>
             {{ Form::token() }}
             <div id="username-field" class="form-group">
-                {{ Form::text('username', null, ['class' => 'form-control', 'placeholder' => 'User name', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'spellcheck' => 'false', 'autofocus' => 'true']); }}
+                {{ Form::text('username', null, ['class' => 'form-control', 'placeholder' => 'User name or email', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'spellcheck' => 'false', 'autofocus' => 'true']); }}
             </div>
             {{ Form::password('password', ['class' => 'form-control', 'placeholder' => 'Password']) }}
             <button class="btn btn-lg btn-primary btn-block" type="submit">Let Me In!</button>
@@ -204,6 +204,7 @@
             <div id="username-field" class="form-group">
                 {{ Form::text('username', null, ['class' => 'form-control', 'placeholder' => 'User name', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'spellcheck' => 'false']); }}
             </div>
+            {{ Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Email address (optional)', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'spellcheck' => 'false']); }}
             {{ Form::password('password', ['placeholder' => 'Passkey', 'class' => 'form-control', 'style' => 'margin-bottom: -1px; border-radius: 0;']) }}
             {{ Form::password('password_confirmation', ['placeholder' => 'Confirm Passkey', 'class' => 'form-control']) }}
             <div id="asirra-wrapper"
