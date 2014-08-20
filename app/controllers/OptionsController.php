@@ -108,22 +108,7 @@ class OptionsController extends BaseController {
         );
 
         if ($v->passes()) {
-            $hashids             = new \Hashids\Hashids(Config::get('app.key'));
-            $user                = $this->user;
-            $newEmail            = Input::get('email');
-            $userId              = $user->getAuthIdentifier();
-            $verifyHash = $hashids->encrypt($userId, time());
-            $userName            = $user->name;
-
-            $user->email_verified = 0;
-            $user->pending_email = $newEmail;
-            $user->verify_hash   = $verifyHash;
-            $user->save();
-
-            Mail::send('emails.verify', ['hash' => $verifyHash, 'username' => $userName], function ($message) use ($userId, $newEmail, $userName) {
-                $message->to($newEmail, $userName)
-                        ->subject('Verify your Email Address');
-            });
+            EmailManager::requestNewEmail($this->user, Input::get('email'));
 
             return Redirect::action('OptionsController@getIndex')->withSuccess('Your Email Address has been updated! Look for a verification link in your inbox.');
         }

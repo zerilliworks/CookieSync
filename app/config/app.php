@@ -13,7 +13,7 @@ return array(
 	|
 	*/
 
-	'debug' => false,
+	'debug' => true,
 
 	/*
 	|--------------------------------------------------------------------------
@@ -118,6 +118,7 @@ return array(
         'CookieSync\Tools\Observers\ObserversServiceProvider',
         'CookieSync\Cache\CacheServiceProvider',
         'CookieSync\Events\EventSubServiceProvider',
+        'CookieSync\Authentication\EmailManagerServiceProvider',
 
 	),
 
@@ -192,6 +193,7 @@ return array(
 
         'Income'          => 'CookieSync\Stat\Income',
         'ObjectCache'     => 'CookieSync\Tools\Facades\ObjectCacheFacade',
+        'EmailManager'    => 'CookieSync\Tools\Facades\EmailManager',
 
 	),
 
