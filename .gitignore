@@ -1,1 +1,4 @@
 app/database/cookiesync.sqlite
+vendor/
+.idea/
+.vagrant/
