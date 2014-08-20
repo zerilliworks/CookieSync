@@ -18,6 +18,7 @@ use Hashids\Hashids;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class EmailManager
