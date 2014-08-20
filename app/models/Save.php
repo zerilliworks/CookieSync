@@ -151,17 +151,13 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
         $shr          = new SharedSave();
         $shr->save_id = $this->id;
         $this->sharedInstance()->save($shr);
-        if ($this->save()) {
-            $this->is_shared = 1;
-            $this->save();
+        $this->is_shared = 1;
+        $this->save();
 
-            Event::fire('cookiesync.saveshared', $this);
+        Event::fire('cookiesync.saveshared', $this);
 
-            return $shr;
-        }
-        else {
-            return false;
-        }
+        return $shr;
+
     }
 
     /**
