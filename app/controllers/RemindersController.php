@@ -19,6 +19,12 @@ class RemindersController extends Controller {
 	 */
 	public function postRemind()
 	{
+        // Make sure the user has verified their email address
+        $user = User::wherePendingEmail(Input::get('email'))->first();
+        if($user && $user->email_verified == 0) {
+            return Redirect::back()->with('error', Lang::get('reminders.unverified'));
+        }
+
 		switch ($response = Password::remind(Input::only('email')))
 		{
 			case Password::INVALID_USER:
@@ -39,7 +45,9 @@ class RemindersController extends Controller {
 	{
 		if (is_null($token)) App::abort(404);
 
-		return View::make('password.reset')->with('token', $token);
+        $emailAddress = DB::table('password_reminders')->whereToken($token)->pluck('email');
+
+		return View::make('password.reset')->with(['token' => $token, 'emailAddress' => $emailAddress]);
 	}
 
 	/**
@@ -68,7 +76,7 @@ class RemindersController extends Controller {
 				return Redirect::back()->with('error', Lang::get($response));
 
 			case Password::PASSWORD_RESET:
-				return Redirect::to('/');
+				return Redirect::route('login');
 		}
 	}
 

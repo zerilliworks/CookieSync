@@ -13,7 +13,7 @@
 @endif
 
 @if(Session::has('status'))
-<div class="alert  alert-danger alert-info">
+<div class="alert  alert-info">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
     <strong></strong> {{ Session::get('status') }}
 </div>
