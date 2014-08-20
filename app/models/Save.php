@@ -328,6 +328,7 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
             $this->gameData = Cache::get("saves:$this->id:gamedata");
             $this->gameData['date_saved'] = Carbon::parse($this->gameData['date_saved']);
             $this->gameData['date_started'] = Carbon::parse($this->gameData['date_started']);
+            $this->gameData['bakery_epoch'] = Carbon::parse($this->gameData['bakery_epoch']);
             return $this;
         }
 
@@ -523,7 +524,8 @@ class Save extends Eloquent implements \Illuminate\Support\Contracts\JsonableInt
                            array_merge($this->gameData,
                                        [
                                             'date_started' => $this->gameData['date_started']->toDateTimeString(),
-                                            'date_saved' => $this->gameData['date_saved']->toDateTimeString(),
+                                            'bakery_epoch' => $this->gameData['bakery_epoch']->toDateTimeString(),
+                                            'date_saved'   => $this->gameData['date_saved']->toDateTimeString(),
                                        ]
                            ), Carbon::now()->addWeek());
             }
